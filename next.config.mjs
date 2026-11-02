@@ -1,6 +1,15 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { allowRestrictedDevMetrics } from "./scripts/dev-memory.mjs";
 
 allowRestrictedDevMetrics();
+
+const root = path.dirname(fileURLToPath(import.meta.url));
+const storyweaveReal = path.join(root, "src/components/storyweave/storyweave-app.tsx");
+const storyweavePending = path.join(root, "src/components/storyboard/storyweave-pending.tsx");
+const storyweaveApp = existsSync(storyweaveReal) ? storyweaveReal : storyweavePending;
+const storyweaveAlias = `./${path.relative(root, storyweaveApp)}`;
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
@@ -23,6 +32,12 @@ const nextConfig = {
   outputFileTracingIncludes: { "/studio-agent/chat": ["./public/agent/knowledge.json"] },
   async headers() {
     return [{ source: "/comfy-media-sw.js", headers: [{ key: "Cache-Control", value: "no-cache" }, { key: "Service-Worker-Allowed", value: "/" }] }];
+  },
+  // ?storyboard=sw mounts src/components/storyweave/storyweave-app.tsx when that file exists.
+  turbopack: { resolveAlias: { "storyweave-app": storyweaveAlias } },
+  webpack(config) {
+    config.resolve.alias = { ...config.resolve.alias, "storyweave-app": storyweaveApp };
+    return config;
   },
 };
 

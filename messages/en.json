@@ -3168,7 +3168,9 @@
       "son": "Sound",
       "sonLine": "Voice, music, sound effects",
       "storyboard": "Make a storyboard",
-      "storyboardLine": "Uttu turns this story into a storyboard you can watch. Nothing is filmed until you approve."
+      "storyboardLine": "Uttu turns this story into a storyboard you can watch. Nothing is filmed until you approve.",
+      "storyboardSoon": "Soon",
+      "storyboardSoonLine": "StoryWeave is coming. Boards you already made stay where they are."
     },
     "settings": "Settings",
     "rendu": {

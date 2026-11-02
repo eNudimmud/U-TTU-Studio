@@ -3168,7 +3168,9 @@
       "son": "Sonido",
       "sonLine": "Voz, música, efectos",
       "storyboard": "Hacer un guion gráfico",
-      "storyboardLine": "Uttu lo convierte en un storyboard que puedes ver. No se filma nada hasta que lo apruebas."
+      "storyboardLine": "Uttu lo convierte en un storyboard que puedes ver. No se filma nada hasta que lo apruebas.",
+      "storyboardSoon": "Pronto",
+      "storyboardSoonLine": "StoryWeave está en camino. Tus storyboards se quedan donde están."
     },
     "settings": "Ajustes",
     "rendu": {

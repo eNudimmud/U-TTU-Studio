@@ -1,7 +1,12 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { STORYBOARD_CLOSED } from '../src/app/storyboard/closed';
 import { simulateComfy } from './helpers/film2-comfy';
+
+test.beforeEach(() => {
+  test.skip(STORYBOARD_CLOSED, 'the storyboard is closed until StoryWeave; flip STORYBOARD_CLOSED in src/app/storyboard/closed.ts');
+});
 
 // The agent is mocked: TextGenerate answers are local JSON. No request leaves for Comfy or fal.
 // Stories vary (French, two places, no dialogue, an unknown name). U1.1 is the default; ?storyboard=u11 still opens it.

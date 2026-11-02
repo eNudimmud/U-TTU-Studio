@@ -3168,7 +3168,9 @@
       "son": "Son",
       "sonLine": "Voix, musique, bruitages",
       "storyboard": "Faire un storyboard",
-      "storyboardLine": "Uttu en fait un storyboard que tu peux regarder. Rien n'est filmé tant que tu n'as pas approuvé."
+      "storyboardLine": "Uttu en fait un storyboard que tu peux regarder. Rien n'est filmé tant que tu n'as pas approuvé.",
+      "storyboardSoon": "Bientôt",
+      "storyboardSoonLine": "StoryWeave arrive. Tes storyboards restent où ils sont."
     },
     "settings": "Réglages",
     "rendu": {

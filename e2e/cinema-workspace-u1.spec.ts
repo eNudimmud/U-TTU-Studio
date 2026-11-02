@@ -2,7 +2,12 @@ import { expect, test, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { simulateComfy } from './helpers/film2-comfy';
+import { STORYBOARD_CLOSED } from '../src/app/storyboard/closed';
 import { legacyStoryboard } from './helpers/storyboard-flag';
+
+test.beforeEach(() => {
+  test.skip(STORYBOARD_CLOSED, 'the storyboard is closed until StoryWeave; flip STORYBOARD_CLOSED in src/app/storyboard/closed.ts');
+});
 
 // CE4 · U1 cinema workspace (docs/architecture/UX_REVIEW.md, prototypes/uttu-cinema-u1.html): one selectable
 // shot strip, the selected shot large with its caption, a « Context » disclosure, one Uttu composer scoped to

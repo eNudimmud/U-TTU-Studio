@@ -1,6 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
+import { STORYBOARD_CLOSED } from '../src/app/storyboard/closed';
 import { simulateComfy } from './helpers/film2-comfy';
+
+test.beforeEach(() => {
+  test.skip(STORYBOARD_CLOSED, 'the storyboard is closed until StoryWeave; flip STORYBOARD_CLOSED in src/app/storyboard/closed.ts');
+});
 
 // B2: a simulated storyboard shot is filed on its plan and on the cut once, even if the page
 // is left while the job is still running. Comfy is mocked. Nothing is spent and nothing is cancelled.

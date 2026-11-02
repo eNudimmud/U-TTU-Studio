@@ -1,7 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 import { simulateComfy } from './helpers/film2-comfy';
+import { STORYBOARD_CLOSED } from '../src/app/storyboard/closed';
 import { legacyStoryboard } from './helpers/storyboard-flag';
+
+test.beforeEach(() => {
+  test.skip(STORYBOARD_CLOSED, 'the storyboard is closed until StoryWeave; flip STORYBOARD_CLOSED in src/app/storyboard/closed.ts');
+});
 
 // CE5 · P0 journey, integrated (docs/architecture CE5 §5): write a board, select a shot, a plain request is
 // read for that shot only, undo, the footer's one video exit opens the real MONTAGE, and the session resumes on

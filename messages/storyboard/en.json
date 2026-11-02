@@ -314,7 +314,20 @@
     "entry": {
       "title": "Storyboard",
       "lead": "Tell the story. Uttu writes a storyboard you can watch. Nothing is filmed until you approve.",
-      "open": "Open the storyboards"
+      "open": "Open the storyboards",
+      "soon": "Soon",
+      "soonLead": "StoryWeave is coming. Boards you already made stay where they are.",
+      "soonOpen": "See what's coming"
+    },
+    "hold": {
+      "eyebrow": "StoryWeave",
+      "title": "Your story, woven shot by shot.",
+      "gold": "woven",
+      "coming": "StoryWeave is coming",
+      "body": "The new storyboard — talk with Uttu, a panel, a 4-track timeline — arrives soon. Boards you already made stay where they are. Nothing is deleted or migrated.",
+      "back": "Back to the studio",
+      "home": "Home",
+      "alt": "Uttu"
     },
     "ws": {
       "selectShot": "Select a shot",
