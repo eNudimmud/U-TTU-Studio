@@ -45,5 +45,6 @@ export default async function StoryboardPage({ params, searchParams }: {
   // The storyboard's words come with the HTML: the page paints on the first frame, not after a client fetch.
   const locale = await requestLocale();
   const messages = await loadStoryboardCatalog(locale);
-  return <StoryboardApp id={board} print={mode === "print"} u11={storyboardU11Actif(query, null)} initial={{ locale, messages }} />;
+  // StoryWeave mounts only here. The closed-storyboard gate can keep every other mode on its own page.
+  return <StoryboardApp id={board} print={mode === "print"} u11={storyboardU11Actif(query, null)} sw={asked === "sw"} initial={{ locale, messages }} />;
 }

@@ -14,6 +14,7 @@ import { garderPrise } from "@/lib/film/registre";
 import { assetPath } from "@/lib/site";
 import { appliquerCorrection, lireCorrection, lireReglage, type Correction } from "@/lib/storyboard/corriger";
 import { arreterEntreLesPlans, persistStoryboardU11, storyboardLayoutQuery } from "@/lib/storyboard/u11";
+import { storyboardSwActif } from "@/lib/storyboard/storyweave";
 import { devisStoryboard, plansATourner, reglagesDuPlan } from "@/lib/storyboard/devis";
 import { definirPersonnage, ecrireStoryboard, type Gabarits, type Question } from "@/lib/storyboard/ecrire";
 import { catalogue, contexteDuCatalogue } from "@/lib/storyboard/identites";
@@ -33,6 +34,7 @@ import { UttuColumn, type Bulle, type Ecrit } from "./storyboard-uttu";
 import { useStoryboards, type Storyboards } from "./use-storyboards";
 import { planChoisi, Workspace } from "./storyboard-workspace";
 import { U11Storyboard } from "./storyboard-u11";
+import { StoryWeave } from "../storyweave/storyweave";
 
 const FILTRES: Filtre[] = ["tous", "en-cours", "tournes", "archives"];
 const nouvelIdCourt = () => Math.random().toString(36).slice(2, 8);
@@ -41,7 +43,7 @@ function adresse(id: string | null, print = false) {
   return assetPath(id ? `/storyboard/${id}${print ? "/print" : ""}` : "/storyboard") + storyboardLayoutQuery();
 }
 
-export function StoryboardPage({ initialId, print, initialU11 = false }: { initialId: string | null; print: boolean; initialU11?: boolean }) {
+export function StoryboardPage({ initialId, print, initialU11 = false, initialSw = false }: { initialId: string | null; print: boolean; initialU11?: boolean; initialSw?: boolean }) {
   const studio = useStudio();
   const { t } = useI18n();
   const messages = useMessages() as unknown as { storyboard: { gabarits: Gabarits } };
@@ -60,6 +62,7 @@ export function StoryboardPage({ initialId, print, initialU11 = false }: { initi
   const [ecriture, setEcriture] = useState(false);
   const [ideeInitiale, setIdeeInitiale] = useState("");
   const [u11, setU11] = useState(initialU11);
+  const [sw, setSw] = useState(initialSw);
 
   // Address ↔ page without a server round trip; the back button works.
   useEffect(() => {
@@ -68,6 +71,7 @@ export function StoryboardPage({ initialId, print, initialU11 = false }: { initi
       setCurrentId(match?.[1] ?? null);
       setOuvert(null);
       setU11(persistStoryboardU11(window.location.search));
+      setSw(storyboardSwActif(window.location.search));
       try { setIdeeInitiale(new URLSearchParams(window.location.search).get("idee")?.slice(0, 240) ?? ""); } catch { /* no address */ }
     };
     sync();
@@ -274,6 +278,13 @@ export function StoryboardPage({ initialId, print, initialU11 = false }: { initi
   const portee = sb && choix ? tousLesPlans(sb).findIndex(plan => plan.id === choix.plan.id) + 1 : null;
   const saveFailed = data.echecEcriture || sauvegarde === "failed";
   const saveLabel = saveFailed ? t("storyboard.ws.saveFailed") : sauvegarde === "saving" ? t("storyboard.ws.saving") : t("storyboard.ws.saved");
+
+  if (sw && !print) {
+    return <>
+      <StoryWeave sb={sb} data={data} known={known} aller={aller} onStart={lancer} filming={Boolean(file)} seed={ideeInitiale} ready={studio.ready && data.charge} />
+      {dark && <div className="u-app sb-dark">{dark}</div>}
+    </>;
+  }
 
   if (u11 && !print) {
     return <div className="sb-root" data-theme="obsidian" data-view="u11" data-storyboard-page="" data-u11="" data-ready={studio.ready && data.charge ? "true" : "false"}>
