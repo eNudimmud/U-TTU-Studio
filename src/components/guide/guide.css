@@ -1,6 +1,12 @@
 .g-top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; height: 60px; padding: 0 20px; background: rgba(15,15,17,.92); backdrop-filter: blur(10px); }
-.g-crumb { color: var(--fg-2); font-size: 14px; }
-.g-sp { flex: 1; }
+.g-crumb { color: var(--fg-2); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.g-top .g-link, .g-top .u-secondary { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; min-width: 0; display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); text-decoration: none; width: auto; max-width: 42vw; padding: 0; border: 0; background: transparent; }
+.g-sp { flex: 1; min-width: 0; }
+/* Progressive disclosure: on a narrow phone the page title already says where you are, so the
+   wayfinding crumb gives way first, keeping the brand and the two live controls from overlapping. */
+@media (max-width: 480px) {
+  .g-crumb { display: none; }
+}
 .g-wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px 96px; }
 .g-hero { padding: 64px 0 8px; max-width: 720px; }
 .g-hero h1 { font: 400 clamp(42px, 6vw, 68px)/1.02 var(--font-title), Georgia, serif; margin: 14px 0 16px; letter-spacing: -.015em; }
