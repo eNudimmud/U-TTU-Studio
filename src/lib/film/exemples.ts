@@ -9,7 +9,7 @@ export type ExempleType = "image" | "video";
 
 /** What the visitor brings: a house reference (imported into their project when redone) or a text. */
 export type ExempleAvant =
-  | { kind: "cast" | "decor"; nom: string; image: string; thumb: string }
+  | { kind: "cast" | "decor"; nom: string; image: string; thumb: string; /** Author and licence of a borrowed photo, always shown. */ credit?: string }
   | { kind: "texte"; texte: string };
 
 export type ExempleRefaire =
@@ -46,10 +46,11 @@ export const EXEMPLES_FILM: readonly Exemple[] = [
     refaire: { vers: "plan", rendu: "rapide" },
   },
   {
+    // A real street photo turned into a set by the studio's own decor-photo tool (FLUX.3 Klein edit).
     id: "lieuPhoto", type: "image",
     titre: "film2.exemples.lieuPhoto.titre",
-    avant: [{ kind: "decor", nom: "Le quai, la nuit", image: "/exemples/decor-quai-nuit.webp", thumb: "/exemples/decor-quai-nuit-640.webp" }],
-    apres: { image: "/exemples/apres-decor-photo-640.webp" },
+    avant: [{ kind: "decor", nom: "Place Saint-François, Lausanne", image: "/exemples/decor-photo-sf-avant-640.webp", thumb: "/exemples/decor-photo-sf-avant-640.webp", credit: "Photo © jo2sm · Panoramax · CC-BY-SA 4.0" }],
+    apres: { image: "/exemples/decor-photo-sf-apres-640.webp" },
     refaire: { vers: "decor", geste: "decor-photo" },
   },
   {

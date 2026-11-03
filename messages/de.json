@@ -60,7 +60,7 @@
     "showLead": "Eine Figur, die ihr Gesicht von Einstellung zu Einstellung behält, eine Kulisse aus einem Text oder einem Foto, ein echter Ort, auf der Karte erkundet. Alles mit den Modellen von ComfyUI.",
     "g1Tag": "BESETZUNG",
     "g1": "Eine Figur, dieselbe in jeder Einstellung.",
-    "g1Alt": "Nahaufnahme von Uttu, mit Kapuze und goldenen Adern",
+    "g1Alt": "Uttu, eine verhüllte spinnenartige Göttin der Schöpfung, auf einem nächtlichen Kai",
     "g2Tag": "KULISSE · TAKE",
     "g2": "Eine Kulisse, ein Licht, eine Bewegung.",
     "g2Alt": "Ein Kurier in gelber Jacke in einem verlassenen Bahnhof, Lichtstrahlen",
@@ -140,7 +140,7 @@
       },
       "video": {
         "name": "Treues Video",
-        "body": "Referenztreu mit MiniMax H3 (≈ 4 Credits geschätzt), FastH3 als zweites Modell hält den Ort besser (≈ 8). Treue Schlüsselbilder (≈ 14), Stilübergang (≈ 7)."
+        "body": "Referenztreu mit MiniMax H3 (≈ 4 Credits geschätzt), FastH3 als zweites Modell hält den Ort besser (≈ 8). Treue Keyframes (≈ 14), Stilübergang (≈ 7)."
       },
       "son": {
         "name": "Ton für dein Video",
@@ -2229,7 +2229,7 @@
         "line": "Hält Figuren und Ort stabil."
       },
       "vid-multi": {
-        "title": "Treue Schlüsselbilder",
+        "title": "Treue Keyframes",
         "line": "Behält die Figur des ersten Bilds und endet auf dem zweiten, mit Ton."
       },
       "vid-transition-style": {
@@ -2947,7 +2947,7 @@
       "lead": "Für eine Aktion in deinem Projekt teilt der Plan die Arbeit in Schritte und öffnet das richtige Modul."
     },
     "tabs": {
-      "cast": "Deine Figuren: aus Text oder Fotos, dann ihr Ansichtenblatt.",
+      "cast": "Deine Figuren: aus Text oder Fotos, dann ihr Model Sheet.",
       "decor": "Deine Orte: aus Text oder einem Foto, Tageszeit, Wetter, ein Objekt.",
       "prise": "Deine Videoeinstellungen: eine Figur in einer Kulisse, ein Anschluss, eine Kamerafahrt.",
       "montage": "Du fügst deine Takes zusammen, ergänzt Stimme, Musik und Effekte und exportierst.",
@@ -3038,7 +3038,7 @@
       "which": {
         "q": "Welches Werkzeug soll ich nehmen?",
         "k": "welches werkzeug werkzeuge wählen bedarf bibliothek familie rat empfehlen Winkel Kamera Mehrkamera Licht Geräusch trennen Übergang Schlüsselbilder",
-        "a": "Ein Bild: Schnelles Bild. Figur oder Ort beibehalten: Besetzung, Kulisse, Referenzen. Andere Blickwinkel: Acht Figurenwinkel, Acht Kulissenwinkel, Kamera bewegen. Ein Video: die Blase auf Video, oder Take; mit Referenzen: Referenztreues Video; zwei Schlüsselbilder: Treue Schlüsselbilder; wechselnder Stil: Stilübergang. Mehrere Kameras: Acht Figurenwinkel, dann „Einstellung, zweites Modell“: ≈ 14 Credits, je weiterer Winkel ≈ 4. Retusche: Ändern, Erweitern, Freistellen, Größer und schärfer, Licht ändern („Licht nach Anweisung“, oder „Studioporträt“ als zweites Modell). Ton: Stimme, Musik, Geräusch, Geräusche für ein Video, Stimme und Musik trennen."
+        "a": "Ein Bild: Schnelles Bild. Figur oder Ort beibehalten: Besetzung, Kulisse, Referenzen. Andere Blickwinkel: Acht Figurenwinkel, Acht Kulissenwinkel, Kamera bewegen. Ein Video: die Blase auf Video, oder Take; mit Referenzen: Referenztreues Video; zwei Schlüsselbilder: Treue Keyframes; wechselnder Stil: Stilübergang. Mehrere Kameras: Acht Figurenwinkel, dann „Einstellung, zweites Modell“: ≈ 14 Credits, je weiterer Winkel ≈ 4. Retusche: Ändern, Erweitern, Freistellen, Größer und schärfer, Licht ändern („Licht nach Anweisung“, oder „Studioporträt“ als zweites Modell). Ton: Stimme, Musik, Geräusch, Geräusche für ein Video, Stimme und Musik trennen."
       },
       "projects": {
         "q": "Wo sind meine Projekte?",
@@ -3084,7 +3084,7 @@
     "alias": {
       "cast-texte": "porträt, figur, gesicht, figur text",
       "cast-photos": "figur foto, porträt foto",
-      "cast-planche": "ansichtenblatt, blatt",
+      "cast-planche": "ansichtenblatt, model sheet, blatt",
       "cast-tenue": "outfit, frisur",
       "decor-texte": "kulisse, ort",
       "decor-photo": "kulisse foto, ort foto",
@@ -3724,7 +3724,7 @@
       },
       "persoTexte": {
         "titre": "Eine Figur aus einem Satz",
-        "texte": "Ein alter Mann, eine erfundene Figur."
+        "texte": "Alter bretonischer Fischer, Anfang siebzig, marineblaue Schiebermütze aus Wolle, geölte marineblaue Cabanjacke über einem cremefarbenen Zopfstrickpullover, kurze weiße Stoppeln, abgetragene Lederstiefel. Character Turnaround: vorne, Dreiviertel, Profil, hinten. Weiches Studiolicht, mittelgrauer Hintergrund."
       }
     }
   },
@@ -3751,21 +3751,21 @@
     },
     "cast-coursiere": {
       "title": "Die Kurierin",
-      "prompt": "Eine Kurierin, Ansichtenblatt, fiktive Figur."
+      "prompt": "Junge Kurierin, dunkler lockiger Bob, senfgelbe Regenjacke, olivfarbene Umhängetasche aus Canvas, schwarze Cargohose, schwarze Sneaker. Character turnaround: vorne, Dreiviertel, Profil, hinten. Weiches Studiolicht, neutraler grauer Hintergrund."
     },
     "cast-vieil-homme": {
       "title": "Der alte Mann",
-      "prompt": "Ein alter Mann, Ansichtenblatt, fiktive Figur."
+      "prompt": "Alter Mann, etwa 75, graue Tweed-Schiebermütze, kurzer weißer Bart, anthrazitfarbener Wollmantel, schwarzer Strickschal, abgetragene braune Lederstiefel. Character turnaround: Close-up, Dreiviertel, Profil, Ganzkörper. Weiches Studiolicht, neutraler grauer Hintergrund."
     },
     "cast-dj": {
       "title": "DJ",
-      "prompt": "Ein DJ, Ansichtenblatt, fiktive Figur."
+      "prompt": "DJ, blondierter Buzz Cut, goldene Creolen, mehrere Goldketten, schwarze Bomberjacke, Kopfhörer um den Hals, schwarze Kampfstiefel. Character turnaround: Close-up, Dreiviertel, Profil, Ganzkörper. Weiches Studiolicht, neutraler grauer Hintergrund."
     }
   },
   "demoPrompts": {
-    "demo-coursiere": "Eine Kurierin, Ansichtsbogen, fiktive Figur.",
-    "demo-vieil-homme": "Ein alter Mann, Ansichtsbogen, fiktive Figur.",
-    "demo-dj": "Ein DJ, Ansichtsbogen, fiktive Figur.",
+    "demo-coursiere": "Junge Kurierin, dunkler lockiger Bob, senfgelbe Regenjacke, olivfarbene Umhängetasche aus Canvas, schwarze Cargohose, schwarze Sneaker. Character turnaround: vorne, Dreiviertel, Profil, hinten. Weiches Studiolicht, neutraler grauer Hintergrund.",
+    "demo-vieil-homme": "Alter Mann, etwa 75, graue Tweed-Schiebermütze, kurzer weißer Bart, anthrazitfarbener Wollmantel, schwarzer Strickschal, abgetragene braune Lederstiefel. Character turnaround: Close-up, Dreiviertel, Profil, Ganzkörper. Weiches Studiolicht, neutraler grauer Hintergrund.",
+    "demo-dj": "DJ, blondierter Buzz Cut, goldene Creolen, mehrere Goldketten, schwarze Bomberjacke, Kopfhörer um den Hals, schwarze Kampfstiefel. Character turnaround: Close-up, Dreiviertel, Profil, Ganzkörper. Weiches Studiolicht, neutraler grauer Hintergrund.",
     "demo-quai": "Ein Kai bei Nacht, schwarzes Wasser, ferne Lichter, menschenleer.",
     "demo-gare": "Eine Bahnhofshalle, leer, kaltes Licht, menschenleer.",
     "demo-pluie": "Eine Straße im Regen, verschwommene Lichter, menschenleer.",

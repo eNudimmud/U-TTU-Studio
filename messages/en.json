@@ -60,7 +60,7 @@
     "showLead": "A character who keeps the same face from shot to shot, a set made from a text or a photo, a real place scouted on the map. All with ComfyUI models.",
     "g1Tag": "CAST",
     "g1": "One character, the same in every shot.",
-    "g1Alt": "Close-up of Uttu, hooded, with golden veins",
+    "g1Alt": "Uttu, a hooded arachnid goddess of creation on a night quay",
     "g2Tag": "SET · SHOOT",
     "g2": "A set, a light, a move.",
     "g2Alt": "A courier in a yellow jacket in an abandoned station, rays of light",
@@ -3724,7 +3724,7 @@
       },
       "persoTexte": {
         "titre": "A character from a sentence",
-        "texte": "An old man, a fictional character."
+        "texte": "Retired Breton fisherman, early seventies, navy wool flat cap, oiled navy pea coat over a cream cable-knit sweater, short white stubble, worn leather boots. Character turnaround: front, three-quarter, profile, back. Soft studio light, mid-grey backdrop."
       }
     }
   },
@@ -3751,21 +3751,21 @@
     },
     "cast-coursiere": {
       "title": "The courier",
-      "prompt": "A courier, character turnaround sheet, fictional character."
+      "prompt": "Young courier, dark curly bob, mustard-yellow rain jacket, olive canvas messenger bag, black cargo trousers, black sneakers. Character turnaround: front, three-quarter, profile, back. Soft studio light, neutral grey backdrop."
     },
     "cast-vieil-homme": {
       "title": "The old man",
-      "prompt": "An old man, character turnaround sheet, fictional character."
+      "prompt": "Old man, about 75, grey tweed flat cap, short white beard, charcoal wool overcoat, black knitted scarf, worn brown leather boots. Character turnaround: close-up, three-quarter, profile, full body. Soft studio light, neutral grey backdrop."
     },
     "cast-dj": {
       "title": "DJ",
-      "prompt": "A DJ, character turnaround sheet, fictional character."
+      "prompt": "DJ, bleached buzz cut, gold hoop earrings, layered gold chains, black bomber jacket, headphones around the neck, black combat boots. Character turnaround: close-up, three-quarter, profile, full body. Soft studio light, neutral grey backdrop."
     }
   },
   "demoPrompts": {
-    "demo-coursiere": "A courier, character sheet, fictional character.",
-    "demo-vieil-homme": "An old man, character sheet, fictional character.",
-    "demo-dj": "A DJ, character sheet, fictional character.",
+    "demo-coursiere": "Young courier, dark curly bob, mustard-yellow rain jacket, olive canvas messenger bag, black cargo trousers, black sneakers. Character turnaround: front, three-quarter, profile, back. Soft studio light, neutral grey backdrop.",
+    "demo-vieil-homme": "Old man, about 75, grey tweed flat cap, short white beard, charcoal wool overcoat, black knitted scarf, worn brown leather boots. Character turnaround: close-up, three-quarter, profile, full body. Soft studio light, neutral grey backdrop.",
+    "demo-dj": "DJ, bleached buzz cut, gold hoop earrings, layered gold chains, black bomber jacket, headphones around the neck, black combat boots. Character turnaround: close-up, three-quarter, profile, full body. Soft studio light, neutral grey backdrop.",
     "demo-quai": "A quay at night, black water, distant lights, no one in frame.",
     "demo-gare": "A station hall, empty, cold light, no one in frame.",
     "demo-pluie": "A street in the rain, blurred lights, no one in frame.",

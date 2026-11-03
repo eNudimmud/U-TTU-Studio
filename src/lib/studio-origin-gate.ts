@@ -34,7 +34,8 @@ export function studioOriginGate(request: Request, options: { basePath?: string;
     host: headers.get("x-forwarded-host") ?? headers.get("host") ?? raw.host,
     method: request.method,
     isDocument,
-    hopCookie: cookieValue(cookies, HOP_COOKIE) === "1",
+    hopCookie: cookieValue(cookies, HOP_COOKIE),
+    fetchSite: headers.get("sec-fetch-site"),
     locale: isLocale(explicit) ? explicit : null,
   }, config);
   if (decision.kind === "pass") return null;
@@ -42,7 +43,7 @@ export function studioOriginGate(request: Request, options: { basePath?: string;
   if (decision.kind === "hop") {
     const target = new URL(decision.location);
     target.pathname = withBase(basePath, target.pathname);
-    return new Response(null, { status: 307, headers: { ...noStore, location: target.toString(), "set-cookie": `${HOP_COOKIE}=1; Path=/; Max-Age=${HOP_COOKIE_SECONDS}; SameSite=Lax; Secure; HttpOnly` } });
+    return new Response(null, { status: 307, headers: { ...noStore, location: target.toString(), "set-cookie": `${HOP_COOKIE}=${encodeURIComponent(decision.page)}; Path=/; Max-Age=${HOP_COOKIE_SECONDS}; SameSite=Lax; Secure; HttpOnly` } });
   }
   if (decision.kind === "land") {
     const response = new Response(null, { status: 307, headers: { ...noStore, location: new URL(withBase(basePath, decision.location), raw).toString() } });

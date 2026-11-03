@@ -102,6 +102,7 @@ button.u-film-chip { cursor: pointer; }
 .u-film-ex-media { display: grid; grid-template-columns: 64px auto minmax(0, 1fr); align-items: center; gap: 6px; }
 .u-film-ex-avant { display: grid; gap: 4px; }
 .u-film-ex-avant img { width: 100%; aspect-ratio: 1; height: auto; object-fit: cover; border-radius: 8px; }
+.u-film-ex-credit { font-size: 10px; line-height: 1.25; color: var(--u-muted, #9a9a9a); overflow-wrap: anywhere; }
 .u-film-ex-texte { margin: 0; padding: 6px; font-style: italic; border: 1px dashed var(--u-line-strong, #2a2a2e); border-radius: 8px; font-size: 12px; line-height: 1.35; color: var(--fg, #f4f4f5); }
 .u-film-ex-fleche { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent, #d9b15c); color: var(--on-accent, #17130a); font-size: 13px; }
 .u-film-ex-apres { position: relative; margin: 0; }

@@ -2,7 +2,8 @@
 .ln-top { position: absolute; top: 16px; left: 0; right: 0; z-index: 5; display: flex; align-items: center; gap: 8px; min-height: 64px; padding: 0 max(16px, 4vw); }
 .ln-sp { flex: 1; }
 .ln-hero { position: relative; min-height: min(100vh, 860px); display: flex; align-items: flex-end; overflow: hidden; }
-.ln-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 62% 40%; }
+.ln-hero-pic { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ln-hero-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 68% 0%; }
 .ln-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,15,17,.92) 0%, rgba(15,15,17,.45) 48%, rgba(15,15,17,.12) 78%), linear-gradient(0deg, var(--bg) 0%, transparent 32%); }
 .ln-hero-in { position: relative; z-index: 1; padding: 0 max(20px, 4vw) 12vh; max-width: 760px; }
 .ln h1, .ln h2, .ln h3 { font-family: var(--font-title), Georgia, serif; font-weight: 400; letter-spacing: -.02em; }
@@ -46,11 +47,22 @@
 .ln-trust { display: flex; flex-wrap: wrap; gap: 18px; list-style: none; padding: 0; color: var(--fg-3); font-size: 13px; }
 .ln-foot { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding: 28px max(20px, 4vw) 40px; border-top: 1px solid var(--line); color: var(--fg-3); font-size: 13px; }
 .ln-foot a { min-height: 44px; display: inline-flex; align-items: center; color: inherit; }
-.ln-stage { min-height: 180px; }
+.ln-duo > img, .ln-duo > picture > img { border-radius: 12px; aspect-ratio: 16 / 9; }
+.ln-duo > picture { display: block; }
+.ln-licence { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--fg-2); font-size: 14px; max-width: 80ch; }
 @media (max-width: 900px) {
   .ln-hide { display: none; }
   .ln-steps, .ln-split, .ln-duo, .ln-models { grid-template-columns: 1fr; }
   .ln-hero { min-height: 100svh; }
+}
+/* Phone portrait: Uttu sits in a sharp 4:5 band above the title instead of a blown-up landscape cover. */
+@media (max-width: 700px) and (min-height: 521px) {
+  .ln-hero { display: block; min-height: 0; }
+  .ln-hero-pic { position: relative; inset: auto; aspect-ratio: 4 / 5; height: auto; max-height: 78svh; }
+  .ln-hero-pic img { object-position: 60% 18%; }
+  .ln-hero::after { display: none; }
+  .ln-hero-pic::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, var(--bg) 0%, transparent 38%); }
+  .ln-hero-in { margin-top: -96px; padding: 0 max(20px, 4vw) 40px; }
 }
 /* The header gold repeats the hero button. On a narrow phone it is the piece that sticks out past the screen. */
 @media (max-width: 480px) {

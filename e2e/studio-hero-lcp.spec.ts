@@ -35,10 +35,10 @@ test('/studio preloads its entry picture and serves sized images', async ({ page
 test("accueil: the hero picture is in the HTML at high priority", async ({ page, request }) => {
   // The landing mockup replaced the five-slide show with one picture. That picture is the LCP.
   const html = await (await request.get("/")).text();
-  const hero = (html.match(/<img[^>]*uttu-quai-1920[^>]*>/) ?? [""])[0];
+  const hero = (html.match(/<img[^>]*uttu-fiche-1920[^>]*>/) ?? [""])[0];
   expect(hero, "hero image in the server HTML").toMatch(/fetchPriority="high"|fetchpriority="high"/i);
   await page.goto("/");
-  const img = page.locator("[data-hero] > img");
+  const img = page.locator("[data-hero] > picture > img");
   await expect(img).toHaveCount(1);
   await expect(img).toHaveAttribute("fetchpriority", "high");
 });

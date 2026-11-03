@@ -2169,6 +2169,22 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-app:is([data-studio="lora"], [data-studio="scene"], [data-studio="prise"], [data-studio="montage"], [data-studio="finaliser"]) .u-film-dock { bottom: 0; }
 }
 
+/* Slimmer bar (3 Nov): the project panel floats above the steps row, the desktop row 1 drops the
+   shortcut hint, and a phone fits the five steps without scrolling. */
+.u-proj-panel[data-floating] { z-index: 90; width: min(300px, calc(100vw - 16px)); }
+.u-top .u-kbd { display: none; }
+.u-app .u-chain.u-steps { height: 48px; }
+@media (min-width: 768px) {
+  .u-top-search .u-tool-label { display: none; }
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  .u-app .u-chain.u-steps { padding: 0 6px; gap: 0; }
+  .u-app .u-chain.u-steps .u-step { padding: 0 7px; gap: 3px; font-size: 13px; }
+  .u-step-arrow, .u-step-div { display: none; }
+  .u-step-proj { margin-right: 2px; }
+  .u-step-proj .u-proj-toggle { max-width: 96px; padding: 2px 6px; }
+}
+
 /* SectionSwitch: the studio's one door into Cinema and Anime. Whitespace over boxes: a single
    hairline divider between two quiet rows, gold only on the icon. */
 .u-sections { display: grid; gap: 1px; margin: 4px 0 2px; background: var(--u-line); border: 1px solid var(--u-line); border-radius: var(--radius-card); overflow: hidden; }
