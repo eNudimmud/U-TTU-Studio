@@ -9,7 +9,7 @@ export type ExempleType = "image" | "video";
 
 /** What the visitor brings: a house reference (imported into their project when redone) or a text. */
 export type ExempleAvant =
-  | { kind: "cast" | "decor"; nom: string; image: string; thumb: string }
+  | { kind: "cast" | "decor"; nom: string; image: string; thumb: string; /** Author and licence of a borrowed photo, always shown. */ credit?: string }
   | { kind: "texte"; texte: string };
 
 export type ExempleRefaire =
@@ -45,12 +45,19 @@ export const EXEMPLES_FILM: readonly Exemple[] = [
     // The house clip was shot with LTX: redoing it takes the same fast rendu.
     refaire: { vers: "plan", rendu: "rapide" },
   },
-  // « Un lieu à partir d’une photo » is hidden: its before and after were the same quay. It comes back with a real after.
+  {
+    // A real street photo turned into a set by the studio's own decor-photo tool (FLUX.3 Klein edit).
+    id: "lieuPhoto", type: "image",
+    titre: "film2.exemples.lieuPhoto.titre",
+    avant: [{ kind: "decor", nom: "Place Saint-François, Lausanne", image: "/exemples/decor-photo-sf-avant-640.webp", thumb: "/exemples/decor-photo-sf-avant-640.webp", credit: "Photo © jo2sm · Panoramax · CC-BY-SA 4.0" }],
+    apres: { image: "/exemples/decor-photo-sf-apres-640.webp" },
+    refaire: { vers: "decor", geste: "decor-photo" },
+  },
   {
     id: "persoTexte", type: "image",
     titre: "film2.exemples.persoTexte.titre",
     avant: [{ kind: "texte", texte: "film2.exemples.persoTexte.texte" }],
-    apres: { image: "/exemples/cast-vieil-homme-640.webp" },
+    apres: { image: "/exemples/apres-cast-texte-640.webp" },
     refaire: { vers: "cast", geste: "cast-texte" },
   },
 ];

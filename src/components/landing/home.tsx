@@ -15,6 +15,10 @@ import "./landing.css";
 
 const STUDIO = assetPath("/studio");
 
+const widths = (dir: string, name: string, sizes: readonly number[], ext: string) => sizes.map(w => `${assetPath(`${dir}/${name}-${w}.${ext}`)} ${w}w`).join(", ");
+const heroSet = (name: string, sizes: readonly number[], ext: string) => widths("/images/accueil", name, sizes, ext);
+const mediaSet = (name: string, sizes: readonly number[], ext: string) => widths("/media/accueil", name, sizes, ext);
+
 export function HomeLanding() {
   const { t } = useI18n();
   const { locale } = useLocaleSwitch();
@@ -32,12 +36,13 @@ export function HomeLanding() {
     </header>
     <main id="contenu" tabIndex={-1}>
       <section className="ln-hero" data-hero="" aria-labelledby="landing-title">
-        {/* One master, three widths. Under 700 px a 4:5 crop of the same 2560 master, so a DPR 3 phone never upscales. */}
+        {/* Hero B (AAA pass, 3 Nov): AVIF first, WebP fallback. Under 700 px a 4:5 crop of the same master.
+            To swap the art, replace the files and keep the names and widths. */}
         <picture className="ln-hero-pic">
-          <source media="(max-width: 700px)" type="image/webp" sizes="100vw"
-            srcSet={`${assetPath("/images/accueil/uttu-quai-4x5-768.webp")} 768w, ${assetPath("/images/accueil/uttu-quai-4x5-1152.webp")} 1152w`} />
-          <img src={assetPath("/images/accueil/uttu-quai-1920.webp")} sizes="100vw"
-            srcSet={`${assetPath("/images/accueil/uttu-quai-1280.webp")} 1280w, ${assetPath("/images/accueil/uttu-quai-1920.webp")} 1920w, ${assetPath("/images/accueil/uttu-quai-2560.webp")} 2560w`}
+          <source media="(max-width: 700px)" type="image/avif" sizes="100vw" srcSet={heroSet("uttu-quai-B-4x5", [640, 1280, 2048], "avif")} />
+          <source media="(max-width: 700px)" type="image/webp" sizes="100vw" srcSet={heroSet("uttu-quai-B-4x5", [640, 1280, 2048], "webp")} />
+          <source type="image/avif" sizes="100vw" srcSet={heroSet("uttu-quai-B", [640, 1280, 1920, 2560], "avif")} />
+          <img src={assetPath("/images/accueil/uttu-quai-B-1920.webp")} sizes="100vw" srcSet={heroSet("uttu-quai-B", [640, 1280, 1920, 2560], "webp")}
             alt={t("accueil.g1Alt")} fetchPriority="high" decoding="async" />
         </picture>
         <div className="ln-hero-in">
@@ -121,7 +126,10 @@ export function HomeLanding() {
           <p className="ln-lead">{copy.onlyLead}</p>
           {/* The touch-staging card is gone: that feature was removed on 31 Oct. One real capture, the red roofs. */}
           <div className="ln-duo">
-            <img src={assetPath("/media/accueil/loop-map-poster.webp")} alt="" loading="lazy" />
+            <picture>
+              <source type="image/avif" sizes="(max-width: 700px) 100vw, 50vw" srcSet={mediaSet("loop-map-poster", [640, 1280, 1920, 2560], "avif")} />
+              <img src={assetPath("/media/accueil/loop-map-poster-1280.webp")} sizes="(max-width: 700px) 100vw, 50vw" srcSet={mediaSet("loop-map-poster", [640, 1280, 1920, 2560], "webp")} alt="" loading="lazy" decoding="async" />
+            </picture>
             <div>
               <h3>{copy.scoutTitle}</h3>
               <p>{copy.scoutBody}</p>

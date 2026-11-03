@@ -63,7 +63,7 @@ const en: LandingCopy = {
     { id: "set", name: "Set", body: "A place from a text, a photo or a real location.", href: "/studio#scene", go: "Open Set", image: "/exemples/decor-quai-nuit.webp", alt: "Her set: a cobbled quay at night" },
     { id: "shoot", name: "Shoot", body: "Put the character in the set, frame it, then render.", href: "/studio#prise", go: "Open Shoot", image: "/exemples/outils/prise-uttu-quai-poster.jpg", alt: "The shot: Uttu walking on the quay at night" },
     { id: "edit", name: "Edit", body: "Video, voice, music and text on four tracks. MP4 export in your browser — no render.", href: "/studio#montage", go: "Open Edit", image: "/media/accueil/edit-timeline.webp", alt: "The Edit timeline with Uttu’s shots: four shots on one track, the second selected" },
-    { id: "finish", name: "Finish", body: "Sharper and larger. Nothing is regenerated.", href: "/studio#finaliser", go: "Open Finish", image: "/media/accueil/finish-quai-avant-apres.webp", alt: "The same quay shot, before (left) and after Finish (right)" },
+    { id: "finish", name: "Finish", body: "Sharper and larger. Nothing is regenerated.", href: "/studio#finaliser", go: "Open Finish", image: "/media/accueil/finaliser-avant-apres-1280.webp", alt: "The same quay shot, before (left) and after Finish (right)" },
   ],
   animeTitle: "Your story, as a theatrical anime.",
   animeBody: "Painted backgrounds, cel shading with rim light, a real 3D camera, the same look in every shot. Chosen once for the whole project — choosing starts no render.",
