@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { openCreations, openPlan, openToolsHub } from "./helpers/top-bar";
+import { openCreations, openPlan, openToolsHub, revealInTopBar } from "./helpers/top-bar";
+import { NOMBRE_OUTILS, OUTILS_HORS_CATALOGUE } from "../src/lib/outils/nombre";
 
 // One top bar on every page: Créer, project switcher, search over tools and creations,
 // recent tasks, the docked assistant, and the tool switch card. All local, nothing is sent.
@@ -9,7 +10,7 @@ test("barre du haut : Créer → outil, recherche Ctrl+K, assistant qui suit la 
   await expect(page.locator("[data-topbar]")).toBeVisible();
   await openToolsHub(page);
   await expect(page).toHaveURL(/#outils\/tous$/);
-  await expect(page.locator("[data-outils-hub] [data-outil]")).toHaveCount(42);
+  await expect(page.locator("[data-outils-hub] [data-outil]")).toHaveCount(NOMBRE_OUTILS - OUTILS_HORS_CATALOGUE);
 
   await page.keyboard.press("Control+k");
   const palette = page.locator("[data-palette]");
@@ -26,6 +27,10 @@ test("barre du haut : Créer → outil, recherche Ctrl+K, assistant qui suit la 
   await expect(assistant.locator("[data-assistant-outil]").first()).toBeVisible();
   await openCreations(page);
   await expect(page).toHaveURL(/\/mon-studio/);
+  // Uttu starts closed on every arrival, so a conversation does not stay over the next page.
+  // The same button on My studio opens it again.
+  await expect(page.locator("[data-assistant-panel]")).toHaveCount(0);
+  await openPlan(page);
   await expect(page.locator("[data-assistant-panel]")).toBeVisible();
 });
 
@@ -46,10 +51,12 @@ test("carte d'outil : récents et « Voir tous les outils » sans quitter le pan
 
 test("sélecteur de projet : créer un projet en un geste, il devient le projet en cours", async ({ page }) => {
   await page.goto("/studio#personnage");
-  const burger = page.locator("[data-top-burger]");
-  if (await burger.isVisible()) await burger.click();
-  const switcher = page.locator("[data-project-switcher]").filter({ visible: true }).first();
-  await switcher.locator("button").first().click();
+  let switcher = page.locator("[data-project-switcher]").filter({ visible: true }).first();
+  await expect(async () => {
+    switcher = await revealInTopBar(page, "[data-project-switcher]");
+    if (!(await switcher.locator("[data-project-new]").isVisible())) await switcher.locator("button").first().click({ timeout: 2000 });
+    await expect(switcher.locator("[data-project-new]")).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 30000 });
   await switcher.locator("[data-project-new]").fill("Court métrage");
   await switcher.locator("[data-project-create]").click();
   await expect(page.locator("[data-project-switcher]").filter({ visible: true }).first()).toContainText("Court métrage");

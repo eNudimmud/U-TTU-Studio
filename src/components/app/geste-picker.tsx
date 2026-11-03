@@ -56,7 +56,7 @@ export function GestePicker({ onglet, value, onChange, onExample, onStart, examp
   examples?: readonly string[];
 }) {
   const { t } = useI18n();
-  const { prefs, setPrefs } = useStudio();
+  const { prefs } = useStudio();
   // Closed gestures are not shown at all: a novice only sees what really runs.
   const mine = REGISTRE.filter(item => item.onglet === onglet && gesteVisible(item, prefs) && gesteOuvert(item));
   const open = mine;
@@ -101,29 +101,5 @@ export function GestePicker({ onglet, value, onChange, onExample, onStart, examp
         {group.rows.map(item => <Tile key={item.id} item={item} selected={item.id === value} example={known.has(item.id)} onChange={onChange} onExample={onExample} onStart={onStart} />)}
       </div>
     </div>)}
-    <details className="u-fold u-avance" data-avance="">
-      <summary>{t("p0.advanced")}</summary>
-      <ModelOptions openWeightsOnly={prefs.openWeightsOnly} nanoBanana={prefs.nanoBanana} onChange={setPrefs} />
-    </details>
   </div>;
-}
-
-/** Two device options. Open Weights Only hides partner nodes; Nano Banana is off by default. */
-export function ModelOptions({ openWeightsOnly, nanoBanana, onChange }: {
-  openWeightsOnly: boolean;
-  nanoBanana: boolean;
-  onChange(next: { openWeightsOnly?: boolean; nanoBanana?: boolean }): void;
-}) {
-  const { t } = useI18n();
-  return <fieldset className="u-model-options">
-    <legend className="u-label">{t("gestes.options.title")}</legend>
-    <label className="u-toggle" title={t("gestes.options.openWeightsHint")}>
-      <input type="checkbox" checked={openWeightsOnly} onChange={event => onChange({ openWeightsOnly: event.target.checked })} />
-      <span>{t("gestes.options.openWeights")}</span>
-    </label>
-    <label className="u-toggle">
-      <input type="checkbox" checked={nanoBanana} disabled={openWeightsOnly} onChange={event => onChange({ nanoBanana: event.target.checked })} />
-      <span>{t("gestes.options.nano")}</span>
-    </label>
-  </fieldset>;
 }

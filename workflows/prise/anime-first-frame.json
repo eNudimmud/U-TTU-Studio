@@ -1,0 +1,27 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "type": "MarkdownNote",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        440,
+        180
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "Anime 2.5D project look. Open weights. The studio resolves the template in src/lib/look. Finish is a core upscale graph and does not redraw the take."
+      ]
+    }
+  ],
+  "links": [],
+  "version": 0.4
+}

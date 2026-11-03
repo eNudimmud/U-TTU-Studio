@@ -11,6 +11,7 @@ import { useEffect, useMemo } from "react";
 import { assetPath } from "@/lib/site";
 import { FAMILLES, familleVitrine, outilsPublics, type Famille } from "@/lib/outils/catalogue";
 import { REPERAGE_ID } from "@/lib/outils/vignettes";
+import { OUTILS_HORS_CATALOGUE } from "@/lib/outils/nombre";
 import { useI18n } from "@/components/i18n/provider";
 import { PoweredBy, ComfyLogomark } from "@/components/powered-by";
 import { useStudio } from "./studio-session";
@@ -18,7 +19,7 @@ import type { Place } from "./top-bar";
 
 const ICON = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
 
-export const FamilyIcon = ({ fam }: { fam: Famille | "reperage" | "film" | "creations" | "home" | "search" }) => {
+export const FamilyIcon = ({ fam }: { fam: Famille | "reperage" | "film" | "creations" | "home" | "search" | "guide" }) => {
   switch (fam) {
     case "creer": return <svg {...ICON}><rect x="3.5" y="4.5" width="17" height="15" rx="2" /><path d="m3.5 16 5-5 4 4 3-3 5 5" /><circle cx="15.5" cy="9" r="1.5" /></svg>;
     case "retoucher": return <svg {...ICON}><path d="M4 20 15 9" /><path d="m14 5 1-2 1 2 2 1-2 1-1 2-1-2-2-1z" /><path d="m19 12 .6-1.2L21 10l-1.4-.8L19 8l-.6 1.2L17 10l1.4.8z" /></svg>;
@@ -30,6 +31,7 @@ export const FamilyIcon = ({ fam }: { fam: Famille | "reperage" | "film" | "crea
     case "creations": return <svg {...ICON}><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" /></svg>;
     case "home": return <svg {...ICON}><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z" /></svg>;
     case "search": return <svg {...ICON}><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>;
+    case "guide": return <svg {...ICON}><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z" /><path d="M9 8h6M9 12h6" /></svg>;
   }
 };
 
@@ -38,9 +40,10 @@ const FAMILY_KEY = "u-ttu-famille";
 /** Scrolls the entry to one family; used when the rail opens the entry from another page. */
 export function scrollToFamily(fam: string | null = null) {
   let wanted = fam;
-  if (!wanted) {
-    try { wanted = sessionStorage.getItem(FAMILY_KEY); sessionStorage.removeItem(FAMILY_KEY); } catch { wanted = null; }
-  }
+  try {
+    if (!wanted) wanted = sessionStorage.getItem(FAMILY_KEY);
+    sessionStorage.removeItem(FAMILY_KEY);
+  } catch { if (!wanted) wanted = null; }
   if (!wanted) return false;
   const target = document.querySelector<HTMLElement>(`[data-outils-section="${wanted}"]`);
   if (!target) return false;
@@ -49,17 +52,28 @@ export function scrollToFamily(fam: string | null = null) {
   return true;
 }
 
-/** Opens « Tous les outils » on one family (the bar's « + › Son » uses it). */
+/** Hash for one family on the tools home: `#outils/creer`, `#outils/son`, … */
+export function familyHash(fam: string) {
+  return `#outils/${fam}`;
+}
+
+/** Opens the tools home on one family (the bar's « + › Son » uses it). */
 export function openFamily(fam: string) {
   try { sessionStorage.setItem(FAMILY_KEY, fam); } catch { /* the list still opens */ }
-  const hash = "#outils/tous";
+  const hash = familyHash(fam);
   if (window.location.hash !== hash) window.history.pushState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
   window.dispatchEvent(new HashChangeEvent("hashchange"));
 }
 
 function pickFamily(event: React.MouseEvent, fam: string) {
-  if (scrollToFamily(fam)) { event.preventDefault(); return; }
-  try { sessionStorage.setItem(FAMILY_KEY, fam); } catch { /* the entry still opens */ }
+  if (!document.querySelector(`[data-outils-section="${fam}"]`)) {
+    try { sessionStorage.setItem(FAMILY_KEY, fam); } catch { /* the entry still opens */ }
+    return;
+  }
+  if (window.location.hash === familyHash(fam)) {
+    event.preventDefault();
+    scrollToFamily(fam);
+  }
 }
 
 /** Keeps --u-top-h equal to the top bar's real height, so the rail always starts under it. */
@@ -77,13 +91,13 @@ export function useTopHeight() {
 }
 
 function useCounts() {
-  const { prefs } = useStudio();
+  const { outilsFiltre } = useStudio();
   return useMemo(() => {
     const counts = Object.fromEntries(FAMILLES.map(fam => [fam, 0])) as Record<Famille, number>;
-    for (const item of outilsPublics(prefs)) counts[familleVitrine(item)] += 1;
-    counts["3d"] += 2; // « Maquette 3D et cadrage » and « Repérer un lieu » sit in the 3D row.
+    for (const item of outilsPublics(outilsFiltre)) counts[familleVitrine(item)] += 1;
+    counts["3d"] += OUTILS_HORS_CATALOGUE; // « Maquette 3D et cadrage » and « Repérer un lieu » sit in the 3D row.
     return counts;
-  }, [prefs]);
+  }, [outilsFiltre]);
 }
 
 export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void }) {
@@ -97,7 +111,7 @@ export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void
     <p className="u-rail-head eyebrow" aria-hidden="true">{t("outils.count", { n: String(total) })}</p>
     <ul role="list" className="u-rail-list">
       {FAMILLES.map(fam => <li key={fam}>
-        <a className="u-rail-item" href={assetPath("/studio#outils/tous")} data-rail-fam={fam} onClick={event => pickFamily(event, fam)} aria-label={`${t(`outils.fam.${fam}`)} · ${t("outils.count", { n: String(counts[fam]) })}`}>
+        <a className="u-rail-item" href={assetPath(`/studio${familyHash(fam)}`)} data-rail-fam={fam} onClick={event => pickFamily(event, fam)} aria-label={`${t(`outils.fam.${fam}`)} · ${t("outils.count", { n: String(counts[fam]) })}`}>
           <FamilyIcon fam={fam} /><span className="u-rail-name">{t(`outils.fam.${fam}`)}</span><span className="u-rail-n" aria-hidden="true">{counts[fam]}</span>
         </a>
       </li>)}
@@ -107,7 +121,7 @@ export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void
     </ul>
     <span className="u-rail-sep" aria-hidden="true" />
     <ul role="list" className="u-rail-list">
-      <li><a className="u-rail-item" href={assetPath("/studio#personnage")} data-rail-film="" aria-current={place === "realiser" || place === "montage" ? "page" : undefined} aria-label={t("entry.film")}>
+      <li><a className="u-rail-item" href={assetPath("/studio#prise")} data-rail-film="" aria-current={place === "realiser" || place === "montage" ? "page" : undefined} aria-label={t("entry.film")}>
         <FamilyIcon fam="film" /><span className="u-rail-name">{t("entry.film")}</span>
       </a></li>
       <li><a className="u-rail-item" href={assetPath("/mon-studio")} data-rail-creations="" aria-current={place === "creations" ? "page" : undefined} aria-label={t("top.creations")}>
@@ -121,13 +135,13 @@ export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void
   </aside>;
 }
 
-export function StudioTabs({ place }: { place: Place }) {
+export function StudioTabs({ place, filmHref }: { place: Place; filmHref: string }) {
   const { t } = useI18n();
   const tabs: { id: string; href: string; label: string; full?: string; icon: Parameters<typeof FamilyIcon>[0]["fam"]; on: boolean }[] = [
-    { id: "accueil", href: "/", label: t("top.home"), icon: "home", on: place === "accueil" },
-    { id: "creer", href: "/studio#outils", label: t("top.create"), icon: "creer", on: place === "creer" },
-    { id: "film", href: "/studio#personnage", label: t("top.film"), icon: "film", on: place === "realiser" || place === "montage" },
-    { id: "creations", href: "/mon-studio", label: t("top.creationsShort"), full: t("top.creations"), icon: "creations", on: place === "creations" },
+    { id: "creer", href: "/studio", label: t("chrome.studio"), icon: "home", on: place === "creer" },
+    { id: "film", href: filmHref, label: t("top.film"), icon: "film", on: place === "realiser" || place === "montage" || place === "finish" },
+    { id: "creations", href: "/mon-studio", label: t("chrome.mine"), full: t("chrome.mine"), icon: "creations", on: place === "creations" },
+    { id: "guide", href: "/guide", label: t("chrome.guide"), icon: "guide", on: false },
   ];
   return <nav className="u-tabs" aria-label={t("top.nav")} data-tabs="">
     {tabs.map(tab => <a key={tab.id} href={assetPath(tab.href)} data-tab={tab.id} aria-label={tab.full} aria-current={tab.on ? "page" : undefined}>

@@ -38,10 +38,6 @@ describe("Finaliser le montage (R8)", () => {
   });
 
   it("wires MONTAGE with a quote, a confirm and no cancel", () => {
-    const stage = readFileSync("src/components/app/montage-stage.tsx", "utf8");
-    assert.match(stage, /data-finaliser-open/);
-    assert.match(stage, /finaliser\.confirm/);
-    assert.match(stage, /u-why-final-go/);
     const session = readFileSync("src/components/app/studio-session.tsx", "utf8");
     const body = session.slice(session.indexOf("const finaliseMontage"), session.indexOf("const rewriteCast"));
     assert.match(body, /spendAllowed\(quote\.credits, input\.confirmed\)/);

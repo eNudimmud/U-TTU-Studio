@@ -40,9 +40,9 @@ test("outil Animer : le résultat vidéo part au montage depuis la page outil", 
   await expect(result.locator("[data-montage-done]")).toHaveText("Ajouté au montage", { timeout: 20_000 });
   await expect(page).toHaveURL(/#outils\/vid-wan$/);
   await page.goto("/studio#montage");
-  const clip = page.locator(".u-clip.is-video");
+  const clip = page.locator('[data-fm-track="plans"] [data-fm-clip]');
   await expect(clip).toHaveCount(1, { timeout: 30_000 });
-  const seconds = Number(await clip.getAttribute("data-clip-seconds"));
+  const seconds = Number(await clip.getAttribute("data-end")) - Number(await clip.getAttribute("data-start"));
   expect(seconds).toBeGreaterThan(4);
   expect(seconds).toBeLessThan(6);
 });

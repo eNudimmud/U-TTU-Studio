@@ -7,11 +7,14 @@ Les graphes de la bulle réutilisent les templates officiels déjà intégrés. 
 | Geste | Template | Devis de l’exemple 480p, 5 s | État |
 | --- | --- | --- | --- |
 | creation-image-texte | `image_flux3_klein_t2i` | ≈ 2 crédits estimés | ouvert, prompt seul |
-| creation-image | `image_flux3_klein_image_edit` | ≈ 3 crédits estimés | ouvert, deux références dans l’exemple, sept au plus |
+| creation-image | `image_flux3_klein_image_edit` | ≈ 3 crédits estimés | ouvert, repli explicite (réglage « Klein » ou « Modèles du studio seulement »), deux références dans l’exemple, sept au plus |
+| creation-image-nano | `api_nano_banana_2_1_image_edit` | ≈ 12 crédits estimés (1K), ≈ 17 en 2K | ouvert, nœud partenaire `GeminiNanoBanana2V2` appelé par Comfy, seulement si les services partenaires sont activés (le studio reste en open weights par défaut) : une `LoadImage` par photo sur son entrée `model.images.image_N` (persos, objets, style, décor), sans BatchImages ni upsampler, cadre fixé, prompt numéroté et règles du studio en `system_prompt` |
+| creation-image-qwen | `image_qwen_image_2_1_image_edit` | ≈ 6 crédits estimés (1 MP, 7 réfs) | open weights, au choix dans les réglages de la bulle : une `LoadImage` par photo sur `images.image_N` de `TextEncodeQwenImage21` (lue une à une par Qwen3-VL), même aire par réf que Klein, sans prompt enhancer (l’action reste mot pour mot), cadre fixé, réfs désignées `<image1>`… |
+| creation-image-flux2 | `image_flux2` | ≈ 50 crédits estimés (1 MP, 7 réfs ; 1re prise : 5 réfs, 128 s GPU ≈ 35), prix à confirmer | open weights (licence non commerciale FLUX.2 dev, exécuté sur Comfy Cloud contre crédits), au choix dans les réglages de la bulle : par photo la chaîne du template `LoadImage` → `ImageScaleToTotalPixels` (1 MP) → `VAEEncode` → `ReferenceLatent`, enchaînées sur le conditionnement, 20 étapes, guidance 4, Turbo LoRA coupé, cadre fixé, prompt Klein + mise en scène du seed |
 | creation-video-texte | `video_ltx2_5_t2v` | ≈ 5 crédits estimés | ouvert, prompt seul |
 | creation-video-refs | `video_minimax_h3_r2v` | ≈ 5 crédits estimés | ouvert, deux références dans l’exemple, sept au plus, audio facultatif |
 
-Ces quatre gestes utilisent un devis dynamique (résolution, format, durée, références). Ils n’ajoutent aucune mesure réelle au registre. La réserve de solde n’est pas un plafond garanti de facturation.
+Ces cinq gestes utilisent un devis dynamique (résolution, format, durée, références). Ils n’ajoutent aucune mesure réelle au registre. La réserve de solde n’est pas un plafond garanti de facturation.
 
 Un geste est une carte. Le template Comfy reste derrière. Chaque geste a son fichier dans `workflows/<onglet>/<id>.json` (le template officiel, à ouvrir dans ComfyUI) et, s’il est branché, `workflows/<onglet>/<id>.api.json` (le graphe exact que le studio envoie). `workflows/index.json` dit lequel passe par un nœud partenaire. Régénérer : `node --experimental-strip-types scripts/export-workflows.mjs`.
 
@@ -69,7 +72,7 @@ Devis : « mesuré » veut dire qu’un vrai job a été facturé et cité ; « 
 | prise-mouvement | Transfert de mouvement | `video_wan_animate2` | non mesuré | fermé, open weights |
 | prise-levres | Lèvres | `video_ltx2_3_ia2v` | non mesuré | fermé, open weights |
 | prise-vidu | Autre plan, références | `api_vidu_q4_preview_r2v` | 100 / 150, hypothèse | fermé, nœud partenaire |
-| prise-elargir | Élargir le plan | `template_ltx2_3_lora_video_outpainting` | 16 / 25, mesuré | ouvert, open weights |
+| prise-elargir | Élargir le plan | `template_ltx2_3_lora_video_outpainting` | 28 / 45 par 5 s, estimé (cadre 16:9 · 9:16 · 1:1, rendu 1280×704) | ouvert, open weights |
 | prise-effacer | Effacer un objet | `template_ltx2_3_obscura_remova_lora_remove_object_from_video` | 25 / 38, mesuré | ouvert, open weights |
 
 ## MONTAGE / SON
@@ -94,7 +97,7 @@ Menu « Et ensuite ? » sur un asset (panneau de détail de Mes créations) et s
 | suite-detourer | Détourer (PNG transparent ; SaveImage ajouté au template) | `utility_birefnet_remove_background` | 1 / 1, mesuré | ouvert, open weights |
 | suite-elargir | Élargir le cadre (Flux.2 Klein 9B) | `templates_doc_workbox_klein_9b_image_extend` | 5 / 8, mesuré | ouvert, open weights |
 | suite-animer | Animer une image (5 s) | `video_minimax_h3_i2v` | 4 / 8, estimé | ouvert, open weights |
-| suite-finaliser-video | Finaliser une prise ou le montage (1080p, + fluidifier en option) | `utility_seedvr2_3b_int8_upscale_video` | 28 / 42 par 5 s, mesuré | ouvert, open weights |
+| suite-finaliser-video | Finaliser une prise ou le montage (1080p, + fluidifier en option) | `utility_seedvr2_3b_int8_upscale_video` | ≈ 0,167 × images × Mpx de sortie (42 / 63 pour 5 s à 24 fps en 1080p), mesuré | ouvert, open weights |
 | suite-fluidifier | Fluidifier (images intermédiaires ×2) | `utility_video_frame_interpolation` | 2 / 4 par 5 s, mesuré | ouvert, open weights |
 | suite-prolonger | Prolonger (depuis la dernière image, 5 s) | `video_minimax_h3_i2v_continuation` | 6 / 10, mesuré | ouvert, open weights |
 | suite-parler | Faire parler (image + voix, 5 s) | `video_ltx2_3_ia2v` | 8 / 13, mesuré | ouvert, open weights |
@@ -205,3 +208,21 @@ Réglages : langue d’arrivée (anglais, français, allemand, espagnol, italien
 Devis lu le 30.10.2026 par `estimate_credits` de Comfy Cloud (lecture seule) : **33 crédits/s en Standard, 54 crédits/s en Pro**, soit ≈ 165 / 270 crédits estimés pour 5 s. Le devis multiplie la durée du clip par ce tarif et arrondit au crédit supérieur ; réserve de solde à 1,5 fois. Le chiffre du registre (165 / 248, hypothèse) correspond à 5 s en Standard. Sans durée lisible, aucun devis ni envoi.
 
 Sources : [tutoriel Comfy](https://docs.comfy.org/tutorials/partner-nodes/veed/veed-dubbing), [tarifs VEED](https://api.veed.io/pricing). Template UI et graphe exact envoyé : `workflows/outils/outil-vid-doubler.json` et `.api.json`, avec une entrée dans `index.json`. Aucun rendu réel dans cette livraison : 5 s coûtent au moins 165 crédits, au-dessus du budget de test de 15 crédits.
+
+## Look Anime 2.5D
+
+Neuf étapes, cachées tant que le projet n'a pas ce look (`option: anime25d`). Sans look, CAST, DÉCOR, PRISE et Finaliser ne changent pas. Les coûts non mesurés restent des hypothèses (« ≈ X crédits estimés »). Aucun nœud partenaire. La finition n'utilise pas `utility-gan_upscaler` (tag API) : c'est un graphe core.
+
+| Geste | Template | Devis | État |
+| --- | --- | --- | --- |
+| anime-style-frame | `image_krea2_turbo_int8_image_style_reference` | 3 / 5, hypothèse | fermé, look anime, open weights, LoRA `krea2_style_reference` (preset rétro : `krea2_retroanime`) |
+| anime-sheet | `image_qwen_image_2_1_image_edit` | 4 / 6, hypothèse | fermé, look anime, 2 références, repli Klein |
+| anime-sheet-klein | `image_flux3_klein_image_edit` | 4 / 6, hypothèse | fermé, look anime, repli au-delà de 2 références |
+| anime-decor | `image_krea2_turbo_int8_image_style_reference` | 3 / 5, hypothèse | fermé, look anime, fond peint, sans personnage |
+| anime-decor-photo | `image_qwen_image_2_1_image_edit` | 3 / 5, hypothèse | fermé, look anime, photo de lieu repeinte |
+| anime-first-frame | `image_qwen_image_2_1_image_edit` | 4 / 8, hypothèse | fermé, look anime, première image du plan |
+| anime-prise-jeu | `video_wan2_2_14B_i2v` | 12 / 17, hypothèse | fermé, look anime, slots AniSora HIGH/LOW, le graphe du template n'est pas réécrit |
+| anime-prise-camera | `video_ltx2_5_i2v` | 15 / 23, mesuré | fermé, look anime, plan large ou mouvement de caméra |
+| anime-finish | `core_realesrgan_anime` | 3 / 5, hypothèse | fermé, look anime, `UpscaleModelLoader` + `ImageUpscaleWithModel`, modèle `RealESRGAN_x4plus_anime_6B.pth`, jamais une régénération |
+
+Le routage jeu / caméra lit le cadrage et le mouvement, jamais un nom. Résolution : `src/lib/look/resolve.ts`. Finition : `src/lib/look/graphs.ts`.

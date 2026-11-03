@@ -71,7 +71,14 @@ test('Android : références personnelles, réemploi en un clic, devis, résulta
   await expect(page.locator('[data-ref-kind=cast]')).toHaveCount(2);
   await page.locator('[data-ref]').filter({hasText:'Référence A'}).tap();
   await expect(page.locator('[data-refs-sheet]')).toHaveCount(0);await expect(page.locator('[data-barre-chip]')).toHaveCount(1);
-  await page.locator('.u-barre-chip-add').tap();await page.locator('[data-ref]').filter({hasText:'Référence B'}).tap();
+  // Picking a reference writes « @Name »; typing « @ » opens the picker; removing the chip keeps the word.
+  await expect(page.locator('[data-barre-input]')).toHaveValue('@Référence A ');
+  await page.locator('[data-barre-input]').press('End');await page.locator('[data-barre-input]').pressSequentially('et @');
+  await expect(page.locator('[data-refs-sheet]')).toBeVisible();await page.locator('[data-ref]').filter({hasText:'Référence B'}).tap();
+  await expect(page.locator('[data-barre-input]')).toHaveValue('@Référence A et @Référence B ');await expect(page.locator('[data-barre-chip]')).toHaveCount(2);
+  await page.locator('[data-barre-chip]').filter({hasText:'Référence B'}).getByRole('button').tap();
+  await expect(page.locator('[data-barre-input]')).toHaveValue('@Référence A et Référence B ');await expect(page.locator('[data-barre-chip]')).toHaveCount(1);
+  await page.locator('[data-barre-input]').fill('@Référence A et @Référence B');await expect(page.locator('[data-barre-chip]')).toHaveCount(2,{timeout:5000});
   await page.locator('[data-barre-input]').fill('Référence A et Référence B sur un quai, sous la pluie');await page.reload();
   await expect(page.locator('[data-barre-chip]')).toHaveCount(2);await expect(page.locator('[data-barre-input]')).toHaveValue('Référence A et Référence B sur un quai, sous la pluie');
   for(const size of [{width:390,height:844},{width:844,height:390},{width:1024,height:600},{width:1280,height:800}]){
@@ -93,8 +100,14 @@ test('Android : références personnelles, réemploi en un clic, devis, résulta
     expect(await page.locator('[data-bubble-render]').evaluate(e=>e.scrollWidth-e.clientWidth)).toBeLessThanOrEqual(0);
   }
   await page.locator('[data-bubble-return]').tap();await expect(page.locator('[data-bubble-render]')).toHaveCount(0);
-  await expect(page.locator('[data-fil-job=done]')).toHaveCount(1,{timeout:60000});expect(graphs).toHaveLength(1);expect(uploads).toBe(2);
-  expect(graphs[0].image_17.class_type).toBe('ReferenceMultiLatent');expect(graphs[0].reference_2.class_type).toBe('LoadImage');
+  await expect(page.locator('[data-fil-job=done]')).toHaveCount(1,{timeout:60000});expect(graphs).toHaveLength(1);
+  // JD 31.10: the three saved photos of Référence A go one by one (never its contact sheet), then Référence B.
+  // The four photos are the same bytes here: the upload memo sends them once, the graph still loads four images.
+  expect(uploads).toBe(1);
+  // #209: one LoadImage per photo (never the contact sheet), whatever the engine.
+  expect(Object.values(graphs[0]).filter(n=>n.class_type==='LoadImage')).toHaveLength(4);
+  expect(graphs[0].image_17.class_type).toBe('ReferenceMultiLatent');expect(graphs[0].reference_4.class_type).toBe('LoadImage');expect(graphs[0].image_17.inputs['images.image3']).toEqual(['reference_4',0]);
+  expect(graphs[0].image_61.inputs.value).toContain('Référence A (the character from the first to third images)');expect(graphs[0].image_61.inputs.value).toContain('The fourth image named "Référence B"');
   expect(graphs[0].image_61.inputs.value).toContain('"Référence A"');expect(graphs[0].image_61.inputs.value).toContain('"Référence B"');
   await page.locator('[data-fil-keep]').tap();await expect(page.locator('[data-fil-keep]')).toHaveAttribute('aria-pressed','true');
   await page.locator('[data-fil-favorite]').tap();await expect(page.locator('[data-fil-favorite]')).toHaveAttribute('aria-pressed','true');
@@ -104,7 +117,7 @@ test('Android : références personnelles, réemploi en un clic, devis, résulta
   await page.locator('[data-fil-reference]').tap();await expect(page.locator('[data-ref-editor] img')).toHaveCount(1);await page.locator('[data-ref-name]').fill('Image gardée');await page.locator('[data-ref-category]').selectOption('decor');await page.locator('[data-ref-save]').tap();await expect(page.locator('[data-ref-kind=decor]')).toHaveCount(1);await page.getByRole('dialog').getByRole('button',{name:'Fermer',exact:true}).tap();
   await page.locator('[data-barre-input]').fill('Une forêt dorée au lever du jour');await page.locator('[data-barre-send]').tap();
   await page.locator('[data-fil-job=confirm] [data-fil-confirm]').tap();await page.locator('[data-bubble-return]').tap();
-  await expect(page.locator('[data-fil-job=done]')).toHaveCount(2,{timeout:60000});expect(graphs).toHaveLength(2);expect(uploads).toBe(2);
+  await expect(page.locator('[data-fil-job=done]')).toHaveCount(2,{timeout:60000});expect(graphs).toHaveLength(2);expect(uploads).toBe(1);
   expect(Object.values(graphs[1]).filter(n=>n.class_type==='LoadImage')).toHaveLength(0);expect(cancels).toBe(0);
   await page.goto('/studio#personnage');await expect(page.locator('main')).toContainText('Référence A');await expect(page.locator('main')).toContainText('Référence B');
 });
@@ -154,5 +167,5 @@ test('vidéo : références existantes, audio, 10 s, format carré, 720p, son co
   await page.locator('[data-fil-confirm]').tap();await page.locator('[data-bubble-return]').tap();await expect(page.locator('[data-fil-job=done]')).toHaveCount(1,{timeout:60000});
   expect(graph['136'].class_type).toBe('MiniMaxH3ReferenceToVideo');expect(graph['136'].inputs['ref_audios.ref_audio_0']).toEqual(['reference_audio',0]);expect(graph['132'].inputs.value).toBe(10);expect(graph['130'].inputs.audio).toBeUndefined();expect(graph['115'].inputs.aspect_ratio).toContain('1:1');
   await page.locator('[data-fil-result] > .u-fil-actions [data-montage-add]').tap();await expect(page.locator('[data-fil-result] [data-montage-done]')).toBeVisible();
-  await page.goto('/studio#montage');await expect(page.locator('.u-clip.is-video')).toHaveCount(1);await expect(page.locator('.u-clip.is-video')).toHaveAttribute('data-clip-seconds','10');
+  await page.goto('/studio#montage');await expect(page.locator('[data-fm-track="plans"] [data-fm-clip]')).toHaveCount(1);await expect(page.locator('[data-fm-track="plans"] [data-fm-clip]').first()).toHaveAttribute('data-end','10.00');
 });

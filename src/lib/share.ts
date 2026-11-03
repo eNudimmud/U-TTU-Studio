@@ -6,11 +6,18 @@ export const X_TEXT_MAX = 280;
 const X_URL_WEIGHT = 23;
 const URL_PATTERN = /https?:\/\/\S+/g;
 
-export function takeCaption(input: { line?: string; place?: string }): string {
+const MADE_IN: Record<"en" | "fr" | "de" | "es", string> = {
+  en: "Shot in U*TTU Studio.",
+  fr: "Tourné dans U*TTU Studio.",
+  de: "Gedreht in U*TTU Studio.",
+  es: "Rodado en U*TTU Studio.",
+};
+
+export function takeCaption(input: { line?: string; place?: string; locale?: keyof typeof MADE_IN }): string {
   const line = (input.line ?? "").replace(/\s+/g, " ").trim().replace(/[.!?…]+$/, "");
   const place = (input.place ?? "").replace(/\s+/g, " ").trim();
   const head = [line, place].filter(Boolean).join(" — ");
-  return `${head ? `${head}. ` : ""}Tourné dans U*TTU Studio.`;
+  return `${head ? `${head}. ` : ""}${MADE_IN[input.locale ?? "en"]}`;
 }
 
 /** X counts every link as 23 characters, whatever its length. */

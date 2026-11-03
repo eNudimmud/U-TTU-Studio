@@ -71,6 +71,8 @@ for base, img, heights in [("uttu-mark", mark, (48, 56, 64)), ("uttu-logo", lock
             name = f"{base}-h{h}{'' if k == 1 else f'@{k}x'}.png"
             out = lanczos_h(img, h * k)
             out.save(os.path.join(OUT, name), optimize=True)
+            # Same pixels, lossless WebP (about 30 % lighter): what the srcset serves; the PNG stays as `src`.
+            out.save(os.path.join(OUT, name[:-4] + ".webp"), "WEBP", lossless=True, method=6, exact=True)
             made[name] = out.size
 
 # Icons (manifest, apple-touch, favicon, SVG tab icon): scripts/brand/make_icons.py, versioned names.

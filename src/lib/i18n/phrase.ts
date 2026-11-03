@@ -1,6 +1,18 @@
 type PhraseFn = (key: string, values?: Record<string, string | number>) => string;
 
 const EXACT: Record<string, string> = {
+  "Opération interrompue.": "runtimeSafe.opInterrupted",
+  "Récupération impossible pour le moment.": "runtimeSafe.recoverLater",
+  "Reçu illisible.": "runtimeSafe.receiptUnreadable",
+  "La synchronisation du dossier a échoué. Les données locales sont conservées.": "runtimeSafe.folderSyncFailed",
+  "Import interrompu. Les fichiers déjà enregistrés sont conservés.": "runtimeSafe.importInterrupted",
+  "Le montage n’a pas pu être sauvegardé. Garde cet onglet ouvert.": "runtimeSafe.editNotSavedKeepTab",
+  "Le montage n’a pas pu être sauvegardé.": "runtimeSafe.editNotSaved",
+  "Le rendu a échoué dans le cloud.": "runtimeSafe.cloudFailedShort",
+  "Lancement annulé dans le studio. Rien n’est parti.": "runtimeSafe.launchCancelled",
+  "Compte de rendu non connecté.": "runtimeSafe.comfyNotConnected",
+  "Requête refusée.": "runtimeSafe.requestRefused",
+  "Chemin refusé.": "runtimeSafe.pathRefused",
   "Ce navigateur ne sait écrire aucune vidéo (ni WebCodecs, ni enregistrement). Mets à jour le navigateur du téléphone (Safari 16.4 ou plus, Chrome Android), puis relance l’export : le montage est gardé.": "runtimeSafe.encodeMp4",
   "Ce navigateur ne peut pas écrire le fichier maître H.264. Exporte d’abord le montage (il marche sur ce téléphone), ou relance Finaliser depuis un navigateur à jour.": "runtimeSafe.encodeMaster",
   "L’enregistrement de la vidéo est vide. Relance l’export en gardant cet onglet ouvert.": "runtimeSafe.recordEmpty",

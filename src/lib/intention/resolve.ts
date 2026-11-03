@@ -61,7 +61,7 @@ const LANG_WORDS: Record<IntentionLang, readonly string[]> = {
 
 export function detectLang(text: string): IntentionLang {
   const words = fold(text).split(" ");
-  let best: IntentionLang = "fr";
+  let best: IntentionLang = "en";
   let score = 0;
   for (const lang of ["fr", "en", "de", "es"] as const) {
     const set = new Set(LANG_WORDS[lang]);

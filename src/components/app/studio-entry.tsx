@@ -4,6 +4,7 @@
 // settings on demand), the door into the film (CAST → DÉCOR → PRISE → MONTAGE), every ready tool in one
 // row per family (the same list as the rail and search).
 
+import { OUTILS_HORS_CATALOGUE } from "@/lib/outils/nombre";
 import { STUDIO_HERO, THUMB_SIZES } from "@/lib/studio-hero";
 import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useI18n } from "@/components/i18n/provider";
@@ -37,7 +38,8 @@ export function openMaquette() {
 }
 
 export function goFilm() {
-  const hash = "#personnage";
+  // Refonte FILM: the film door opens the plan card (PRISE), CAST and DÉCOR open from Qui and Où.
+  const hash = "#prise";
   if (window.location.hash !== hash) window.history.pushState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
   window.dispatchEvent(new HashChangeEvent("hashchange"));
 }
@@ -61,10 +63,10 @@ export function KeyTitle({ text, word }: { text: string; word: string }) {
  * ready tool in one row per family. */
 function CreationTools() {
   const { t } = useI18n();
-  const { prefs } = useStudio();
+  const { outilsFiltre } = useStudio();
   const [query, setQuery] = useState("");
   const searchId = useId();
-  const cards = useMemo(() => outilsPublics(prefs), [prefs]);
+  const cards = useMemo(() => outilsPublics(outilsFiltre), [outilsFiltre]);
   const needle = query.trim();
   const shown = cards.filter(item => !needle || cherche(`${titre(t, item.id)} ${ligne(t, item.id)} ${t(`outils.fam.${familleVitrine(item)}`)}`, query));
   const scout = !needle || cherche(`${t(`outils.t.${REPERAGE_ID}.title`)} ${t(`outils.t.${REPERAGE_ID}.line`)} ${t("outils.fam.3d")}`, query);
@@ -80,7 +82,7 @@ function CreationTools() {
       <span className="u-entry-film-go" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span>
     </button>
     <div className="u-outils-tools" data-outils-tools="" tabIndex={-1}>
-      <p className="eyebrow">{t("outils.entryLead", { n: String(cards.length + 2) })}</p>
+      <p className="eyebrow">{t("outils.entryLead", { n: String(cards.length + OUTILS_HORS_CATALOGUE) })}</p>
       <label className="u-field u-outils-search" htmlFor={searchId}>
         <span className="sr-only">{t("outils.search")}</span>
         <input id={searchId} type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={t("outils.search")} data-outils-search="" />
@@ -97,7 +99,7 @@ export function StudioHome() {
 }
 
 /** The home: title, the creation bar and its thread, then the film door and every ready tool. */
-export function BarreHome({ tous = false, early = false }: { tous?: boolean; early?: boolean } = {}) {
+export function BarreHome({ tous = false, family = null, early = false }: { tous?: boolean; family?: string | null; early?: boolean } = {}) {
   const { t } = useI18n();
   const { connected, setSheet } = useStudio();
   // F14 · The home is in the server HTML, where no saved link is known: the server and the hydrating
@@ -108,9 +110,10 @@ export function BarreHome({ tous = false, early = false }: { tous?: boolean; ear
   const runner = useFil();
   const threaded = runner.fil.messages.length > 0;
   useEffect(() => {
+    if (family) { requestAnimationFrame(() => scrollToFamily(family)); return; }
     if (!tous) { requestAnimationFrame(() => scrollToFamily()); return; }
     requestAnimationFrame(() => { const node = document.querySelector<HTMLElement>("[data-outils-tools]"); node?.scrollIntoView({ block: "start", behavior: "instant" }); node?.focus({ preventScroll: true }); });
-  }, [tous]);
+  }, [tous, family]);
 
   return <section
     className="u-entry u-barre-home"
@@ -143,7 +146,7 @@ function Family({ fam, items, scout, maquette }: { fam: Famille; items: Outil[];
   const rowId = useId();
   const count = items.length + (scout ? 1 : 0) + (maquette ? 1 : 0);
   if (count === 0) return null;
-  return <section className="u-outils-family" data-outils-section={fam} aria-labelledby={`${rowId}-h`}>
+  return <section className="u-outils-family" id={`outils/${fam}`} data-outils-section={fam} aria-labelledby={`${rowId}-h`}>
     <div className="u-family-head">
       <h2 id={`${rowId}-h`} tabIndex={-1}>{t(`outils.fam.${fam}`)} <span className="u-family-n">{count}</span></h2>
       {count > 2 && <button type="button" className="u-family-all" aria-expanded={all} aria-controls={rowId} data-family-all={fam} onClick={() => setAll(value => !value)}>{all ? t("outils.rowLess") : t("outils.rowAll")}</button>}
@@ -195,13 +198,23 @@ function CardLoop({ webm, mp4, poster }: { webm: string; mp4: string; poster: st
   </video>;
 }
 
+/* The ~45 card pictures (≈ 2 MB) are fetched once the page has loaded, like the home's later hero slides:
+ * they never share the first paint's bandwidth with the entry picture. Same box, same pictures. */
+const onLoad = (done: () => void) => {
+  if (document.readyState === "complete") return () => {};
+  window.addEventListener("load", done, { once: true });
+  return () => window.removeEventListener("load", done);
+};
+const useAfterLoad = () => useSyncExternalStore(onLoad, () => document.readyState === "complete", () => false);
+
 export function CardThumb({ id, fam }: { id: string; fam: Famille | "reperage" | "maquette" }) {
   const key = intentDe(id);
   const src = vignette(key), src2x = vignette2x(key), loop = vignetteAnimee(key);
   const motion = useMotionOk();
+  const loaded = useAfterLoad();
   return <span className="u-outil-thumb" aria-hidden="true">
-    {src ? <img src={assetPath(src)} srcSet={src2x ? `${assetPath(src)} 640w, ${assetPath(src2x)} 1280w` : undefined} sizes={src2x ? THUMB_SIZES : undefined} alt="" width={640} height={400} loading="lazy" decoding="async" /> : <span className="u-outil-glyph"><FamilyIcon fam={fam === "maquette" ? "3d" : fam} /></span>}
-    {src && loop && motion ? <CardLoop webm={assetPath(loop.webm)} mp4={assetPath(loop.mp4)} poster={assetPath(src)} /> : null}
+    {src ? <img src={loaded ? assetPath(src) : undefined} srcSet={loaded && src2x ? `${assetPath(src)} 640w, ${assetPath(src2x)} 1280w` : undefined} sizes={src2x ? THUMB_SIZES : undefined} alt="" width={640} height={400} loading="lazy" decoding="async" /> : <span className="u-outil-glyph"><FamilyIcon fam={fam === "maquette" ? "3d" : fam} /></span>}
+    {src && loop && motion && loaded ? <CardLoop webm={assetPath(loop.webm)} mp4={assetPath(loop.mp4)} poster={assetPath(src)} /> : null}
   </span>;
 }
 

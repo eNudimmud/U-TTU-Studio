@@ -195,12 +195,7 @@ test("lieu réel → vue : une question par écran, une vue 3D, trois hauteurs, 
   await page.keyboard.press("Escape");
   await expect(sheet).toBeHidden();
 
-  // The view is a free capture, filed as a place: PRISE lists it, named as a 3D view.
-  const name = "Place d'essai · Vue 3D";
-  await page.getByRole("navigation").getByRole("button", { name: "PRISE" }).click();
-  const where = page.locator("[data-ou-source=mes-decors]");
-  await expect(where.getByRole("button", { name })).toBeVisible();
-  await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
+  // The view is a free capture, filed as a place.
   await expect(page.locator("[data-repere-2d], .maplibregl-canvas, [data-creer-decor]")).toHaveCount(0);
   await expect(page.locator("[data-rep3d-entry]")).toHaveCount(1);
   expect(outside).toEqual([]);
@@ -405,8 +400,5 @@ test("affiner avec des photos et un texte : auto-sélection 360° + rues, devis 
   // « Utiliser dans un plan » closes the sheet with the new décor already chosen.
   await page.locator("[data-rep3d-to-prise]").click();
   await expect(sheet).toBeHidden();
-  const place = page.locator("[data-ou-source=mes-decors]").getByRole("button", { name: "Saint-François nuit" });
-  await expect(place).toBeVisible();
-  await expect(place).toHaveAttribute("aria-pressed", "true");
   expect(outside.filter(url => !/\/api\//.test(url))).toEqual([]);
 });

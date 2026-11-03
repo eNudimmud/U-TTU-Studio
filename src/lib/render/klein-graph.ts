@@ -41,6 +41,8 @@ type Link = [string, number];
  * With no image this is the text-to-image template; with images, the edit template.
  * The decoded image is `${prefix}decode`, slot 0.
  */
+/** Upsampler sampling for a fresh caption per run (values of workflows/prise/prise-plan.api.json). */
+export const UPSAMPLER_TOP_K = 64, UPSAMPLER_TEMPERATURE = 0.7;
 export function kleinNodes(input: { prefix: string; prompt: string; seed: number; aspect: KleinAspect; images: readonly Link[]; megapixels?: number; referenceMegapixels?: number; upsample?: boolean; referenceLimit?: 4 | 7; cfg?: number }): ApiGraph {
   const p = input.prefix;
   const seed = Number.isSafeInteger(input.seed) && input.seed >= 0 ? input.seed : 0;
@@ -68,7 +70,16 @@ export function kleinNodes(input: { prefix: string; prompt: string; seed: number
     at("17").inputs["resolution.megapixels"] = input.referenceMegapixels ?? input.megapixels ?? 1;
     // The official template's prompt upsampler sees the references and writes, by ordinal, what to
     // take from each one. Off by default here (measured pipelines); the creation bubble turns it on.
-    if (input.upsample) at("51").inputs.switch = false;
+    if (input.upsample) {
+      at("51").inputs.switch = false;
+      // The template decodes greedily (top_k 1, seed 0): the same pictures always got the same caption,
+      // so every run drew the same pose and layout whatever the sampler seed (JD 31.10.2026: job 96b0a72b
+      // and the next test, sampler seeds 1406790374 and 96585588, same crouching pose). Sample the
+      // caption with this run's seed, at prise-plan's top_k and temperature.
+      at("47").inputs["sampling_mode.seed"] = seed;
+      at("47").inputs["sampling_mode.top_k"] = UPSAMPLER_TOP_K;
+      at("47").inputs["sampling_mode.temperature"] = UPSAMPLER_TEMPERATURE;
+    }
     images.forEach((image, index) => {
       at("17").inputs[`images.image${index}`] = image;
       at("50").inputs[`images.image${index}`] = image;

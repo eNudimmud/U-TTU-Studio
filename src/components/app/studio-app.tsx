@@ -3,14 +3,15 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { liftDelta, openBand } from "@/lib/mobile-band";
 import { assetPath } from "@/lib/site";
-import { chooseEdit, editHasClips } from "@/lib/montage/from-takes";
-import { priseReady } from "@/lib/stage";
+import { isFamille } from "@/lib/outils/catalogue";
 import { TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import { useI18n } from "@/components/i18n/provider";
-import { MontageStage } from "./montage-stage";
+import { FilmMontage } from "./film/film-montage";
+import { FilmFinish } from "./film/film-finish";
 import { FormatProvider } from "./format-switch";
-import { CastStage, DecorStage, PriseStage } from "./stage-screens";
+import { CastStage, DecorStage } from "./stage-screens";
 import { outilFromHash, OutilsHub } from "./outils-hub";
+import { StoryboardEntry } from "../storyboard/storyboard-entry";
 import { ConfirmTake, ConnectSheet, CreditSheet } from "./studio-frames";
 import { StudioProvider, useStudio } from "./studio-session";
 import { RenduSuivi } from "./rendu-suivi";
@@ -19,17 +20,13 @@ import { StudioSplash } from "./splash";
 import { BOOT_MARKS } from "@/lib/studio-boot";
 import { TopBar } from "./top-bar";
 import { AssistantPanel, toggleAssistant } from "./assistant-panel";
+import { FilmPlans } from "./film/film-plans";
 
-function stageOf(tab: Tab): "lora" | "scene" | "prise" | "montage" | "outils" {
-  return tab === "scene" || tab === "prise" || tab === "montage" || tab === "outils" ? tab : "lora";
+type Stage = "lora" | "scene" | "prise" | "montage" | "finaliser" | "outils";
+
+function stageOf(tab: Tab): Stage {
+  return tab === "scene" || tab === "prise" || tab === "montage" || tab === "finaliser" || tab === "outils" ? tab : "lora";
 }
-
-const STEPS: { id: "lora" | "scene" | "prise" | "montage"; key: "nav.character" | "nav.scene" | "nav.take" | "nav.edit" }[] = [
-  { id: "lora", key: "nav.character" },
-  { id: "scene", key: "nav.scene" },
-  { id: "prise", key: "nav.take" },
-  { id: "montage", key: "nav.edit" },
-];
 
 export function StudioApp({ initialTab = null }: { initialTab?: Tab | null }) {
   return <StudioProvider><AppFrame initialTab={initialTab ?? null} /></StudioProvider>;
@@ -39,18 +36,19 @@ const TYPING = "textarea, select, input:not([type=checkbox]):not([type=radio]):n
 
 function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const studio = useStudio();
-  const { t, say } = useI18n();
-  const { ready, sheet, notice, setNotice, run, cast, decor, line, loadMontages, studio: vault } = studio;
+  const { say } = useI18n();
+  const { ready, sheet, notice, setNotice } = studio;
   const [asked, setAsked] = useState<Tab | null>(initialTab);
-  const [cutReady, setCutReady] = useState<boolean | null>(null);
   const [outil, setOutil] = useState<string | null>(null);
+  const [cutReady, setCutReady] = useState(false);
 
   useEffect(() => {
     const apply = () => {
       const place = tabFromLocation(window.location.hash, window.location.search);
       if (place) setAsked(place);
-      setOutil(place === "outils" ? outilFromHash(window.location.hash) : null);
-      if (place === "outils") {
+      const askedTool = place === "outils" ? outilFromHash(window.location.hash) : null;
+      setOutil(askedTool);
+      if (place === "outils" && !(askedTool && isFamille(askedTool))) {
         window.scrollTo({ top: 0, behavior: "instant" });
         requestAnimationFrame(() => (document.getElementById("u-title") ?? document.querySelector<HTMLElement>("[data-tool-panel] h1"))?.focus({ preventScroll: true }));
       }
@@ -67,22 +65,17 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     return () => window.removeEventListener("hashchange", apply);
   }, []);
 
-  const castOk = cast.some(card => Boolean(card.sheet || card.preview || card.photos.length));
-  const decorOk = decor.some(card => Boolean(card.sheet || card.preview || card.geste === "repere"));
-  const priseOk = vault.takes.length > 0 || vault.shots.some(shot => Boolean(shot.composeur)) || priseReady({ cast: castOk, decor: decorOk, line });
   const tab: Tab = asked ?? "outils";
-  const section: "lora" | "scene" | "prise" | "montage" | "outils" = tab === "scene" || tab === "prise" || tab === "montage" || tab === "outils" ? tab : "lora";
+  const section: Stage = stageOf(tab);
 
   // Switching tab mounts a whole stage (PRISE is the heaviest). Render it as a transition so the tap
   // paints at once (the tab lights up, the old stage stays until the new one is ready) instead of
   // freezing the main thread for the full mount. Scroll and focus follow once the new stage is in.
   const [switching, startSwitch] = useTransition();
-  const [target, setTarget] = useState<Tab | null>(null);
   const arrive = useRef(false);
   const shownStage = useRef(section); shownStage.current = section;
   const go = useCallback((next: Tab) => {
     const shown: Tab = next === "look" || next === "fiches" || next === "sphere" ? "lora" : next;
-    setTarget(shown);
     if (stageOf(shown) === shownStage.current) {
       window.scrollTo({ top: 0, behavior: "instant" });
       requestAnimationFrame(() => document.getElementById("u-title")?.focus({ preventScroll: true }));
@@ -98,8 +91,6 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     window.scrollTo({ top: 0, behavior: "instant" });
     requestAnimationFrame(() => document.getElementById("u-title")?.focus({ preventScroll: true }));
   }, [switching, section]);
-  const lit = switching && target ? stageOf(target) : section;
-
   useEffect(() => {
     if (!notice) return;
     const timer = window.setTimeout(() => setNotice(""), 6000);
@@ -167,34 +158,9 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     if (ready) for (const mark of BOOT_MARKS) document.documentElement.removeAttribute(mark);
   }, [ready]);
 
-  const montageKey = `${vault.project ?? ""}|${vault.sequences.length}|${vault.shots.length}|${vault.takes.length}`;
-  useEffect(() => {
-    if (!ready) return;
-    let gone = false;
-    void loadMontages().then(saved => {
-      if (gone) return;
-      const choice = chooseEdit({ saved, sequences: vault.sequences, shots: vault.shots, takes: vault.takes });
-      setCutReady(editHasClips(choice.edit));
-    });
-    return () => { gone = true; };
-  }, [ready, montageKey, loadMontages, vault.sequences, vault.shots, vault.takes]);
-
-  const marks: Record<"lora" | "scene" | "prise" | "montage", boolean> = {
-    lora: castOk,
-    scene: decorOk,
-    prise: priseOk,
-    montage: cutReady === true,
-  };
-
+  const place = section === "montage" ? "montage" : section === "finaliser" ? "finish" : section === "outils" ? "creer" : "realiser";
   return <FormatProvider><div className="u-app" data-studio={section}>
-    <TopBar place={section === "montage" ? "montage" : section === "outils" ? "creer" : "realiser"} />
-    {section !== "outils" && <nav className="u-chain" aria-label={t("nav.chain")}>
-      {STEPS.map(step => <button key={step.id} type="button" aria-current={lit === step.id ? "page" : undefined} data-state={marks[step.id] ? "pret" : "vide"} onClick={() => go(step.id)}>
-        <span>{t(step.key)}</span>
-        <small>{marks[step.id] ? t("stage.ready") : t("stage.empty")}</small>
-        {step.id === "prise" && run.phase === "running" && <span className="u-pulse" aria-label={t("nav.takeRunning")} />}
-      </button>)}
-    </nav>}
+    <TopBar place={place} step={section === "outils" ? null : section} onStep={go} cutReady={cutReady} />
     <main id="contenu" className="u-main" tabIndex={-1} aria-busy={!ready || switching} data-switching={switching ? "" : undefined}>
       {ready && <RenduSuivi />}
       {/* F14 · The home (title, bar, the film door with the LCP picture) is in the server HTML and does
@@ -203,11 +169,13 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       {section === "outils" && (ready || !outil) ? <OutilsHub tool={outil} early={!ready} />
         : !ready ? <StudioSplash />
         : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
-        : section === "prise" ? <PriseStage goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
-        : section === "montage" ? <MontageStage onFilled={setCutReady} />
+        : section === "prise" ? <FilmPlans goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
+        : section === "montage" ? <FilmMontage onFilled={setCutReady} onPlans={() => go("prise")} onFinish={() => go("finaliser")} />
+        : section === "finaliser" ? <FilmFinish onEdit={() => go("montage")} />
         : <CastStage onDecor={() => go("scene")} />}
       {/* Shown instead of the home only when the address already asks for a stage (see STUDIO_BOOT). */}
       {!ready && section === "outils" && !outil && <StudioSplash early />}
+      {ready && section === "outils" && !outil && <StoryboardEntry />}
     </main>
     {/* PRISE and MONTAGE show the notice inline (near the action / under the header); the floating toast stays for other tabs and over sheets. */}
     {notice && !((section === "prise" || section === "montage") && !studio.sheet) && <p className="u-toast" role="status" onClick={() => setNotice("")}>{say(notice)}</p>}
@@ -217,3 +185,4 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
     {sheet === "confirm" && <ConfirmTake />}
   </div></FormatProvider>;
 }
+

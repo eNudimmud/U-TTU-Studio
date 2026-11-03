@@ -38,6 +38,28 @@ export function videoSeconds(url: string): Promise<number | null> {
   });
 }
 
+/** Width and height of a picture or a video, or null when it cannot be read. */
+export function mediaSize(url: string, kind: "image" | "video"): Promise<{ width: number; height: number } | null> {
+  return new Promise(resolve => {
+    if (typeof document === "undefined" || !url) { resolve(null); return; }
+    const timer = window.setTimeout(() => resolve(null), 8000);
+    const done = (width: number, height: number) => { window.clearTimeout(timer); resolve(width > 0 && height > 0 ? { width, height } : null); };
+    if (kind === "image") {
+      const image = new Image();
+      image.onload = () => done(image.naturalWidth, image.naturalHeight);
+      image.onerror = () => done(0, 0);
+      image.src = url;
+      return;
+    }
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.muted = true;
+    video.onloadedmetadata = () => done(video.videoWidth, video.videoHeight);
+    video.onerror = () => done(0, 0);
+    video.src = url;
+  });
+}
+
 /** The last frame of a take as a PNG, for Prolonger. Null when the browser cannot read it. */
 export function lastFrame(url: string, name = "derniere-image"): Promise<File | null> {
   return new Promise(resolve => {

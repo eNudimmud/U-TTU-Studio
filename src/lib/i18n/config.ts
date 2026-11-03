@@ -8,8 +8,11 @@ export function isLocale(value: string | undefined | null): value is Locale {
   return value === "fr" || value === "en" || value === "de" || value === "es";
 }
 
+/** English is the studio's default language. */
+export const DEFAULT_LOCALE: Locale = "en";
+
 export function readLocaleValue(value: string | undefined | null): Locale {
-  return isLocale(value) ? value : "fr";
+  return isLocale(value) ? value : DEFAULT_LOCALE;
 }
 
 /**
@@ -30,9 +33,14 @@ export function negotiateLocale(acceptLanguage: string | undefined | null): Loca
   return ranked.map(item => item.lang).find(isLocale) ?? "en";
 }
 
-/** The explicit choice (cookie) wins; otherwise the browser language. */
-export function requestLocaleFrom(cookie: string | undefined | null, acceptLanguage: string | undefined | null): Locale {
-  return isLocale(cookie) ? cookie : negotiateLocale(acceptLanguage);
+/**
+ * The explicit choice (cookie, set by the language switcher) wins. Without one, every visitor
+ * starts in English, whatever the browser says: English is the default (decision 31.10.2026),
+ * and link previews must read the same for everyone. Accept-Language is deliberately ignored;
+ * negotiateLocale stays available but is not used for the first visit.
+ */
+export function requestLocaleFrom(cookie: string | undefined | null, _acceptLanguage?: string | undefined | null): Locale {
+  return isLocale(cookie) ? cookie : DEFAULT_LOCALE;
 }
 
 /** French stays fr-CH, the live document language. Other locales stay language-only. */

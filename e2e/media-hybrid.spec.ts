@@ -37,13 +37,13 @@ test('hybrid library: metadata only, dedup, classification, lazy download, reope
  await panel.locator('[data-assistant-input]').fill('Assemble cette image au montage');
  await panel.locator('[data-agent-send]').click();
  await panel.locator('[data-agent-step="local:montage"] [data-agent-prepare]').click();
- await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
+ await expect(page.locator('[data-fm-track="plans"] [data-fm-clip]')).toHaveCount(1);
  await openPlan(page);
  const montage=panel.locator('[data-agent-step="local:montage"]');
  await expect(montage.locator('[data-agent-accept]')).toBeEnabled();
  await montage.locator('[data-agent-accept]').click();
  await expect(montage).toHaveAttribute('data-state','done');
- await page.reload();await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
+ await page.reload();await expect(page.locator('[data-fm-track="plans"] [data-fm-clip]')).toHaveCount(1);
  expect(downloads).toBe(1);expect(posts).toBe(0);
 });
 
@@ -77,8 +77,8 @@ test('hybrid library: selected cloud video and audio persist on the native timel
  await panel.locator('[data-assistant-input]').fill('Assemble ces médias au montage');
  await panel.locator('[data-agent-send]').click();
  await panel.locator('[data-agent-step="local:montage"] [data-agent-prepare]').click();
- await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
- await expect(page.locator('.u-clip.is-audio')).toHaveCount(1);
+ await expect(page.locator('[data-fm-track="plans"] [data-fm-clip]')).toHaveCount(1);
+ await expect(page.locator('[data-fm-track="son"] .u-fm-audio')).toHaveCount(1);
  await openPlan(page);
  const step=panel.locator('[data-agent-step="local:montage"]');
  // Changing selection while this step is prepared must not duplicate its sound
@@ -86,11 +86,11 @@ test('hybrid library: selected cloud video and audio persist on the native timel
  await panel.getByText(/Références sélectionnées/).click();
  await panel.getByRole('checkbox',{name:/Plan laboratoire/}).uncheck();
  await step.locator('[data-agent-prepare]').click();
- await expect(page.locator('.u-clip.is-video')).toHaveCount(1);
- await expect(page.locator('.u-clip.is-audio')).toHaveCount(1);
+ await expect(page.locator('[data-fm-track="plans"] [data-fm-clip]')).toHaveCount(1);
+ await expect(page.locator('[data-fm-track="son"] .u-fm-audio')).toHaveCount(1);
  await openPlan(page);
  await expect(step.locator('[data-agent-accept]')).toBeEnabled();
  await step.locator('[data-agent-accept]').click();await expect(step).toHaveAttribute('data-state','done');
- await page.reload();await expect(page.locator('.u-clip.is-video')).toHaveCount(1);await expect(page.locator('.u-clip.is-audio')).toHaveCount(1);
+ await page.reload();await expect(page.locator('[data-fm-track="plans"] [data-fm-clip]')).toHaveCount(1);await expect(page.locator('[data-fm-track="son"] .u-fm-audio')).toHaveCount(1);
  expect(downloads).toBe(2);expect(posts).toBe(0);
 });

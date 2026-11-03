@@ -16,13 +16,19 @@ test.describe("barre du bas et retours", () => {
     const hrefs = await tabs.evaluateAll(links => links.map(link => (link as HTMLAnchorElement).href));
     expect(new Set(hrefs).size).toBe(4);
     const seen = new Set<string>();
-    for (const id of ["creer", "film", "creations"]) {
+    for (const id of ["creer", "creations"]) {
       await page.locator(`[data-tabs] a[data-tab=${id}]`).click();
       await expect(current(page)).toHaveAttribute("data-tab", id);
       const where = new URL(page.url());
       seen.add(`${where.pathname}${where.hash}`);
       for (const box of await tabs.all()) expect((await box.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
+    // The film chain replaces the bottom bar, so the plan stays within 12 actions.
+    await page.locator("[data-tabs] a[data-tab=film]").click();
+    await expect(page.locator("[data-film-nav-to]")).toHaveCount(5);
+    await expect(page.locator("[data-tabs]")).toBeHidden();
+    const film = new URL(page.url());
+    seen.add(`${film.pathname}${film.hash}`);
     expect(seen.size).toBe(3);
     await page.goto("/studio#outils");
     await expect(page.locator("textarea:visible")).toHaveCount(1);

@@ -8,11 +8,15 @@ import { modeleAbsent } from "./pika-h3-flex.ts";
 
 export const FAMILLES = ["creer", "retoucher", "video", "3d", "son"] as const;
 export type Famille = (typeof FAMILLES)[number];
+
+export function isFamille(id: string): id is Famille {
+  return (FAMILLES as readonly string[]).includes(id);
+}
 export type Sous = "image" | "video" | "3d" | "son" | "texte";
 export type Sortie = "image" | "video" | "audio" | "mesh";
 /** What the panel asks for. `image2` is an optional second picture (références). */
 export type Entree = "image" | "image2" | "video" | "audio";
-export type Reglage = "aspect" | "camera" | "doublage" | "elargir" | "fluide" | "mesh" | "piste" | "resolution";
+export type Reglage = "aspect" | "cadre" | "camera" | "doublage" | "elargir" | "fluide" | "mesh" | "piste" | "resolution";
 export type Moteur =
   | { kind: "generique" }
   | { kind: "klein" }
@@ -77,14 +81,14 @@ export const OUTILS: readonly Outil[] = [
   { id: "vid-ltx-image", num: 9, famille: "creer", sous: "video", template: "video_ltx2_5_i2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "prise-plan", moteur: { kind: "take", engine: "ltx" }, reglages: ["aspect"] },
   { id: "vid-texte", num: 10, famille: "creer", sous: "video", template: "video_ltx2_5_t2v", entrees: [], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-texte", moteur: G, reglages: ["aspect"] },
   { id: "vid-raccord", num: 11, famille: "creer", sous: "video", template: "video_ltx2_5_flf2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "prise-raccord", moteur: { kind: "video" } },
-  { id: "vid-h3-refs", num: 12, famille: "creer", sous: "video", template: "video_minimax_h3_r2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "prise-plan-h3", moteur: { kind: "take", engine: "h3" }, reglages: ["aspect"] },
-  { id: "vid-multi", num: 15, famille: "creer", sous: "video", template: "video_minimax_h3_multiframe_reference", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-multi", moteur: G, reglages: ["aspect"] },
+  { id: "vid-h3-refs", num: 12, famille: "creer", sous: "video", template: "video_minimax_h3_r2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "prise-plan-h3", moteur: { kind: "take", engine: "h3" }, reglages: ["aspect"] , attribution: true },
+  { id: "vid-multi", num: 15, famille: "creer", sous: "video", template: "video_minimax_h3_multiframe_reference", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-multi", moteur: G, reglages: ["aspect"] , attribution: true },
   { id: "vid-transition-style", num: 65, famille: "creer", sous: "video", template: "template_ltx2_3_style_transition", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-transition-style", moteur: G, reglages: ["aspect"] },
   { id: "vid-h3-audio", num: 16, famille: "creer", sous: "video", template: "video_minimax_h3_r2v", entrees: ["image", "audio"], texte: "requis", sortie: "video", onglets: ["prise"], bientot: "h3Audio" },
   { id: "vid-kling", num: 17, famille: "creer", sous: "video", template: "api_kling_v3_video", entrees: ["image"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-kling", moteur: G, reglages: ["aspect"] },
   { id: "vid-seedance", num: 18, famille: "creer", sous: "video", template: "api_seedance2_5_r2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-seedance", moteur: G },
   { id: "vid-wan", num: 19, famille: "creer", sous: "video", template: "video_wan2_2_14B_i2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-wan", moteur: G },
-  { id: "vid-fasth3", num: 12, famille: "creer", sous: "video", template: "video_fasth3_ominiref_r2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-fasth3", moteur: G, reglages: ["aspect"], paire: "lieu" },
+  { id: "vid-fasth3", num: 12, famille: "creer", sous: "video", template: "video_fasth3_ominiref_r2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-fasth3", moteur: G, reglages: ["aspect"], paire: "lieu" , attribution: true },
   { id: "vid-pika", num: 12, famille: "creer", sous: "video", template: "video_pika_h3_flex_ref2va", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "outil-vid-pika", moteur: G, reglages: ["aspect"], paire: "lieu", attribution: true, absentSiRefus: true },
   { id: "vid-vidu", num: 21, famille: "creer", sous: "video", template: "api_vidu_q4_preview_r2v", entrees: ["image", "image2"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-vidu", moteur: G, reglages: ["aspect"] },
   { id: "vid-h3max", num: 22, famille: "creer", sous: "video", template: "api_minimax_h3_max_r2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-h3max", moteur: G },
@@ -114,7 +118,7 @@ export const OUTILS: readonly Outil[] = [
   // RETOUCHER
   { id: "ret-modifier", num: 43, famille: "retoucher", sous: "image", template: "image_flux3_klein_image_edit", entrees: ["image"], texte: "requis", sortie: "image", onglets: ["cast", "decor"], geste: "suite-modifier", moteur: S },
   { id: "ret-finaliser", num: 44, famille: "retoucher", sous: "image", template: "utility_seedvr2_3b_int8_upscale_image", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["cast", "decor"], geste: "suite-finaliser-image", moteur: S },
-  { id: "ret-elargir", num: 45, famille: "retoucher", sous: "image", template: "templates_doc_workbox_klein_9b_image_extend", entrees: ["image"], texte: "facultatif", sortie: "image", onglets: ["decor"], geste: "suite-elargir", moteur: S, reglages: ["elargir"] },
+  { id: "ret-elargir", num: 45, famille: "retoucher", sous: "image", template: "templates_doc_workbox_klein_9b_image_extend", entrees: ["image"], texte: "facultatif", sortie: "image", onglets: ["decor"], geste: "suite-elargir", moteur: S, reglages: ["cadre", "elargir"] },
   { id: "ret-detourer", num: 46, famille: "retoucher", sous: "image", template: "utility_birefnet_remove_background", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["cast"], geste: "suite-detourer", moteur: S },
   { id: "ret-gommer", num: 47, famille: "retoucher", sous: "image", template: "image_flux.1_fill_dev_OneReward", entrees: ["image"], texte: "requis", sortie: "image", onglets: [], bientot: "masque" },
   { id: "ret-vectoriser", num: 48, famille: "retoucher", sous: "image", template: "api_quiver_arrow2_image_to_svg", entrees: ["image"], texte: "aucun", sortie: "image", onglets: [], bientot: "svg", prix: 9 },
@@ -125,12 +129,12 @@ export const OUTILS: readonly Outil[] = [
   { id: "ret-angles-decor", num: 61, famille: "retoucher", sous: "image", template: "templates-1_click_multiple_scene_angles-v1.0", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["decor"], geste: "decor-angles", moteur: G, lot: 8 },
   { id: "ret-camera", num: 62, famille: "retoucher", sous: "image", template: "template_qwen_multiangle.app", entrees: ["image"], texte: "aucun", sortie: "image", onglets: ["cast", "decor"], geste: "outil-ret-camera", moteur: G, reglages: ["camera"] },
   // VIDÉO
-  { id: "vid-animer", num: 13, famille: "video", sous: "video", template: "video_minimax_h3_i2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "suite-animer", moteur: S, reglages: ["aspect"] },
-  { id: "vid-prolonger", num: 14, famille: "video", sous: "video", template: "video_minimax_h3_i2v_continuation", entrees: ["video"], texte: "facultatif", sortie: "video", onglets: ["prise"], geste: "suite-prolonger", moteur: S },
+  { id: "vid-animer", num: 13, famille: "video", sous: "video", template: "video_minimax_h3_i2v", entrees: ["image"], texte: "requis", sortie: "video", onglets: ["prise"], geste: "suite-animer", moteur: S, reglages: ["aspect"] , attribution: true },
+  { id: "vid-prolonger", num: 14, famille: "video", sous: "video", template: "video_minimax_h3_i2v_continuation", entrees: ["video"], texte: "facultatif", sortie: "video", onglets: ["prise"], geste: "suite-prolonger", moteur: S , attribution: true },
   { id: "vid-parler", num: 36, famille: "video", sous: "video", template: "video_ltx2_3_ia2v", entrees: ["image", "audio"], texte: "requis", sortie: "video", onglets: ["prise", "montage"], geste: "suite-parler", moteur: S, reglages: ["aspect"] },
   { id: "vid-finaliser", num: 51, famille: "video", sous: "video", template: "utility_seedvr2_3b_int8_upscale_video", entrees: ["video"], texte: "aucun", sortie: "video", onglets: ["prise", "montage"], geste: "suite-finaliser-video", moteur: S, reglages: ["fluide"], parTranche: true },
   { id: "vid-prolonger-grok", num: 52, famille: "video", sous: "video", template: "api_grok_video_extend", entrees: ["video"], texte: "requis", sortie: "video", onglets: [], geste: "outil-vid-prolonger-grok", moteur: G },
-  { id: "vid-recadrer", num: 53, famille: "video", sous: "video", template: "template_ltx2_3_lora_video_outpainting", entrees: ["video"], texte: "aucun", sortie: "video", onglets: ["prise"], geste: "prise-elargir", moteur: { kind: "video" } },
+  { id: "vid-recadrer", num: 53, famille: "video", sous: "video", template: "template_ltx2_3_lora_video_outpainting", entrees: ["video"], texte: "facultatif", sortie: "video", onglets: ["prise"], geste: "prise-elargir", moteur: { kind: "video" }, reglages: ["cadre"], parTranche: true },
   { id: "vid-detourer", num: 54, famille: "video", sous: "video", template: "api_bria_remove_video_background", entrees: ["video"], texte: "aucun", sortie: "video", onglets: [], geste: "outil-vid-detourer", moteur: G, parTranche: true },
   { id: "vid-levres", num: 55, famille: "video", sous: "video", template: "api_sync_so_lip_sync_video", entrees: ["video", "audio"], texte: "aucun", sortie: "video", onglets: ["montage"], geste: "outil-vid-levres", moteur: G, parTranche: true },
   { id: "vid-doubler", num: 66, famille: "video", sous: "video", template: "api_veed_dubbing", entrees: ["video"], texte: "aucun", sortie: "video", onglets: ["montage"], geste: "outil-vid-doubler", moteur: G, reglages: ["doublage"] },

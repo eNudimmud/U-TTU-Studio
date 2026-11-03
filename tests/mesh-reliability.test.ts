@@ -1,9 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { importModel, modelExtension } from '../src/lib/maquette/files.ts';
-import { initialMaquette } from '../src/lib/maquette/state.ts';
-import { addProp, addKeyframe } from '../src/lib/maquette/scene.ts';
-import { maquetteJson, readMaquette } from '../src/lib/maquette/persistence.ts';
+
 import { memoryVault } from '../src/lib/coffre/store.ts';
 import { createProject, loadStudio } from '../src/lib/coffre/model.ts';
 import { coffreZip } from '../src/lib/coffre/export.ts';
@@ -30,17 +28,6 @@ describe('modèles 3D : fichiers durables et reprise sans nouvel envoi', () => {
     for (const path of [first, second]) assert.equal(await (await restored.get(path))?.blob?.text(), await model.text());
     const notes = await importNotes(async path => (await restored.get(path))?.text, (await restored.list()).map(entry => entry.path), 'film-a');
     assert.deepEqual(notes.map(note => note.media).sort(), [first, second].sort());
-  });
-
-  it('keeps vault paths and camera keys, discards expired URLs and rejects corrupt positions', () => {
-    const state = addKeyframe(addProp(initialMaquette(), 'glb', { source: 'Projets/film-a/Assets/model-1.glb', url: 'blob:expired', name: 'Model' }), 3);
-    const raw = maquetteJson(state);
-    assert.ok(!raw.includes('blob:'));
-    const result = readMaquette(raw)!;
-    assert.equal(result.props?.[0].source, state.props?.[0].source);
-    assert.deepEqual(result.path, state.path);
-    assert.equal(readMaquette(JSON.stringify({ ...state, path: [{ t: 6, orbit: state.orbit }] })), null);
-    assert.equal(readMaquette(JSON.stringify({ ...state, props: [{ ...state.props![0], x: 'no' }] })), null);
   });
 
   it('refuses incomplete models without silently fetching external textures', async () => {

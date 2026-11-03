@@ -85,11 +85,11 @@ export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false
   grouped?: boolean;
 }) {
   const { t } = useI18n();
-  const { prefs } = useStudio();
+  const { outilsFiltre } = useStudio();
   const [open, setOpen] = useState(initial !== null || defaultOpen);
   const [seconds, setSeconds] = useState<number | null>(null);
   const menuId = useId();
-  const pages = new Set(outilsPublics(prefs).map(item => item.id));
+  const pages = new Set(outilsPublics(outilsFiltre).map(item => item.id));
   useEffect(() => { setOpen(initial !== null || defaultOpen); }, [source.url, initial, defaultOpen]);
   useEffect(() => {
     if (source.kind !== "video") return;

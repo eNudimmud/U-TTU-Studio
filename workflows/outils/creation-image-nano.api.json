@@ -1,0 +1,50 @@
+{
+  "reference_1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-personnage.png"
+    }
+  },
+  "reference_2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-decor.png"
+    }
+  },
+  "nano": {
+    "class_type": "GeminiNanoBanana2V2",
+    "inputs": {
+      "prompt": "<texte du visiteur>\n\nReference images, numbered in the order they are attached:\n- Image 1: \"Uttu\", character. Keep this exact character: same face, species, body proportions, colours, outfit, markings and logos.\n- Image 2: \"Quai\", place (the setting). The scene happens in or on this place; keep its architecture, shapes, colours and materials, and build any part the request names that the pictures do not show in the same design.\nAn image made of several panels, views or labelled drawings is a design sheet: use it only to understand the design. Never copy its panels, layout, grid, labels, captions or plain background into the new picture.\nCompose ONE new picture of this scene, where every named character and object appears once, whole and recognisable.",
+      "model": "Gemini Nano Banana 2.1",
+      "model.aspect_ratio": "16:9",
+      "model.resolution": "1K",
+      "model.thinking_level": "MEDIUM",
+      "model.images.image_1": [
+        "reference_1",
+        0
+      ],
+      "model.images.image_2": [
+        "reference_2",
+        0
+      ],
+      "seed": 0,
+      "response_modalities": "IMAGE",
+      "system_prompt": "You are the image engine of a film studio. You always return exactly one finished image, never text.\nThe user attaches numbered reference images. Each one belongs to a named reference listed in the request, with its category: character, object, place or style.\nCharacters and objects keep their exact identity from their own images: face, species, anatomy, proportions, colours, clothing, markings and logos. Never mix two references, never lend one reference's features to another, never merge two characters into one.\nA place is the setting of the scene. Characters are inside it at a believable scale, with consistent light and perspective; their poses follow the request.\nAn image made of several panels, views or labelled drawings is a design sheet: use it only to understand the design. Never copy its panels, layout, grid, labels, captions or plain background into the new picture.\nFollow the visual style the request asks for; when it asks for none, keep the rendering of the reference images.\nNever add text, captions, watermarks or borders.",
+      "temperature": 1,
+      "top_p": 0.95
+    },
+    "_meta": {
+      "title": "Nano Banana 2.1"
+    }
+  },
+  "save": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "nano",
+        0
+      ],
+      "filename_prefix": "uttu/creation-image"
+    }
+  }
+}

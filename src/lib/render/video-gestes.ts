@@ -4,6 +4,7 @@
 // files, text and seed are patched into the official graph.
 
 import type { ApiGraph } from "./take-graph.ts";
+import { cadreParts, VIDEO_CADRE_TAILLE, videoCadre, type Cadre } from "../outils/cadre.ts";
 import { VIDEO_BRIDGE_BASE, VIDEO_CAMERA_BASE, VIDEO_OUTPAINT_BASE, VIDEO_REMOVE_BASE } from "./video-gestes-base.ts";
 
 export const VIDEO_GESTES = ["prise-previs", "prise-raccord", "prise-camera", "prise-elargir", "prise-effacer"] as const;
@@ -34,7 +35,12 @@ export interface VideoGesteInput {
   seed: number;
   /** Caméra maîtrisée only: output frame. Defaults to horizontal, as the template. */
   aspect?: "horizontal" | "vertical";
+  /** Élargir only: the frame the clip must reach. Defaults to 16:9. */
+  cadre?: Cadre;
 }
+
+/** Élargir: what the outpaint LoRA is told when the visitor writes nothing. */
+export const ELARGIR_CONSIGNE = "Continue the scene seamlessly beyond the original frame: same place, light, colours and style, steady camera.";
 
 /** Seconds of previs the controlled shot follows. The template trims the clip to this. */
 export const PREVIS_SECONDS = 5;
@@ -97,7 +103,36 @@ export function videoGesteGraph(input: VideoGesteInput): ApiGraph {
   if (input.geste === "prise-elargir") {
     const graph = structuredClone(VIDEO_OUTPAINT_BASE);
     graph["5060"].inputs.video = need(input.files, "video_1");
-    graph["5151:5138"].inputs.text = prompt;
+    // The template ships a 9:16 target (landscape → portrait) and halves the padded clip: a
+    // portrait source came back portrait and smaller (464×688 → 224×384). The visitor's frame
+    // drives the padding, and the padded clip is rendered at ≈ 720p, then saved at the exact frame.
+    const cadre = videoCadre(input.cadre);
+    const [ratioW, ratioH] = cadreParts(cadre);
+    const taille = VIDEO_CADRE_TAILLE[cadre];
+    graph["5151:5097"].inputs.value = ratioW;
+    graph["5151:5098"].inputs.value = ratioH;
+    const scale = graph["5151:5129"].inputs;
+    delete scale["resize_type.multiplier"];
+    scale.resize_type = "scale dimensions";
+    scale["resize_type.width"] = taille.rendu.width;
+    scale["resize_type.height"] = taille.rendu.height;
+    // No crop: 1280×704 squeezes 16:9 by 2 %, the save node gives it back (nothing of the clip is lost).
+    scale["resize_type.crop"] = "disabled";
+    scale.scale_method = "lanczos";
+    graph["5151:sortie"] = {
+      class_type: "ResizeImageMaskNode",
+      inputs: {
+        resize_type: "scale dimensions",
+        "resize_type.width": taille.sortie.width,
+        "resize_type.height": taille.sortie.height,
+        "resize_type.crop": "disabled",
+        scale_method: "lanczos",
+        input: ["5151:5143", 0],
+      },
+      _meta: { title: `Cadre ${cadre}` },
+    };
+    graph["5152"].inputs.images = ["5151:sortie", 0];
+    graph["5151:5138"].inputs.text = prompt ? `${ELARGIR_CONSIGNE} ${prompt}` : ELARGIR_CONSIGNE;
     // Silent clips make VHS_LoadVideo throw « failed to extract audio ». The outpaint
     // path only needs frames; drop the audio wire so mute / no-track inputs work.
     if (graph["5152"]?.inputs) delete graph["5152"].inputs.audio;

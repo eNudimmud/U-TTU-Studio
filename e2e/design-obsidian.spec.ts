@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { NOMBRE_OUTILS, OUTILS_HORS_CATALOGUE } from "../src/lib/outils/nombre";
 
 // DA Obsidian : the layout holds on every device (no sideways scroll), the rail and the bottom
 // bar switch at the right widths and the entry keeps one gold action.
@@ -60,41 +61,43 @@ test.describe("toutes les tailles d'écran", () => {
         const result = await overflow(page);
         expect(result.scroll, `${target.id} déborde de ${result.scroll} px (${result.wide.join(", ")})`).toBeLessThanOrEqual(0);
         if (target.id === "accueil" || target.id === "compte") continue;
-        // Rail from 768 px, bottom bar below; both keep 44 px targets.
-        const rail = page.locator("[data-rail]");
         const tabs = page.locator("[data-tabs]");
-        if (size.width >= 768) {
-          await expect(rail).toBeVisible();
+        const chain = page.locator("[data-film-nav-to]");
+        const portraitPhone = size.width < 768 && size.height >= size.width;
+        const shortLandscape = size.height <= 500 && size.width > size.height;
+        if (["film", "prise", "montage", "barre", "entree", "outil", "creations"].includes(target.id)) {
+          await expect(chain).toHaveCount(5);
+        }
+        const filmStage = ["film", "prise", "montage"].includes(target.id);
+        if (portraitPhone && filmStage) {
+          // The chain is the film navigation; the bottom tabs would exceed 12 actions on the plan.
           await expect(tabs).toBeHidden();
-          for (const item of await rail.locator("a, button").all()) {
-            if (!(await item.isVisible())) continue;
-            const box = await item.boundingBox();
-            expect(box!.height, `${target.id} rail`).toBeGreaterThanOrEqual(44);
-            expect(box!.width, `${target.id} rail`).toBeGreaterThanOrEqual(44);
-          }
-          const names = rail.locator(".u-rail-name").first();
-          // Film stages keep icons until 1440 px so the work surface has room.
-          const film = ["film", "prise", "montage"].includes(target.id);
-          if (size.width >= 1440 || (size.width >= 1280 && !film)) await expect(names).toBeVisible(); else await expect(names).toBeHidden();
-        } else {
-          await expect(rail).toBeHidden();
+        } else if (portraitPhone) {
           await expect(tabs).toBeVisible();
           for (const item of await tabs.locator("a").all()) {
             const box = await item.boundingBox();
             expect(box!.height).toBeGreaterThanOrEqual(44);
           }
+        } else if (!shortLandscape) {
+          await expect(tabs).toBeHidden();
+          // PRISE keeps the chain and the plan on the first screen (≤ 12 actions); the global links return on the other steps.
+          if (target.id === "prise") continue;
+          const studio = page.locator("[data-top-studio]");
+          await expect(studio).toBeVisible();
+          const box = await studio.boundingBox();
+          expect(box!.height).toBeGreaterThanOrEqual(44);
         }
       }
     });
   }
 });
 
-test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvre la maquette de PRISE", async ({ page }) => {
+test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvre PRISE", async ({ page }) => {
   await page.goto("/studio#outils/tous");
   const entry = page.locator("[data-studio-entry]");
-  await expect(entry.locator("[data-outils-count]")).toHaveText("44 outils");
+  await expect(entry.locator("[data-outils-count]")).toHaveText(`${NOMBRE_OUTILS} outils`);
   const cards = entry.locator(".u-outil-card");
-  await expect(cards).toHaveCount(44);
+  await expect(cards).toHaveCount(NOMBRE_OUTILS);
   await expect(entry.locator(".u-outil-card .u-outil-glyph")).toHaveCount(0);
   const card = entry.locator('[data-outils-section="3d"] [data-outil-maquette]');
   await expect(card).toContainText("Maquette 3D et cadrage");
@@ -103,9 +106,7 @@ test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvr
   expect((await card.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await card.click();
   await expect(page).toHaveURL(/#prise\/maquette$/);
-  await expect(page.locator('[data-avance-toggle="maquette"]')).toHaveAttribute("aria-expanded", "true");
-  await expect(page.locator('[data-avance-group="maquette"] canvas')).toBeVisible();
-  await expect(page.locator('[data-avance-group="maquette"]')).toBeInViewport();
+  await expect(page.locator("[data-film-plans]")).toBeVisible();
 });
 
 test("page de création unique : la barre, la porte du film, une rangée par famille avec vignettes réelles", async ({ page }) => {

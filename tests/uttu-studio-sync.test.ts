@@ -7,7 +7,7 @@ import { GUIDE_FAQ, allowedTools, buildPack, quoteText, routerBody } from "../sr
 
 // Uttu knows the studio from the same catalogue and registry the studio renders. These tests keep
 // it that way: a tool that opens is known (with its quote), a tool that is closed is never named.
-const k = knowledge("abcdef0123456789") as Knowledge;
+const k = knowledge("abcdef0123456789", false) as Knowledge;
 const open = outilsPublics().filter(o => outilEtat(o).kind === "pret").map(o => o.id);
 const closed = OUTILS.map(o => o.id).filter(id => !open.includes(id));
 const word = (id: string) => new RegExp(`(^|[^\\w-])${id.replace(/[-]/g, "\\-")}(?![\\w-])`);
@@ -35,8 +35,8 @@ test("sync: no closed or hidden tool is named to the model or accepted as an act
   for (const locale of UTTU_LOCALES) {
     const pack = buildPack(k, locale, "Quel outil pour une vidéo ?");
     for (const id of closed) assert.doesNotMatch(pack, word(id), `${locale} ${id}`);
-    // Engines that only closed tools use are not named either.
-    assert.doesNotMatch(pack, /\b(Kling|Seedance|Tripo|Meshy|Hunyuan|Nano Banana)\b/i, locale);
+    // Engines that only closed tools use are not named either. The bubble guide names MiniMax H3 and LTX.
+    assert.doesNotMatch(pack, /\b(Kling|Seedance|Tripo|Meshy|Hunyuan)\b/i, locale);
     const body = routerBody(k, locale, "Quel outil ?", []);
     for (const id of closed) assert.ok(!body.text.format.schema.properties.tool.enum.includes(id), id);
   }
@@ -72,7 +72,8 @@ test("sync: the guide entries (bubble, references, PRISE in 5 steps, upload, Fin
     const prise = faq.find(f => f.id === "prise5")!.a;
     assert.equal((prise.match(/[1-5]\./g) ?? []).length, 5, locale);
     const bubble = faq.find(f => f.id === "bubble")!.a;
-    for (const engine of ["Klein", "MiniMax H3", "LTX"]) assert.ok(bubble.includes(engine), `${locale} ${engine}`);
+    for (const engine of ["MiniMax H3", "LTX"]) assert.ok(bubble.includes(engine), `${locale} ${engine}`);
+    assert.equal(bubble.includes("Nano Banana"), false, locale);
     assert.match(faq.find(f => f.id === "upload")!.a, /200/);
   }
 });

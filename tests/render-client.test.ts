@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { BALANCE_URL, RenderError, createRenderClient, executionSeconds, jobStage, videoOutput } from "../src/lib/render/client.ts";
+import { BALANCE_URL, RenderError, chargeFromEvents, createRenderClient, executionSeconds, jobStage, videoOutput } from "../src/lib/render/client.ts";
 import { followTake, runTake, type TakeRunEvent } from "../src/lib/render/run.ts";
 
 type Call = { url: string; method: string; headers: Headers; body: unknown };
@@ -44,6 +44,33 @@ describe("client du compte de rendu", () => {
       assert.equal(call.headers.get("authorization"), null);
       assert.ok(call.url.startsWith("/api/") || call.url === "/envoi-direct/etat", "everything goes through the same-origin relay (or asks whether Blob is connected)");
     }
+  });
+
+  it("reads a pasted key's live balance through the relay, pending charges deducted, before the invoice report", async () => {
+    const { calls, fetchImpl } = fakeCloud(call => {
+      if (call.url === "/api/billing/balance") return json({ amount_micros: 1100, effective_balance_micros: 1000, currency: "usd" });
+      if (call.url.startsWith("/api/billing/usage/timeseries")) return json({ summary: { balance: { amount_micros: 4200, currency: "USD" } } });
+      return undefined;
+    });
+    const client = createRenderClient({ auth: { kind: "key", key: "comfyui-0123456789abcdef" }, fetch: fetchImpl });
+    assert.equal(await client.balance(), 2110);
+    assert.equal(calls.some(call => call.url.startsWith("/api/billing/usage")), false);
+    assert.ok(calls.every(call => call.url.startsWith("/api/")), "never straight to api.comfy.org from the page");
+  });
+
+  it("prices one job from its billed row in the event feed", async () => {
+    // The first FLUX.2 dev bubble run, 01.11.2026, as the feed reported it.
+    const feed = { events: [
+      { event_type: "cloud_workflow_executed", params: { job_id: "d107aeb5-d72a-4738-9390-a96f2731847d", gpu_seconds: 127.993022, gpu_type: "rtx_pro_6000" } },
+      { event_type: "cloud_workflow_executed", params: { job_id: "3d8d0ebd-b12e-48e9-9e4c-15244b3ff7a6", gpu_seconds: 50.191338 } },
+    ] };
+    assert.deepEqual(chargeFromEvents(feed, "d107aeb5-d72a-4738-9390-a96f2731847d", 0.001295 * 211), { credits: 34.97, gpuSeconds: 127.993022 });
+    assert.equal(chargeFromEvents(feed, "absent", 0.27), null);
+    assert.deepEqual(chargeFromEvents({ events: [{ params: { prompt_id: "p", credits_used: 12.5 } }] }, "p", 0.27), { credits: 12.5, gpuSeconds: null });
+    const { calls, fetchImpl } = fakeCloud(call => (call.url.startsWith("/api/billing/events") ? json(feed) : undefined));
+    const client = createRenderClient({ auth: { kind: "key", key: "comfyui-0123456789abcdef" }, fetch: fetchImpl });
+    assert.equal((await client.jobCharge("d107aeb5-d72a-4738-9390-a96f2731847d", 0.001295 * 211))?.credits, 34.97);
+    assert.equal(calls[0].headers.get("x-api-key"), "comfyui-0123456789abcdef");
   });
 
   it("uses the session token, and reads the balance where Comfy's own app reads it", async () => {
@@ -102,7 +129,7 @@ describe("client du compte de rendu", () => {
 });
 
 describe("une prise sans quitter le studio", () => {
-  function scriptedCloud(statuses: string[], cents: number[]) {
+  function scriptedCloud(statuses: string[], cents: number[], feed?: unknown) {
     const queue = [...statuses];
     const reads = [...cents];
     const { calls, fetchImpl } = fakeCloud(call => {
@@ -113,6 +140,7 @@ describe("une prise sans quitter le studio", () => {
         return json({ status: "completed", outputs: { save: { images: [{ filename: "uttu/prise_00001_.mp4", subfolder: "", type: "output" }] } }, execution_start_time: 1_759_500_000_000, execution_end_time: 1_759_500_140_000 });
       }
       if (call.url.startsWith("/api/view?")) return new Response(new Uint8Array([0, 0, 0, 24, 102, 116, 121, 112]), { headers: { "content-type": "video/mp4" } });
+      if (feed && call.url.startsWith("/api/billing/events")) return json(feed);
       if (call.url.startsWith("/api/billing/usage/timeseries")) {
         const amount = reads.length > 1 ? reads.shift()! : reads[0];
         return json({ summary: { balance: { amount_micros: amount, currency: "USD" } } });
@@ -151,6 +179,26 @@ describe("une prise sans quitter le studio", () => {
     const result = await followTake(client, "job-0123456789", 5001, () => {}, { sleep: async () => {}, measureTries: 3, measureMs: 1 });
     assert.equal(result.costCredits, null);
     assert.equal(result.balanceAfter, null);
+  });
+
+  it("falls back on the job's compute time when the balance rose (a top-up) or did not move", async () => {
+    // 2370 cents before the take, 2440 after: a top-up landed mid-run, so the balance cannot price the job.
+    const { client } = scriptedCloud(["success"], [2440]);
+    const infos: Array<{ costCredits: number | null; gpuSeconds?: number | null; gpuCredits?: number | null }> = [];
+    await followTake(client, "job-0123456789", 5001, () => {}, { sleep: async () => {}, measureTries: 2, measureMs: 1, onCost: info => infos.push(info) });
+    assert.equal(infos[0].costCredits, null, "never a negative or invented real cost");
+    assert.equal(infos[0].gpuSeconds, 140);
+    assert.equal(infos[0].gpuCredits, Math.ceil(140 * 0.001295 * 211), "compute time × the billed rate, rounded up");
+    const flat = scriptedCloud(["success"], [2370]);
+    const later: typeof infos = [];
+    await followTake(flat.client, "job-0123456789", 5001, () => {}, { sleep: async () => {}, measureTries: 2, measureMs: 1, onCost: info => later.push(info) });
+    assert.equal(later[0].gpuCredits, 39);
+    // With the job's billed row in the feed, that row is the real cost, whatever the balance did.
+    const billed = scriptedCloud(["success"], [2440], { events: [{ params: { job_id: "job-0123456789", gpu_seconds: 128 } }] });
+    const real: typeof infos = [];
+    await followTake(billed.client, "job-0123456789", 5001, () => {}, { sleep: async () => {}, measureTries: 2, measureMs: 1, onCost: info => real.push(info) });
+    assert.equal(real[0].costCredits, 34.98);
+    assert.equal(real[0].gpuCredits, null);
   });
 
   it("shows the bytes first when measure is deferred, without a measure stage event", async () => {

@@ -5,6 +5,7 @@
 // Finaliser enhances what exists (SeedVR2 restores and enlarges, interpolation adds in-between
 // frames). It never regenerates the image or the take.
 
+import { cadreParts, isCadre, type Cadre } from "../outils/cadre.ts";
 import { KLEIN_BASE_CFG, kleinNodes } from "../render/klein-graph.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import {
@@ -86,7 +87,9 @@ export const PARLER_MAX_SECONDS = 20;
 /** Finaliser vidéo: the shorter side after restoration. */
 export const FINAL_SHORTER = 1080;
 
-export type Elargir = "cotes" | "haut-bas" | "tout";
+/** A target frame (exact padding to that ratio), or the former fixed bands (advanced). */
+export type Elargir = "cotes" | "haut-bas" | "tout" | Cadre;
+export const ELARGIR_BANDES = ["cotes", "haut-bas", "tout"] as const;
 export type SuiteAspect = "horizontal" | "vertical";
 
 export interface SuiteInput {
@@ -148,17 +151,40 @@ function detourer(input: SuiteInput): ApiGraph {
   return graph;
 }
 
-/** Pixels added on each side, on the 1.5 MP working copy. */
-export function elargirPads(side: Elargir): { left: number; top: number; right: number; bottom: number } {
+/** Pixels added on each side, on the 1.5 MP working copy (former fixed bands). */
+export function elargirPads(side: Exclude<Elargir, Cadre>): { left: number; top: number; right: number; bottom: number } {
   if (side === "haut-bas") return { left: 0, top: 384, right: 0, bottom: 384 };
   if (side === "tout") return { left: 256, top: 256, right: 256, bottom: 256 };
   return { left: 384, top: 0, right: 384, bottom: 0 };
 }
 
+/**
+ * Exact frame: Comfy measures the 1.5 MP working copy and pads it, centred, to the chosen ratio
+ * (same math as padsVersCadre in outils/cadre.ts). The 1 MP pass after it keeps that ratio.
+ */
+function padToCadre(graph: ApiGraph, cadre: Cadre): void {
+  const [ratioW, ratioH] = cadreParts(cadre);
+  const math = (expression: string, values: Record<string, Link>, title: string) => ({ class_type: "ComfyMathExpression", inputs: { expression, ...Object.fromEntries(Object.entries(values).map(([key, link]) => [`values.${key}`, link])) }, _meta: { title } });
+  const w: Link = ["e:size", 0];
+  const h: Link = ["e:size", 1];
+  graph["e:size"] = { class_type: "GetImageSize", inputs: { image: ["147", 0] }, _meta: { title: "Taille de travail" } };
+  graph["e:rw"] = { class_type: "PrimitiveInt", inputs: { value: ratioW }, _meta: { title: `Cadre ${cadre} (largeur)` } };
+  graph["e:rh"] = { class_type: "PrimitiveInt", inputs: { value: ratioH }, _meta: { title: `Cadre ${cadre} (hauteur)` } };
+  graph["e:W"] = math("max(a, b * c / d)", { a: w, b: h, c: ["e:rw", 0], d: ["e:rh", 0] }, "Largeur cible");
+  graph["e:H"] = math("max(b, a * d / c)", { a: w, b: h, c: ["e:rw", 0], d: ["e:rh", 0] }, "Hauteur cible");
+  graph["e:left"] = math("(a - b) / 2", { a: ["e:W", 1], b: w }, "Gauche");
+  graph["e:right"] = math("a - b - c", { a: ["e:W", 1], b: w, c: ["e:left", 1] }, "Droite");
+  graph["e:top"] = math("(a - b) / 2", { a: ["e:H", 1], b: h }, "Haut");
+  graph["e:bottom"] = math("a - b - c", { a: ["e:H", 1], b: h, c: ["e:top", 1] }, "Bas");
+  Object.assign(graph["164"].inputs, { left: ["e:left", 1], right: ["e:right", 1], top: ["e:top", 1], bottom: ["e:bottom", 1] });
+}
+
 function elargir(input: SuiteInput): ApiGraph {
   const graph = structuredClone(KLEIN9B_EXTEND_BASE);
   graph["159"].inputs.image = safeName(input.files.source, "Image");
-  Object.assign(graph["164"].inputs, elargirPads(input.elargir ?? "cotes"));
+  const side = input.elargir ?? "cotes";
+  if (isCadre(side)) padToCadre(graph, side);
+  else Object.assign(graph["164"].inputs, elargirPads(side));
   const extra = input.prompt.trim();
   // The template's instruction fills the green band; the visitor text says what appears there.
   graph["157"].inputs.text = extra ? `remove the green part, continue the scene: ${extra}` : "remove the green part";

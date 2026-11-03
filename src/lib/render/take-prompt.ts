@@ -12,6 +12,31 @@ export interface TakePromptInput {
   tags?: "picture" | "image";
   /** A LoRA's trigger phrase: the word that calls the trained person. */
   subject?: string;
+  /**
+   * Several CAST characters, in picture order. Each one's pictures follow the
+   * previous one's; `lookPictures` is ignored when two or more are given.
+   */
+  cast?: readonly { name: string; pictures: number; description?: string }[];
+}
+
+/** True when a character's sheet text says it wears clothes. */
+export const CLOTHING = /\b(wear(s|ing)?|dress(ed)?|clothe[sd]|clothing|outfit|costume|uniform|jacket|coat|shirt|t-shirt|hoodie|sweater|robe|cape|cloak|armou?r|trousers|pants|jeans|skirt|boots|hat|helmet|scarf|gloves|v[êe]tue?s?|habill[ée]e?s?|tenue|veste|manteau|chemise|pantalon|jupe|bottes|chapeau|casque|[ée]charpe|gants)\b/i;
+
+function castLines(cast: NonNullable<TakePromptInput["cast"]>, style: "picture" | "image"): { lines: string[]; pictures: number } {
+  const lines: string[] = [];
+  let next = 1;
+  for (const member of cast) {
+    const name = clip(member.name, 60) || `Character ${lines.length + 1}`;
+    const count = Math.max(0, Math.floor(member.pictures));
+    const description = clip(member.description ?? "", 120);
+    const who = description ? `${name} (${description})` : name;
+    lines.push(count > 0 ? `${tags(next, count, style)} ${count > 1 ? "show" : "shows"} only ${who}.` : `${who}.`);
+    const keep = CLOTHING.test(description) ? "face, species, body, colours and outfit" : "face, species, body and colours";
+    lines.push(`Keep ${name}'s own ${keep}.`);
+    next += count;
+  }
+  lines.push(`These are ${cast.length} different characters: never blend, swap or copy features between them. Keep each one for the whole shot.`);
+  return { lines, pictures: next - 1 };
 }
 
 function clip(value: string, max: number): string {
@@ -25,12 +50,13 @@ function tags(from: number, count: number, style: "picture" | "image"): string {
 
 export function takePrompt(input: TakePromptInput): string {
   const style = input.tags ?? "picture";
-  const look = Math.max(0, Math.floor(input.lookPictures));
+  const several = input.cast && input.cast.length > 1 ? castLines(input.cast, style) : null;
+  const look = several ? several.pictures : Math.max(0, Math.floor(input.lookPictures));
   const subject = input.subject ? clip(input.subject, 60) : "";
   const person = look > 0
     ? `${tags(1, look, style)} ${look > 1 ? "show" : "shows"} ${subject ? `${subject}, ` : ""}the same person. Keep this person for the whole shot.`
     : `${subject ? `${subject} is the person. ` : ""}Keep the same person for the whole shot.`;
-  const lines = [person];
+  const lines = several ? [...several.lines] : [person];
   const traits = input.traits.map(trait => clip(trait, 60)).filter(Boolean).slice(0, 8);
   if (traits.length) lines.push(`What does not change: ${traits.join(", ")}.`);
   if (input.place) {

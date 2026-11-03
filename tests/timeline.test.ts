@@ -117,7 +117,7 @@ describe("timeline", () => {
     assert.match(sheet, /type: "sequence"/);
     assert.match(sheet, /gesture: "montage"/);
     assert.match(sheet, /\| Ordre \| Piste \| Nom \| Début \| Durée \| Volume \| Fondu \| Source \|/);
-    assert.match(sheet, /Le quai, la nuit/);
+    assert.match(sheet, /The quay at night/);
     assert.match(sheet, /2,5 s/);
     assert.doesNotMatch(sheet, /class_type|api_elevenlabs|estimate_credits/);
     const back = parseSequenceFiche("exemple", sheet);
@@ -198,10 +198,5 @@ describe("timeline", () => {
     assert.equal(wavSeconds(readFileSync("public/exemples/musique-exemple.wav")), EXEMPLE_MUSIC_SECONDS);
     const fr = JSON.parse(read("messages/fr.json")) as { montage: { needLink: string } };
     assert.equal(fr.montage.needLink, "Relie ton compte de rendu pour créer.");
-    const stage = read("src/components/app/montage-stage.tsx");
-    assert.match(stage, /data-section="montage"/);
-    assert.doesNotMatch(stage, /class_type|api_elevenlabs|estimate_credits|partner_generate|submit_workflow|run_template/);
-    assert.match(read("src/components/app/prise-stage.tsx"), /data-lire-sequence/);
-    assert.match(read("src/components/app/prise-stage.tsx"), /onMontage\(\)/);
   });
 });

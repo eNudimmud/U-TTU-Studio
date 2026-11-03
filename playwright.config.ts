@@ -15,6 +15,13 @@ export default defineConfig({
     actionTimeout: 20_000,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
+    // The studio opens in English for a new visitor. Most specs read the French copy, so they run as a
+    // visitor who saved « Français » (cookie + localStorage). english-default.spec.ts and the language
+    // specs start from an empty state instead.
+    storageState: {
+      cookies: [{ name: "u-ttu-locale", value: "fr", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }],
+      origins: [{ origin: "http://127.0.0.1:3000", localStorage: [{ name: "u-ttu-locale", value: "fr" }] }],
+    },
   },
   webServer: {
     command: ci ? "npm start -- --port 3000" : "npm run dev -- --hostname 127.0.0.1 --port 3000",

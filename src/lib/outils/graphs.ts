@@ -5,11 +5,14 @@
 import { stemGraph } from "../creation/stem.ts";
 import { kleinNodes } from "../render/klein-graph.ts";
 import { meshGesteGraph } from "../render/mesh-gestes.ts";
+import { masqueParLicence } from "../open-weights.ts";
 import { takeGraphFor } from "../render/run.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import { isVideoGeste, videoGesteGraph } from "../render/video-gestes.ts";
 import { isSuiteGeste, suiteGraph, type Elargir } from "../suite/graphs.ts";
+import { finaliserVideoCredits, type FinaliserSource } from "../suite/quote.ts";
 import { gesteParId } from "../workflows/registre.ts";
+import { isCadre } from "./cadre.ts";
 import { outilRow, type Outil } from "./catalogue.ts";
 import { generiqueGraph, type OutilAspect, type OutilCamera, type OutilFiles, type OutilPiste } from "./generique.ts";
 import { GENJUTSU_TEMPLATE, genjutsuQuote, type GenjutsuResolution } from "./genjutsu.ts";
@@ -34,6 +37,12 @@ export interface OutilInput {
 }
 
 export const MESH_GESTE = { objet: "prise-volume-objet", perso: "prise-volume-perso" } as const;
+export type MeshChoix = keyof typeof MESH_GESTE;
+/** « Personnage » runs Hunyuan3D 2.1, hidden in open-weights mode for its licence: TRELLIS.2 (« Objet ») then does every picture. */
+export const MESH_CHOIX: readonly MeshChoix[] = masqueParLicence("3d_hunyuan3d-v2.1") ? ["objet"] : ["objet", "perso"];
+export function meshChoisi(mesh: MeshChoix | undefined): MeshChoix {
+  return mesh && MESH_CHOIX.includes(mesh) ? mesh : "objet";
+}
 
 export function outilPrefix(outil: Outil): string {
   const folder = outil.sortie === "video" ? "video/" : outil.sortie === "audio" ? "audio/" : outil.sortie === "mesh" ? "3d/" : "";
@@ -74,10 +83,10 @@ export function outilGraph(outil: Outil, input: OutilInput): ApiGraph {
       row.slots.forEach((slot, index) => {
         files[slot.slot] = slot.media === "video" ? (input.files.video ?? "") : (images[index] ?? images[0] ?? "");
       });
-      return videoGesteGraph({ geste: row.id, files, prompt, seed: input.seed, aspect: input.aspect });
+      return videoGesteGraph({ geste: row.id, files, prompt, seed: input.seed, aspect: input.aspect, cadre: isCadre(input.elargir) ? input.elargir : undefined });
     }
     case "mesh":
-      return meshGesteGraph({ geste: MESH_GESTE[input.mesh ?? "objet"], image: first(images, "Image"), seed: input.seed });
+      return meshGesteGraph({ geste: MESH_GESTE[meshChoisi(input.mesh)], image: first(images, "Image"), seed: input.seed });
     case "stem":
       return stemGraph({ kind: moteur.stem, text: prompt, seed: input.seed });
   }
@@ -106,10 +115,10 @@ export interface OutilQuote {
 const round1 = (value: number) => Math.round(value * 10) / 10;
 
 /** Estimated from the registry row. Per-length tools count each started block of five seconds. */
-export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier?: boolean; mesh?: "objet" | "perso"; resolution?: GenjutsuResolution; doublage?: Partial<VeedChoix> } = {}): OutilQuote | null {
+export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier?: boolean; mesh?: "objet" | "perso"; resolution?: GenjutsuResolution; doublage?: Partial<VeedChoix>; source?: FinaliserSource } = {}): OutilQuote | null {
   if (outil.template === GENJUTSU_TEMPLATE) return genjutsuQuote(options.seconds, options.resolution);
   if (outil.template === VEED_TEMPLATE) return veedQuote(options.seconds, options.doublage?.tier);
-  const row = outil.moteur?.kind === "mesh" ? gesteParId(MESH_GESTE[options.mesh ?? "objet"]) : outilRow(outil);
+  const row = outil.moteur?.kind === "mesh" ? gesteParId(MESH_GESTE[meshChoisi(options.mesh)]) : outilRow(outil);
   if (!row || row.credits === null || row.high === null) return null;
   // Per-length tools (e.g. Musique pour une vidéo): wait for a real duration so the quote
   // does not jump 10→20 when the video metadata loads.
@@ -121,6 +130,8 @@ export function outilQuote(outil: Outil, options: { seconds?: number; fluidifier
   const blocks = outil.parTranche ? Math.max(1, Math.ceil(Math.max(0, seconds - 0.25) / OUTIL_SECONDS - 1e-9)) : 1;
   let credits = row.credits * blocks;
   let high = row.high * blocks;
+  // Agrandir une vidéo: priced on the clip's real frames and output size, not a flat block.
+  if (outil.id === "vid-finaliser") ({ credits, high } = finaliserVideoCredits(seconds, options.source));
   if (outil.id === "vid-finaliser" && options.fluidifier) {
     const extra = gesteParId("suite-fluidifier");
     if (!extra || extra.credits === null || extra.high === null) return null;

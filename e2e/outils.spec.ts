@@ -1,6 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 import { simulateComfy } from "./helpers/simulate-comfy";
 import { openToolsHub } from "./helpers/top-bar";
+import { NOMBRE_OUTILS, OUTILS_HORS_CATALOGUE } from "../src/lib/outils/nombre";
+import { OPEN_WEIGHTS_MODE } from "../src/lib/open-weights";
 
 // « Outils » : the hub, one panel for every tool, results with « Et ensuite ? » open.
 // Comfy is simulated: nothing leaves, nothing is spent, nothing is cancelled.
@@ -19,22 +21,20 @@ test("hub : un clic depuis la barre du haut, une carte par intention, recherche,
   await page.goto("/studio#outils/tous");
   const hub = page.locator("[data-studio-entry]");
   await expect(hub.getByRole("heading", { name: "Qu’est-ce qu’on tourne ?" })).toBeVisible();
-  await expect(hub.locator("[data-outil]")).toHaveCount(42);
+  await expect(hub.locator("[data-outil]")).toHaveCount(NOMBRE_OUTILS - OUTILS_HORS_CATALOGUE);
   await expect(hub.locator("article[data-outil][data-etat=bientot]")).toHaveCount(0);
   await expect(hub.locator("[data-outil=ret-gommer]")).toHaveCount(0);
   await expect(hub.locator("[data-outil=vid-kling]")).toHaveCount(0);
   await expect(hub.locator("[data-outil=vid-wan]")).toContainText("Animer une image");
   for (const card of (await hub.locator("button[data-outil]").all()).slice(0, 6)) expect((await card.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await hub.locator("[data-outils-search]").fill("detourer");
-  await expect(hub.locator("[data-outil]")).toHaveCount(2);
+  // Image cut-out (BiRefNet, open) and video cut-out (partner node, hidden in open-weights mode).
+  await expect(hub.locator("[data-outil]")).toHaveCount(OPEN_WEIGHTS_MODE ? 1 : 2);
 
   await page.goto("/studio#personnage");
   await openToolsHub(page);
   await expect(page).toHaveURL(/#outils\/tous$/);
-  const burger = page.locator("[data-top-burger]");
-  if (await burger.isVisible()) await burger.click();
-  await page.locator("[data-top-menu=film]").filter({ visible: true }).first().click();
-  await page.locator("[data-film=decor]").filter({ visible: true }).first().click();
+  await page.locator("[data-film-nav-to=scene]").click();
   const strip = page.locator("[data-outils-onglet=decor]");
   await expect(strip).toHaveCount(1);
   await expect(strip.locator("> button")).toHaveAttribute("aria-expanded", "false");
@@ -113,29 +113,14 @@ test("sans compte relié : la raison et le lien « Relier mon compte » sont à 
   await expect(page.getByRole("dialog")).toBeVisible();
 });
 
-test("page de création unique : une carte ouvre son outil, le film ouvre CAST", async ({ page }) => {
+test("page de création unique : une carte ouvre son outil, le film ouvre PRISE", async ({ page }) => {
   await page.goto("/studio#outils/tous");
   await page.locator("button[data-outil=vid-wan]").click();
   await expect(page).toHaveURL(/#outils\/vid-wan$/);
   await page.goto("/studio#outils/tous");
   await page.locator("[data-entry-film]").click();
-  await expect(page).toHaveURL(/#personnage$/);
+  await expect(page).toHaveURL(/#prise$/);
   await expect(page.locator(".u-chain")).toBeVisible();
-});
-
-test("MONTAGE : le menu Plus se ferme avec Échap et ne bloque plus les onglets", async ({ page }) => {
-  await page.goto("/studio#montage");
-  const more = page.getByRole("button", { name: "Plus", exact: true }).first();
-  await more.click();
-  const menu = page.locator(".u-popover");
-  await expect(menu).toBeVisible();
-  await expect(menu.locator("[data-more-outils]")).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(menu).toBeHidden();
-  await more.click();
-  await expect(menu).toBeVisible();
-  await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
-  await expect(page.getByRole("heading", { name: "DÉCOR" })).toBeVisible();
 });
 
 test('passer d’un outil à l’autre : un seul panneau à la fois, plus de liste des anciens résultats', async ({ page }) => {
@@ -174,9 +159,9 @@ test("compteur : l’annonce compte toutes les cartes affichées", async ({ page
   await page.goto("/studio#outils/tous");
   // F14 · the home paints before the studio opens; count once it is open (its prefs are read).
   const hub = page.locator("[data-studio-entry]:not([data-early])");
-  await expect(hub.locator("[data-outil]")).toHaveCount(42);
+  await expect(hub.locator("[data-outil]")).toHaveCount(NOMBRE_OUTILS - OUTILS_HORS_CATALOGUE);
   const cards = await hub.locator(".u-outils-row > .u-outil-card").count();
-  expect(cards).toBe(44);
+  expect(cards).toBe(NOMBRE_OUTILS);
   await expect(hub.locator("[data-outils-tools] .eyebrow").first()).toContainText(`${cards} outils`);
 });
 

@@ -134,31 +134,6 @@ for (const family of families) {
   });
 }
 
-test("Store connecté · CAST puis DÉCOR : les photos de 9 et 11 Mo partent en original par Blob", async ({ page }, info) => {
-  await simulateComfy(page);
-  const relay = await simulateRelay(page);
-  const seen = await simulateDirect(page, true);
-  const nav = (name: string) => page.getByRole("navigation").getByRole("button", { name, exact: false });
-  const lea = heavyJpeg(info.outputPath("lea.jpg"));
-  const labo = heavyJpeg(info.outputPath("labo.jpg"), 11_000_000);
-  await page.goto("/studio#personnage");
-  await page.getByLabel("Importer un personnage", { exact: true }).setInputFiles(lea);
-  await expect(nav("CAST")).toContainText("Prêt");
-  await nav("DÉCOR").tap();
-  await page.getByLabel("Importer un décor", { exact: true }).setInputFiles(labo);
-  await expect(nav("DÉCOR")).toContainText("Prêt");
-  await nav("PRISE").tap();
-  await expect(page.locator('[data-prise-ready="true"]')).toBeVisible();
-  await page.getByRole("textbox", { name: "Ce qui se passe", exact: true }).fill("Léa ouvre la porte du laboratoire");
-  await page.locator(".u-prise-actions .u-primary").tap();
-  await page.locator("[data-confirm-gold]").tap();
-  await expect.poll(() => seen.comfy.length, { timeout: 90_000 }).toBeGreaterThanOrEqual(2);
-  const hashes = await received(page);
-  expect(hashes).toContain(sha(lea));
-  expect(hashes).toContain(sha(labo));
-  expect(await relay.sent()).toHaveLength(0);
-});
-
 test("Store connecté · Copier un mouvement : le clip est remis à 16 i/s (81 images) puis part par Blob, la photo en original", async ({ page }, info) => {
   await simulateComfy(page);
   const relay = await simulateRelay(page);

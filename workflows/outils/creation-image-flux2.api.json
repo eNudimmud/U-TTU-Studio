@@ -1,0 +1,220 @@
+{
+  "unet": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "flux2_dev_fp8mixed.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "clip": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "mistral_3_small_flux2_bf16.safetensors",
+      "type": "flux2",
+      "device": "default"
+    }
+  },
+  "vae": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "full_encoder_small_decoder.safetensors"
+    }
+  },
+  "prompt": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "clip",
+        0
+      ],
+      "text": "<texte du visiteur>\n\nReference images, in order:\n- The first image named \"Uttu\": a character from the cast: keep this exact character, same face, species, body, colours, outfit and logos. A picture with several views (a character sheet) still shows ONE character.\n- The second image named \"Quai\": the place where the scene happens: the new picture is set in or on this place, never in a generic one. Keep its architecture, shapes, colours and materials; the characters are inside it at a believable scale. If the request names a part of it the pictures do not show (a deck, an interior, a street), build that part in the same design, colours and materials.\nUse every image: each distinct character or creature appears once, whole and recognisable, with its own anatomy, colours and clothing; never merge two subjects into one. The images of a name define that name only: never lend its face, fur, colours, clothing or shapes to another name or to the place; the images of a place define only the setting. Poses, gestures and camera angle come from the request, never from the reference photos: give each character a fresh, natural pose that acts out the request. Compose ONE new finished picture, without reference panels, labels or contact-sheet layout.\nStyle: keep the rendering of the reference images; photographic references give a photographic picture, not a cartoon.\nStaging for this picture, unless the request says otherwise: a wide shot, the characters small on the left third of the frame, the setting filling the rest. Pose every character for this staging and the action.\nStyle: keep the rendering of the reference images; photographic references give a photographic picture, not a cartoon."
+    }
+  },
+  "guidance": {
+    "class_type": "FluxGuidance",
+    "inputs": {
+      "conditioning": [
+        "prompt",
+        0
+      ],
+      "guidance": 4
+    }
+  },
+  "reference_1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-personnage.png"
+    }
+  },
+  "scale_1": {
+    "class_type": "ImageScaleToTotalPixels",
+    "inputs": {
+      "image": [
+        "reference_1",
+        0
+      ],
+      "upscale_method": "lanczos",
+      "megapixels": 1,
+      "resolution_steps": 1
+    }
+  },
+  "encode_1": {
+    "class_type": "VAEEncode",
+    "inputs": {
+      "pixels": [
+        "scale_1",
+        0
+      ],
+      "vae": [
+        "vae",
+        0
+      ]
+    }
+  },
+  "ref_1": {
+    "class_type": "ReferenceLatent",
+    "inputs": {
+      "conditioning": [
+        "guidance",
+        0
+      ],
+      "latent": [
+        "encode_1",
+        0
+      ]
+    }
+  },
+  "reference_2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "uttu-decor.png"
+    }
+  },
+  "scale_2": {
+    "class_type": "ImageScaleToTotalPixels",
+    "inputs": {
+      "image": [
+        "reference_2",
+        0
+      ],
+      "upscale_method": "lanczos",
+      "megapixels": 1,
+      "resolution_steps": 1
+    }
+  },
+  "encode_2": {
+    "class_type": "VAEEncode",
+    "inputs": {
+      "pixels": [
+        "scale_2",
+        0
+      ],
+      "vae": [
+        "vae",
+        0
+      ]
+    }
+  },
+  "ref_2": {
+    "class_type": "ReferenceLatent",
+    "inputs": {
+      "conditioning": [
+        "ref_1",
+        0
+      ],
+      "latent": [
+        "encode_2",
+        0
+      ]
+    }
+  },
+  "canvas": {
+    "class_type": "EmptyFlux2LatentImage",
+    "inputs": {
+      "width": 1344,
+      "height": 768,
+      "batch_size": 1
+    }
+  },
+  "sigmas": {
+    "class_type": "Flux2Scheduler",
+    "inputs": {
+      "steps": 20,
+      "width": 1344,
+      "height": 768
+    }
+  },
+  "guider": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "unet",
+        0
+      ],
+      "conditioning": [
+        "ref_2",
+        0
+      ]
+    }
+  },
+  "sampler": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "euler"
+    }
+  },
+  "noise": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 0
+    }
+  },
+  "sample": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "noise",
+        0
+      ],
+      "guider": [
+        "guider",
+        0
+      ],
+      "sampler": [
+        "sampler",
+        0
+      ],
+      "sigmas": [
+        "sigmas",
+        0
+      ],
+      "latent_image": [
+        "canvas",
+        0
+      ]
+    }
+  },
+  "decode": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "sample",
+        0
+      ],
+      "vae": [
+        "vae",
+        0
+      ]
+    }
+  },
+  "save": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "decode",
+        0
+      ],
+      "filename_prefix": "uttu/creation-image"
+    }
+  }
+}

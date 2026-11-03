@@ -82,38 +82,15 @@ test("prise importée : trois actions, chacune vers sa page, un coût", async ({
   await expect(detail.locator("[data-suite-item]")).toHaveCount(3);
   const finish = detail.locator("[data-suite-item=suite-finaliser-video]");
   await expect(finish).toHaveAttribute("href", /#outils\/vid-finaliser/);
-  await expect(finish).toContainText("≈ 28 crédits");
+  // 5 s at 24 fps, billed per frame of the 1080p result (31.10.2026 measures: 41–43).
+  await expect(finish).toContainText("≈ 42 crédits");
   await expect(detail.locator("[data-suite-item=suite-fluidifier]")).toHaveAttribute("href", /#outils\/vid-fluidifier/);
   await expect(detail.locator(".u-suite")).not.toContainText(/réserve/i);
   await finish.click();
   await expect(page).toHaveURL(/\/studio#outils\/vid-finaliser/);
   const panel = page.locator("[data-tool-panel=vid-finaliser]");
   await expect(panel.locator("[data-outil-input=video] video")).toBeVisible({ timeout: 30_000 });
-  await expect(panel.locator("[data-tool-go]")).toContainText("≈ 28 crédits");
+  await expect(panel.locator("[data-tool-go]")).toContainText("≈ 42 crédits");
   await expect(panel).not.toContainText(/réserve/i);
   expect(seen.graphs).toHaveLength(0);
-});
-
-test("MONTAGE : avec les modèles du studio seulement, Finaliser restaure au lieu d'être bloqué", async ({ page }) => {
-  await simulateComfy(page);
-  const seen = await watch(page);
-  await page.addInitScript(() => localStorage.setItem("u-ttu-moteurs", JSON.stringify({ openWeightsOnly: true, nanoBanana: false, engine: "ltx", engineManual: false })));
-  await page.goto("/studio#personnage");
-  await page.getByRole("navigation").getByRole("button", { name: "MONTAGE" }).click();
-  await page.locator("[data-partir-exemple=montage]").click();
-  const open = page.locator("[data-finaliser-open]");
-  await expect(open).toBeEnabled();
-  await open.click();
-  const sheet = page.getByRole("dialog", { name: "Finaliser le montage" });
-  await expect(sheet.locator("[data-final-open]")).toBeVisible();
-  await expect(sheet.locator("[data-final-quote='estimation']")).toBeVisible();
-  await expect(sheet.getByRole("button", { name: "4K" })).toHaveCount(0);
-  await sheet.locator("[data-final-confirm]").click();
-  await sheet.locator("[data-final-go]").click();
-  await expect(sheet.locator("[data-final-stage]").or(sheet.locator("video"))).toBeVisible({ timeout: 90_000 });
-  await expect.poll(() => seen.graphs.length, { timeout: 90_000 }).toBeGreaterThan(0);
-  const sent = types(seen.graphs.at(-1));
-  expect(sent).toContain("SeedVR2Conditioning");
-  expect(sent).not.toContain("RTXVideoSuperResolution");
-  expect(seen.cancels()).toBe(0);
 });

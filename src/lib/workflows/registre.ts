@@ -1,6 +1,7 @@
 // Studio gestures. Each card hides one template id from the official Comfy catalog
 // (docs/TEMPLATES-COMFY.md and the catalogs synced 2026-10-08). No node names here.
 // A null `still` means the studio has no graph for it yet: the card stays, Créer stays off.
+import { masqueParLicence } from "../open-weights.ts";
 
 export const ROLES = ["visage", "tenue", "style", "lieu", "debut", "fin", "plan", "voix", "clip"] as const;
 export type RoleRef = (typeof ROLES)[number];
@@ -21,7 +22,7 @@ export interface SlotImage {
 
 /** « Et ensuite ? » tools live on an asset or a take, not in a tab. */
 /** The tool hub (« Outils ») runs whole templates from one panel. */
-export type OngletGeste = Onglet | "suite" | "outils";
+export type OngletGeste = Onglet | "suite" | "outils" | "look";
 
 export interface Geste {
   id: string;
@@ -45,12 +46,14 @@ export interface Geste {
   /** The graph runs a partner (paid API) node. Hidden under Open Weights Only. Checked against workflows/index.json. */
   partenaire: boolean;
   /** Off by default. Shown only when the visitor turns that option on. */
-  option?: "nano";
+  option?: "nano" | "anime25d";
 }
 
 export interface FiltreGestes {
   openWeightsOnly?: boolean;
   nanoBanana?: boolean;
+  /** Anime 2.5D stages. Hidden until the project look is on. */
+  anime25d?: boolean;
 }
 
 /** Ids read in the official catalogs or in docs/TEMPLATES-COMFY.md. Nothing else is allowed. */
@@ -98,6 +101,7 @@ export const TEMPLATES_OFFICIELS = [
   "api_openai_gpt_image_2_t2i",
   "api_bytedance_seedream_5_0_pro_t2i",
   "image_qwen_image_2_1_image_edit",
+  "image_flux2",
   "video_ltx2_5_t2v",
   "api_kling_v3_video",
   "api_seedance2_5_r2v",
@@ -135,6 +139,10 @@ export const TEMPLATES_OFFICIELS = [
   "api_veed_dubbing",
   // Pika H3 Flex Ref2VA, read with get_template and run once on Comfy Cloud 30.10.2026.
   "video_pika_h3_flex_ref2va",
+  // Anime 2.5D look (Comfy Cloud catalog, 2026-11-02). Krea 2 Turbo style reference.
+  // Real-ESRGAN anime is a core graph id: utility-gan_upscaler is tagged API and is not used.
+  "image_krea2_turbo_int8_image_style_reference",
+  "core_realesrgan_anime",
 ] as const;
 
 const KNOWN = new Set<string>(TEMPLATES_OFFICIELS);
@@ -372,9 +380,10 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "prise-elargir", onglet: "prise", categorie: "vfx", clef: "priseOutpaint",
     fournit: ["video"], slots: [{ role: "clip", slot: "video_1", media: "video" }],
-    template: "template_ltx2_3_lora_video_outpainting", credits: 16, high: 25, nature: "mesure",
+    template: "template_ltx2_3_lora_video_outpainting", credits: 28, high: 45, nature: "hypothese",
     premier: false, still: "video", minRefs: 1, consigne: "",
-  }), // mesuré 27.10.2026 : 16,32 crédits pour prise de 5 s élargie (job 38d04073)
+  }), // estimé 31.10.2026, par tranche de 5 s : rendu 1280×704 (≈ Effacer, 25,11 crédits mesurés à 1280×704) + guide IC-LoRA.
+  // L'ancien 16,32 (job 38d04073) mesurait le graphe cassé : cadre 9:16 du modèle, moitié de la taille (464×688 → 224×384).
   geste({
     id: "prise-effacer", onglet: "prise", categorie: "vfx", clef: "priseRemove",
     fournit: ["video", "texte"], slots: [{ role: "clip", slot: "video_1", media: "video" }],
@@ -452,9 +461,10 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "suite-finaliser-video", onglet: "suite", categorie: "suite", clef: "suiteFinaliserVideo",
     fournit: ["video"], slots: [{ role: "clip", slot: "video", media: "video" }],
-    template: "utility_seedvr2_3b_int8_upscale_video", credits: 28, high: 42, nature: "mesure",
+    template: "utility_seedvr2_3b_int8_upscale_video", credits: 42, high: 63, nature: "mesure",
     premier: false, still: "suite", minRefs: 1, consigne: "",
-  }), // mesuré 27.10.2026 : 27,50 crédits pour 5 s 832×480 → 1872×1080, 1 bloc (job 414d76ab)
+  }), // 5 s à 24 fps → 1920×1080. Le devis réel vient de finaliserVideoCredits (images × mégapixels de sortie) :
+  // mesuré 27.10.2026 : 27,50 crédits pour 5 s 832×480 16 fps → 1872×1080 (job 414d76ab) ; 31.10.2026 : 41 à 43 crédits, 7 prises 5,17 s 1280×736 H3 → 1878×1080
   geste({
     id: "suite-fluidifier", onglet: "suite", categorie: "suite", clef: "suiteFluidifier",
     fournit: ["video"], slots: [{ role: "clip", slot: "video", media: "video" }],
@@ -476,6 +486,9 @@ export const REGISTRE: readonly Geste[] = [
   // Home bubble: dynamic sizes / durations / named-reference counts are estimates, never measurements.
   geste({ id: "creation-image-texte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_flux3_klein_t2i", credits: 2, high: 4, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "creation-image", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_flux3_klein_image_edit", credits: 3, high: 6, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  geste({ id: "creation-image-nano", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_nano_banana_2_1_image_edit", credits: 12, high: 15, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }), // estimate_credits 31.10.2026 : ≈ 12 crédits/image en 1K, ≈ 17 en 2K (7 références)
+  geste({ id: "creation-image-qwen", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_qwen_image_2_1_image_edit", credits: 6, high: 12, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }), // open weights : 2,01 crédits mesurés pour 1 MP + 1 réf (job 2ac9e65b) ; 7 réfs ≈ 6 crédits estimés
+  geste({ id: "creation-image-flux2", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "image_flux2", credits: 50, high: 100, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }), // open weights, FLUX.2 dev multi-réf : 1re prise 01.11.2026 (job d107aeb5, 128 s GPU ≈ 35 crédits, 5 réfs) ; ≈ 50 crédits estimés à 7 réfs, prix à confirmer
   geste({ id: "creation-video-refs", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_minimax_h3_r2v", credits: 5, high: 10, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   geste({ id: "creation-video-texte", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "video_ltx2_5_t2v", credits: 5, high: 10, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
   // « Outils » : one panel per whole template, opened from the hub. Each estimate is shown
@@ -522,6 +535,71 @@ export const REGISTRE: readonly Geste[] = [
   geste({ id: "outil-son-bruitage-video", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_mirelo_video_to_sfx", credits: 15, high: 18, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 14,26 crédits partenaire pour 5,04 s de prise (job f5d1f00a), 3 crédits/s
   geste({ id: "outil-son-separer", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "audio_melbandroformer_audio_separation", credits: 1, high: 1, nature: "mesure", premier: false, still: "outil", minRefs: 0, consigne: "" }), // mesuré 29.10.2026 : 0,43 crédit pour 6,4 s de voix + musique (job 28e6846d)
   geste({ id: "outil-son-musique-video", onglet: "outils", categorie: "outil", clef: "outil", fournit: ["asset"], slots: [], template: "api_sonilo_v2m", credits: 10, high: 15, nature: "hypothese", premier: false, still: "outil", minRefs: 0, consigne: "" }),
+  // Anime 2.5D. Hidden until the project look is on. Costs are hypotheses except where a neighbour was measured.
+  // The graphs live in src/lib/look: Wan is slot overrides, finish is a core Real-ESRGAN graph.
+  geste({
+    id: "anime-style-frame", onglet: "look", categorie: "identite", clef: "animeStyleFrame",
+    fournit: ["photo"], slots: [STYLE("image_1"), STYLE("image_2")],
+    template: "image_krea2_turbo_int8_image_style_reference", credits: 3, high: 5, nature: "hypothese",
+    premier: false, still: null, minRefs: 0, option: "anime25d", raison: "gestes.raisons.animeLook",
+    consigne: "One style frame for the whole project. Fine ink, cel shading, warm rim light. No text.",
+  }),
+  geste({
+    id: "anime-sheet", onglet: "cast", categorie: "identite", clef: "animeSheet",
+    fournit: ["photos"], slots: [FACE("image_1"), STYLE("image_2")],
+    template: "image_qwen_image_2_1_image_edit", credits: 4, high: 6, nature: "hypothese",
+    premier: false, still: null, minRefs: 1, option: "anime25d", raison: "gestes.raisons.animeLook",
+    consigne: "Turnaround in the project look: front, three-quarter, side, back. Same person. No text.",
+  }),
+  geste({
+    id: "anime-sheet-klein", onglet: "cast", categorie: "identite", clef: "animeSheetKlein",
+    fournit: ["photos"], slots: [FACE("image_1"), STYLE("image_2")],
+    template: KLEIN_EDIT, credits: 4, high: 6, nature: "hypothese",
+    premier: false, still: null, minRefs: 1, option: "anime25d", raison: "gestes.raisons.animeLook",
+    consigne: "Fallback when an edit needs more than two references. Same person, project look. No text.",
+  }),
+  geste({
+    id: "anime-decor", onglet: "decor", categorie: "lieu", clef: "animeDecor",
+    fournit: ["photo"], slots: [STYLE("image_1")],
+    template: "image_krea2_turbo_int8_image_style_reference", credits: 3, high: 5, nature: "hypothese",
+    premier: false, still: null, minRefs: 0, option: "anime25d", raison: "gestes.raisons.animeLook",
+    consigne: "Painted background. Layers of depth. No people.",
+  }),
+  geste({
+    id: "anime-decor-photo", onglet: "decor", categorie: "lieu", clef: "animeDecorPhoto",
+    fournit: ["photo"], slots: [LIEU("image_1"), STYLE("image_2")],
+    template: "image_qwen_image_2_1_image_edit", credits: 3, high: 5, nature: "hypothese",
+    premier: false, still: null, minRefs: 1, option: "anime25d", raison: "gestes.raisons.animeLook",
+    consigne: "The place photo, repainted in the project look. No people.",
+  }),
+  geste({
+    id: "anime-first-frame", onglet: "prise", categorie: "plan", clef: "animeFirstFrame",
+    fournit: ["photos"], slots: [FACE("image_1"), LIEU("image_2")],
+    template: "image_qwen_image_2_1_image_edit", credits: 4, high: 8, nature: "hypothese",
+    premier: false, still: null, minRefs: 1, option: "anime25d", raison: "gestes.raisons.animeLook",
+    consigne: "The person in the painted place, at the asked framing. No text.",
+  }),
+  geste({
+    id: "anime-prise-jeu", onglet: "prise", categorie: "plan", clef: "animePriseJeu",
+    fournit: ["photo"], slots: [{ role: "debut", slot: "image" }],
+    template: "video_wan2_2_14B_i2v", credits: 12, high: 17, nature: "hypothese",
+    premier: false, still: null, minRefs: 1, option: "anime25d", raison: "gestes.raisons.animeLook",
+    consigne: "Anime acting. The official i2v template, with the AniSora high and low weights in its slots.",
+  }),
+  geste({
+    id: "anime-prise-camera", onglet: "prise", categorie: "mouvement", clef: "animePriseCamera",
+    fournit: ["photo"], slots: [{ role: "debut", slot: "image" }],
+    template: "video_ltx2_5_i2v", credits: 15, high: 23, nature: "mesure",
+    premier: false, still: null, minRefs: 1, option: "anime25d", raison: "gestes.raisons.animeLook",
+    consigne: "Wide shot or a travelling camera. The LTX take already in production.",
+  }), // LTX-2.5 i2v measured 15.10 for 5 s with the first frame (job d4d2fa37). The anime path reuses that template.
+  geste({
+    id: "anime-finish", onglet: "suite", categorie: "suite", clef: "animeFinish",
+    fournit: ["video"], slots: [{ role: "clip", slot: "video", media: "video" }],
+    template: "core_realesrgan_anime", credits: 3, high: 5, nature: "hypothese",
+    premier: false, still: null, minRefs: 1, option: "anime25d", raison: "gestes.raisons.animeLook",
+    consigne: "Sharpen the frames already made. Do not redraw them.",
+  }),
 ];
 
 export function gesteParId(id: string): Geste | null {
@@ -531,7 +609,9 @@ export function gesteParId(id: string): Geste | null {
 /** What a visitor sees with these options. Nano Banana is off unless asked; Open Weights Only drops partner nodes. */
 export function gesteVisible(row: Geste, filtre: FiltreGestes = {}): boolean {
   if (row.option === "nano" && !filtre.nanoBanana) return false;
+  if (row.option === "anime25d" && !filtre.anime25d) return false;
   if (filtre.openWeightsOnly && row.partenaire) return false;
+  if (filtre.openWeightsOnly && masqueParLicence(row.template)) return false;
   return true;
 }
 

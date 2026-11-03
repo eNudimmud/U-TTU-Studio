@@ -1,5 +1,5 @@
 [
-  { "id": "accueil", "path": "/", "title": "U*TTU Studio — Ton personnage, en vidéo", "ogTitle": "Ton personnage, en vidéo.", "kicker": "Studio vidéo open source", "description": "Personnage, décor, plans et montage. Le coût est affiché avant chaque rendu." },
-  { "id": "studio", "path": "/studio", "title": "Le studio — U*TTU Studio", "ogTitle": "Le studio.", "kicker": "CAST · DÉCOR · PRISE · MONTAGE", "description": "Deux photos, un décor, une action, et 57 outils. La vidéo se génère sur ton compte, le devis s’affiche avant." },
-  { "id": "creations", "path": "/mon-studio", "title": "Mes créations — U*TTU Studio", "ogTitle": "Mes créations.", "kicker": "Une seule bibliothèque", "description": "Images, vidéos, 3D, sons, personnages, lieux et prises, rangés sur ton appareil." }
+  { "id": "accueil", "path": "/", "title": "U*TTU Studio — Open-source AI film studio on ComfyUI", "ogTitle": "Your AI film studio, open source.", "kicker": "Open source · MIT · on ComfyUI", "description": "Characters, sets, shots and editing on your own Comfy account. Every render shows its estimated credits first." },
+  { "id": "studio", "path": "/studio", "title": "The studio — U*TTU Studio", "ogTitle": "The studio.", "kicker": "CAST · SET · SHOOT · EDIT", "description": "Two photos, a set, an action. The video renders on your Comfy account, with the estimated credits shown first." },
+  { "id": "creations", "path": "/mon-studio", "title": "My creations — U*TTU Studio", "ogTitle": "My creations.", "kicker": "One library", "description": "Images, videos, 3D, sounds, characters, places and takes, kept on your device." }
 ]

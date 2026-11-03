@@ -89,7 +89,5 @@ describe("outil shell (PR B)", () => {
     const decor = readFileSync("src/components/app/stage-screens.tsx", "utf8");
     assert.match(decor, /ToolShell/);
     assert.match(decor, /ToolStage/);
-    const prise = readFileSync("src/components/app/prise-stage.tsx", "utf8");
-    assert.match(prise, /data-prise-shell/);
   });
 });

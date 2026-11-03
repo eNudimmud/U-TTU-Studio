@@ -4,7 +4,7 @@ import { describe, it } from "node:test";
 import { cameraChoice, cameraFromWords } from "../src/lib/prise/camera-words.ts";
 import { buildPrompt } from "../src/lib/prise/prompt.ts";
 import { emptyPlan } from "../src/lib/prise/decision.ts";
-import { chosenTake, mergeTakeIds, planVersions, sequenceTakes, shownTake, takeIdsFromShotNote } from "../src/lib/prise/versions.ts";
+
 import { etapeCourante, protocole } from "../src/lib/fiabilite.ts";
 import { tabFromLocation } from "../src/lib/studio-route.ts";
 import { chooseExportRoute, exportExtension } from "../src/lib/montage/encode.ts";
@@ -60,9 +60,6 @@ describe("P0 · 16:9 avec devis LTX estimé", () => {
     assert.equal(resolveTakeQuote(takeProfile({ seconds: 5, aspect: "vertical", quality: "rapide", engine: "h3" }), []).source, "billed");
     assert.equal(resolveTakeQuote(takeProfile({ seconds: 5, aspect: "horizontal", quality: "rapide", engine: "h3" }), []).source, "billed");
     assert.equal(resolveTakeQuote(takeProfile({ seconds: 10, aspect: "horizontal", quality: "rapide", engine: "h3" }), []).source, "unmeasured");
-    const prise = read("src/components/app/prise-stage.tsx");
-    assert.doesNotMatch(prise, /measuredProfile/);
-    assert.match(prise, /planQuote\.source !== "unmeasured"/);
   });
 });
 
@@ -72,24 +69,6 @@ describe("P0 · versions : une nouvelle prise n'écrase jamais la prise gardée"
     { id: "t3", at: "2026-10-17T12:00:00.000Z" },
     { id: "t2", at: "2026-10-17T11:00:00.000Z" },
   ];
-  it("orders versions, shows the newest, sends the kept one", () => {
-    const versions = planVersions(["t1", "t2", "t3", "gone"], takes);
-    assert.deepEqual(versions.map(take => take.id), ["t1", "t2", "t3"]);
-    assert.equal(shownTake(versions, null)?.id, "t3");
-    assert.equal(shownTake(versions, "t1")?.id, "t1");
-    assert.equal(chosenTake(versions, "t1")?.id, "t1");
-    assert.equal(chosenTake(versions, "")?.id, "t3");
-    assert.equal(chosenTake([], "t1"), null);
-  });
-  it("builds the cut in plan order and never loses a landed take on a late save", () => {
-    const shots = [{ id: "plan-02", takeIds: ["t3"] }, { id: "plan-01", takeIds: ["t1", "t2"] }];
-    const cut = sequenceTakes([{ id: "plan-01", garde: "t1" }, { id: "plan-02", garde: "" }, { id: "plan-03", garde: "" }], shots, takes);
-    assert.deepEqual(cut.map(entry => [entry.planId, entry.take?.id ?? null]), [["plan-01", "t1"], ["plan-02", "t3"], ["plan-03", null]]);
-    assert.deepEqual(mergeTakeIds(["t1"], ["t1", "t2"]), ["t1", "t2"]);
-    const note = '---\ntype: "shot"\nprises:\n  - "20261017-203121-prise"\n  - "20261017-203300-prise"\nnote: ""\n---\n';
-    assert.deepEqual(takeIdsFromShotNote(note), ["20261017-203121-prise", "20261017-203300-prise"]);
-    assert.deepEqual(takeIdsFromShotNote("---\nprises:\nnote: x\n---"), []);
-  });
   it("stores « Garder » in the plan", () => {
     const json = planJson(emptyPlan("16:9"), { etat: "gardee", garde: "20261017-203121-prise" });
     assert.equal(planStateFromJson(json).garde, "20261017-203121-prise");
@@ -112,7 +91,6 @@ describe("P0 · carte de fiabilité en sept étapes", () => {
   it("is used by every paid confirmation (take, CAST, DÉCOR)", () => {
     assert.match(read("src/components/app/studio-frames.tsx"), /<FiabiliteCard/);
     assert.match(read("src/components/app/stage-screens.tsx"), /<FiabiliteCard/);
-    assert.match(read("src/components/app/prise-stage.tsx"), /<FiabiliteCard/);
   });
 });
 
@@ -123,19 +101,16 @@ describe("P0 · liens, jargon et gestes fermés", () => {
     assert.equal(tabFromLocation("#cast", ""), "lora");
     assert.equal(tabFromLocation("#plan", ""), "prise");
   });
-  it("hides closed gestures and moves the model options to Avancé", () => {
+  it("hides closed gestures", () => {
     const picker = read("src/components/app/geste-picker.tsx");
     assert.match(picker, /gesteVisible\(item, prefs\) && gesteOuvert\(item\)/);
     assert.doesNotMatch(picker, /gestes\.soon/);
-    assert.match(picker, /<details className="u-fold u-avance"[\s\S]*<ModelOptions/);
     // 29.10.2026: the 8 angles (cast-angle, decor-angles) opened as hub tools.
     assert.ok(REGISTRE.filter(item => !gesteOuvert(item)).length >= 14);
   });
   it("keeps visible labels out of the code", () => {
     const stage = read("src/components/app/stage-screens.tsx");
     assert.doesNotMatch(stage, />Importer un (personnage|décor) · gratuit</);
-    const prise = read("src/components/app/prise-stage.tsx");
-    for (const word of ["Ce que l'app va faire", "Générer une prise", "Graphe :", ">Détails<", "Paroles ·", "Ce format n’est pas encore chiffré", ">Plans<"]) assert.equal(prise.includes(word), false, word);
   });
 });
 

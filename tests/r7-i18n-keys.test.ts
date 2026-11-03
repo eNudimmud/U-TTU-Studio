@@ -53,8 +53,6 @@ function usedR7Keys(): string[] {
 describe("clés r7 dans le dictionnaire FR", () => {
   it("échoue si une clé r7.* utilisée manque dans messages/fr.json", () => {
     const used = usedR7Keys();
-    assert.ok(used.includes("r7.stillShot"), "stillShot must be referenced");
-    assert.ok(used.includes("r7.distance"), "distance must be referenced");
     const missing = used.filter(key => !hasKey(fr, key));
     assert.deepEqual(missing, [], `clés r7 manquantes dans FR: ${missing.join(", ")}`);
   });

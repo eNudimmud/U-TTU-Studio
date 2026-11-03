@@ -12,7 +12,7 @@ import { readFrontmatter, list, withFrontmatter } from "@/lib/coffre/markdown";
 import { castNote } from "@/lib/creation/fiche";
 import { runStem, type StemKind } from "@/lib/creation/stem";
 import { SFX_DEFAULT_SECONDS, musicQuote, sfxQuote, voiceQuote } from "@/lib/montage/quotes";
-import { gesteOuvert, gesteParId, gesteVisible, NOEUD_SORTIE, templatePartenaire, type RoleRef } from "@/lib/workflows/registre";
+import { gesteOuvert, gesteParId, gesteVisible, NOEUD_SORTIE, templatePartenaire, type FiltreGestes, type RoleRef } from "@/lib/workflows/registre";
 import { captureFiles } from "@/lib/repere3d/capture";
 import { cleanCardName, copyCast, decorFromScene, renameById, type CastCard, type DecorCard } from "@/lib/creation/gallery";
 import { creationAllowed, quoteForCast, quoteForDecor, spendAllowed } from "@/lib/creation/quotes";
@@ -26,7 +26,7 @@ import { mergeCoffreZip, vaultPathFromZip } from "@/lib/coffre/import";
 import { folderLinkSupported, linkedStore, mirrorAll, pickFolder, type DirectoryHandle } from "@/lib/coffre/link";
 import {
   emptySceneDraft, ensureActiveProject, extensionFor, loadStudio, removeScene, removeTake, sceneMarkdown, selectProject as chooseProject, createProject as makeProject, sequenceStem, shotStem, slugify, takeId, uniqueId,
-  removeShot, writeBlob, writeLook, writeScene, writeSequence, writeShot, writeState, writeTake, writeText,
+  removeShot, writeBlob, writeLook, writeMap, writeScene, writeSequence, writeShot, writeState, writeTake, writeText,
   type Scene, type Shot, type Studio, type Take,
 } from "@/lib/coffre/model";
 import { allowFolder, folderPermission, loadFolderHandle, readFolder, saveFolderHandle } from "@/lib/coffre/permit";
@@ -37,6 +37,7 @@ import { type Balance } from "@/lib/credits";
 import { FINAL_MAX_SECONDS, finalFileId, finalGraph, finalQuote, type FinalChoice, type FinalRatio } from "@/lib/montage/finaliser";
 import { priseGate, resolveTakeQuote, type TakeQuote } from "@/lib/render/billed-quote";
 import { audioOutput, imageOutput, videoOutput, meshOutput, jobStage, createRenderClient, RenderError, type JobStage, type RenderClient } from "@/lib/render/client";
+import { grapheFinition } from "@/lib/look/finish-graph";
 import { noeudSortie } from "@/lib/render/sortie";
 import { isVideoGeste, VIDEO_GESTE_TEXT, videoGesteGraph } from "@/lib/render/video-gestes";
 import { importModel, modelExtension } from "@/lib/maquette/files";
@@ -55,14 +56,20 @@ import { sessionTokens } from "@/lib/render/session";
 import { settleLandedTake } from "@/lib/render/settle-take";
 import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderLink, cleanApiKey, type InFlight, type RenderLink } from "@/lib/render/settings";
 import { DEFAULT_TAKE, comfyStorageUrl, takeProfile, takeWorkflow, type TakeSettings } from "@/lib/render/take-graph";
-import { DEFAULT_PREFS, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
+import { DEFAULT_PREFS, prefsSession, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
+import { rolesLtx } from "@/lib/render/take-roles";
+import { castReferences } from "@/lib/render/cast-references";
+import { refusTournageStoryboard } from "@/lib/storyboard/film";
+import { reglerPrise } from "@/lib/storyboard/reglement";
+import { lireRegistre, registreJson, REGISTRE_FILE } from "@/lib/film/registre";
 import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, pendingRefusal, pendingState, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
 import { failView, type FailKind } from "@/lib/render/fail";
+import { imageVide } from "@/lib/render/blank";
 import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
 import { namedReferenceNote, readNamedReferences, referenceNotePath, REFERENCE_CATEGORIES, REFERENCE_PHOTOS_MAX, type NamedReference, type ReferenceCategory } from "@/lib/creation/named-references";
 import { referenceBoard } from "@/lib/creation/reference-board";
-import { bubbleGraph, bubbleGeste, bubbleQuote, bubbleTool, type BubbleMode, type BubbleSettings } from "@/lib/creation/bubble";
+import { bubbleGraph, bubbleGeste, bubbleImageEngine, bubbleQuote, bubbleTool, type BubbleMode, type BubbleSettings } from "@/lib/creation/bubble";
 
 export type SheetName = null | "credits" | "confirm" | "connect";
 
@@ -91,10 +98,16 @@ const PICTURE = /\.(jpe?g|png|webp|gif)$/i;
 const VIDEO = /\.(mp4|webm|mov)$/i;
 
 import { getComfyAuthHeaders, renderCredentialScope } from "@/lib/render/client";
+import { memoEnvois } from "@/lib/film/envois";
 import { randomSeed } from "@/lib/seed";
 import { connectMessage } from "@/lib/render/connect";
 import { accountScope, discoverLocal, readCatalog, registerRender, updateCatalog, parseCatalog, type MediaAsset, type MediaCatalog } from "@/lib/media/catalog";
 import { createMediaClient } from "@/lib/media/cloud";
+import { saveBoard as saveBoardJournaled, type SavedBoard } from "@/lib/cinema/board-writer";
+import { CAMPAIGN } from "@/lib/cinema/campaign";
+import { browserProjectLock, projectFiles } from "@/lib/cinema/journal";
+import type { CinemaController, ControllerPorts } from "@/lib/cinema/controller";
+import type { Storyboard } from "@/lib/storyboard/storyboard";
 import { syncPage, verifyMedia, cacheMedia, classify } from "@/lib/media/sync";
 
 export interface DecorInput {
@@ -111,6 +124,21 @@ export interface DecorInput {
   credits?: string[];
   /** Called once the décor is filed in DÉCOR. */
   onFiled?(filed: { id: string; name: string; cost: number | null; quote: number; image: Blob }): void;
+}
+
+/** The controller with every method answered asynchronously (its module is fetched on first use). */
+export type LazyCinema = { [K in keyof CinemaController]: CinemaController[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<Awaited<R>> : never };
+
+const CINEMA_METHODS = ["prepareIntent", "submitIntent", "resumeIntent", "collectIntent", "bindIntent", "declareIntentAbsent", "abandonIntent", "resolveConflictedIntent", "applyLocal", "undo", "approveKeyframe", "prepareShot", "submitShot", "resumeResults"] as const satisfies readonly (keyof CinemaController)[];
+
+// A controller method missing from the list fails to compile here.
+const cinemaMethodsComplete: [Exclude<keyof CinemaController, (typeof CINEMA_METHODS)[number]>] extends [never] ? true : false = true;
+void cinemaMethodsComplete;
+
+function lazyCinema(ports: ControllerPorts): LazyCinema {
+  let made: Promise<CinemaController> | null = null;
+  const get = () => (made ??= import("@/lib/cinema/controller").then(module => module.createCinemaController(ports)));
+  return Object.fromEntries(CINEMA_METHODS.map(name => [name, (...args: unknown[]) => get().then(controller => (controller[name] as (...a: unknown[]) => unknown)(...args))])) as LazyCinema;
 }
 
 export interface StudioSession {
@@ -170,10 +198,12 @@ export interface StudioSession {
   linkMode: RenderLink["mode"];
   creating: boolean;
   loose: AssetRecord[];
-  createCast(input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string }): Promise<boolean>;
+  createCast(input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string; onFiled?(filed: { id: string; name: string }): void }): Promise<boolean>;
   createDecor(input: DecorInput): Promise<boolean>;
   createStem(input: { geste: string; text: string; confirmed: boolean }): Promise<File | null>;
   prefs: StudioPrefs;
+  /** Filter of the tool catalogue (Outils, rail, search): explicit device choices only, never film2. */
+  outilsFiltre: FiltreGestes;
   setPrefs(next: Partial<StudioPrefs>): void;
   finaliseMontage(input: FinaliseInput): Promise<FinaliseOutcome>;
   runVideoGeste(input: VideoGesteRun): Promise<FinaliseOutcome>;
@@ -220,6 +250,18 @@ export interface StudioSession {
   saveExport(film: Blob, name: string): Promise<string>;
   readProjectFile(file: string): Promise<string | undefined>;
   writeProjectFile(file: string, text: string): Promise<void>;
+  /** CE5: a storyboard save through the common revision path (three-way, journaled, under the project lock). */
+  saveBoard(base: Storyboard | null, mine: Storyboard): Promise<SavedBoard>;
+  /** CE5: the cinema service of this session (no React inside), loaded on its first call so it stays
+   *  out of the first paint (LCP, method #221). */
+  cinema: LazyCinema;
+  /** CE5: moves when a resume or the agent wrote project files, so open boards re-read them. */
+  cinemaTick: number;
+  /** CE5: the board files changed under the page (agent answer applied): open boards re-read them. */
+  cinemaChanged(): void;
+  /** CE5: the native agent (candidate intent workflow) is offered. Only on a non-production build opened
+   *  with ?cinema=qualification (JD's test preview); hidden everywhere else. */
+  cinemaAgent: boolean;
   saveShot(shot: Shot): Promise<void>;
   /** Removes one plan note (Shots/<id>.md). Its takes stay in the vault, so « Annuler » loses nothing. */
   deleteShot(id: string): Promise<void>;
@@ -228,6 +270,8 @@ export interface StudioSession {
   /** 3D repérage: one framing becomes its own DÉCOR card, colour first, then depth, lines and the camera card. */
   saveLieuCapture(input: LieuCaptureInput): Promise<{ sceneId: string; color: string } | null>;
   sendToMontage(input: MontageInput): Promise<void>;
+  /** Plans (film2): create what the sentence names and is missing, then shoot, in one confirmed run. */
+  tournerPlan(input: PlanShoot): Promise<boolean>;
   /** Puts every plan on the cut, in plan order: kept take, else newest take, else its still. */
   sendSequence(inputs: MontageInput[]): Promise<number>;
 }
@@ -247,6 +291,29 @@ export interface LieuCaptureInput {
 /** One plan for the cut: a PRISE take, a video already in the project (a tool's result), or a still. */
 export interface MontageInput { takeId?: string; planId: string; label: string; seconds: number; aspect: "horizontal" | "vertical"; still: string; video?: string; prompt: string; sceneName: string; composeur: string }
 
+/** Plans (film2): one sentence shot with one confirmation. Missing characters and the missing place are
+ * created first, in this order, then the take; a step already done is found again on retry. */
+export interface PlanShoot {
+  planId: string;
+  phrase: string;
+  castIds: string[];
+  decorId: string | null;
+  /** Missing characters, made first inside the same quote: from the sentence, a description or 1–3 photos. */
+  nouveaux: { nom: string; description?: string; files?: File[] }[];
+  nouveauLieu: { nom: string; description?: string; file?: File | null } | null;
+  /**
+   * `"storyboard"` refuses a missing card (`REF_MISSING`, no POST). Absent or `"film"` still creates
+   * the character and the place inside the confirmed run.
+   */
+  origine?: "storyboard" | "film";
+  settings: TakeSettings;
+  /** The sentence sent for the take (the visitor's words plus camera and words said); defaults to phrase. */
+  ligne?: string;
+  onEtape?(index: number): void;
+  /** Why a creation step stopped, in the visitor's words. */
+  onEchec?(raison: string): void;
+}
+
 export interface TakeRequest {
   framing?: Framing;
   planId: string;
@@ -263,6 +330,8 @@ export interface TakeRequest {
   extraRefs?: string[];
   /** Separate from characters and set: this image is a composition reference. */
   framingRef?: string;
+  /** LTX, two or more characters: CE1 slot lines (`<ref_image_i>`). H3 ignores this. */
+  roles?: string;
 }
 
 /** One PRISE video gesture (raccord, caméra, élargir, effacer). Same gate as a take: confirmed quote, balance over the ceiling. */
@@ -326,12 +395,17 @@ export interface OutilRun {
   camera?: import("@/lib/outils/generique").OutilCamera;
   piste?: import("@/lib/outils/generique").OutilPiste;
   doublage?: import("@/lib/outils/veed").VeedChoix;
+  /** Agrandir une vidéo: the clip's size and frame rate, so the gate uses the same quote as the card. */
+  source?: import("@/lib/suite/quote").FinaliserSource;
   /** The visitor may use the voice they upload. */
   consent?: boolean;
   from?: string;
+  /** Kept anime take: Real-ESRGAN anime replaces the SeedVR2 graph. Still an enhance, never a redraw. */
+  animeFinish?: boolean;
   onStage(stage: FinaliseStage, seconds?: number): void;
   /** Real cost after the result is already shown (deferred balance read). */
-  onCost?(cost: number | null): void;
+  /** `gpu`: the job's compute-time figure, when the balance cannot show its cost. */
+  onCost?(cost: number | null, gpu?: { seconds: number; credits: number } | null): void;
 }
 
 export type FinaliseStage = "envoi" | "file" | "calcul" | "retour" | "mesure";
@@ -428,6 +502,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const abort = useRef<AbortController | null>(null);
   const paidBusy = useRef(false);
   const following = useRef<string | null>(null);
+  const toMontage = useRef<(input: MontageInput) => Promise<void>>(async () => {});
   const saves = useRef<Promise<unknown>>(Promise.resolve());
   const mediaVersions = useRef<Record<string, number>>({});
   const retiredUrls = useRef<string[]>([]);
@@ -439,7 +514,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const [pickedCast, setPickedCast] = useState<string | null>(null);
   const [pickedDecor, setPickedDecor] = useState<string | null>(null);
   const [line, setLineState] = useState("");
-  const [notice, setNotice] = useState("");
+  const [notice, setNoticeState] = useState("");
+  // The last notice, read synchronously by chained steps (tournerPlan) before React renders it.
+  const lastNotice = useRef("");
+  const setNotice = useCallback((text: string) => { lastNotice.current = text; setNoticeState(text); }, []);
   const [sheet, setSheet] = useState<SheetName>(null);
   // Read the saved link on the first client paint so Film/Créer never flash « Relier mon compte ».
   const [link, setLink] = useState<RenderLink>(() => readRenderLink(typeof window === "undefined" ? null : localStorage));
@@ -529,8 +607,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   }, [setStudio, showMedia, store]);
 
   const client = useMemo<RenderClient | null>(() => {
-    if (link.mode === "key") return createRenderClient({ auth: { kind: "key", key: link.key } });
-    if (link.mode === "session") return createRenderClient({ auth: { kind: "session", token: () => tokens.token() } });
+    // Refonte FILM (registre): a picture already sent is not uploaded again.
+    const memo = typeof window === "undefined" ? {} : { uploadMemo: memoEnvois(window.localStorage) };
+    if (link.mode === "key") return createRenderClient({ auth: { kind: "key", key: link.key }, ...memo });
+    if (link.mode === "session") return createRenderClient({ auth: { kind: "session", token: () => tokens.token() }, ...memo });
     return null;
   }, [link, tokens]);
 
@@ -604,7 +684,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
 
   const failOutcome = useCallback((error: unknown): Extract<FinaliseOutcome, { ok: false }> => {
     const view = failView(error);
-    if (error instanceof RenderError && (error.code === "failed" || error.code === "cancelled")) {
+    if (error instanceof RenderError && (error.code === "failed" || error.code === "cancelled" || error.code === "empty")) {
       const pending = readPending(localStorage);
       if (pending?.jobId) clearTerminalPending(localStorage, pending.jobId);
     }
@@ -706,6 +786,22 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       take.announcedHigh = learned.announced?.high ?? null;
       const takes = [take, ...current.takes.filter(item => item.id !== id)];
       await settleLandedTake(vault, take, current.sequences, current.shots, takes, current.loras, flight.planId);
+      if (flight.planId) {
+        const envoi = flight.envoi?.planId === flight.planId
+          ? flight.envoi
+          : { planId: flight.planId, phrase: flight.line, castIds: [] as string[], decorId: flight.sceneId };
+        const before = lireRegistre((await vault.get(projectPath(slug, REGISTRE_FILE)))?.text ?? null);
+        // The cut keeps the first take of a plan. Later takes stay in the register only.
+        const firstOnPlan = !before.plans.some(plan => plan.id === flight.planId && plan.prises.length > 0);
+        const filed = reglerPrise(before, { ...envoi, seconds: flight.settings.seconds }, { id, fichier: video });
+        await writeText(vault, projectPath(slug, REGISTRE_FILE), registreJson(filed));
+        if (firstOnPlan) {
+          await toMontage.current({
+            takeId: id, planId: flight.planId, label: (envoi.phrase || flight.line).slice(0, 80), seconds: flight.settings.seconds,
+            aspect: flight.settings.aspect === "vertical" ? "vertical" : "horizontal", still: poster ?? "", video, prompt: flight.prompt, sceneName: flight.sceneName, composeur: "",
+          });
+        }
+      }
       await completePending(renderClient, flight.jobId);
       saveInFlight(localStorage, null);
       if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
@@ -811,10 +907,15 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     quotes: [], project: null, projectName: "", projects: [], tree: [], memory: { bible: "", style: "", lexique: "", prompts: "", notes: [] },
   } as Studio;
 
-  const cast = demoOn && current.cast.length === 0 ? DEMO_CAST : current.cast;
-  const decor = demoOn && current.scenes.length === 0 ? DEMO_DECOR : current.scenes.map(decorFromScene);
-  const [prefs, setPrefsState] = useState<StudioPrefs>(DEFAULT_PREFS);
+  // The demo cards keep their ids; their names and prompts follow the studio language.
+  const demoCast = useMemo(() => DEMO_CAST.map(card => ({ ...card, name: t(`demoNames.${card.id}`), prompt: t.has(`demoPrompts.${card.id}`) ? t(`demoPrompts.${card.id}`) : card.prompt })), [t]);
+  const demoDecor = useMemo(() => DEMO_DECOR.map(card => ({ ...card, name: t(`demoNames.${card.id}`), prompt: t.has(`demoPrompts.${card.id}`) ? t(`demoPrompts.${card.id}`) : card.prompt })), [t]);
+  const cast = demoOn && current.cast.length === 0 ? demoCast : current.cast;
+  const decor = demoOn && current.scenes.length === 0 ? demoDecor : current.scenes.map(decorFromScene);
+  const [storedPrefs, setPrefsState] = useState<StudioPrefs>(DEFAULT_PREFS);
   useEffect(() => { setPrefsState(readPrefs(localStorage)); }, []);
+  // « Services partenaires payants » is an account setting, off by default (refonte FILM, PR 7).
+  const { prefs, outilsFiltre } = useMemo(() => prefsSession(storedPrefs), [storedPrefs]);
   const setPrefs = useCallback((next: Partial<StudioPrefs>) => {
     setPrefsState(prev => {
       const merged = { ...prev, ...next };
@@ -849,7 +950,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     });
   }, [cast, current.look.photos, current.look.traits, current.scenes, line, pickedCast, pickedDecor, pendingTake, t]);
 
-  const createCast = useCallback(async (input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string }) => {
+  const createCast = useCallback(async (input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string; onFiled?(filed: { id: string; name: string }): void }) => {
     const row = input.geste ? gesteParId(input.geste) : null;
     const opened = !row || (gesteOuvert(row) && row.still !== "prise" && row.onglet === "cast");
     const quote = row && row.credits !== null && row.high !== null
@@ -905,6 +1006,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         balanceBefore: fresh?.credits ?? 0,
       });
       const photos = refs;
+      if (await imageVide(result.image)) throw new RenderError("empty", t("suite.blankResult"));
       const sheet = `Projets/${slug}/Cast/${id}.png`;
       await writeBlob(vault, sheet, result.image);
       const at = new Date().toISOString();
@@ -918,6 +1020,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await reload();
       setPickedCast(id);
       setNotice(t("create.filed"));
+      input.onFiled?.({ id, name });
       return true;
     } catch (error) {
       const failure = error instanceof RenderError ? error : new RenderError("failed", error instanceof Error ? error.message : t("create.failed"));
@@ -1003,6 +1106,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         balanceBefore: fresh?.credits ?? 0,
         cadreLayout: cadre ? layout : undefined,
       });
+      if (await imageVide(result.image)) throw new RenderError("empty", t("suite.blankResult"));
       const sheet = `Projets/${slug}/Decors/${id}.png`;
       await writeBlob(vault, sheet, result.image);
       const scene: Scene = {
@@ -1303,7 +1407,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
           input.onCost?.(info.costCredits);
         },
       });
-      if (!result.video.size) throw new RenderError("failed", t("suite.emptyResult"));
+      if (!result.video.size) throw new RenderError("empty", t("suite.emptyResult"));
+      if (still && await imageVide(result.video)) throw new RenderError("empty", t("suite.blankResult"));
       await writeBlob(vault, path, result.video);
       await writeText(vault, notePath, assetNote({ id, kind: kindNote, name, at, prompt: input.prompt, geste, template: row.template, refs, devis: quote.credits, cout: result.costCredits, media: path, note: notePath, preview: null, loose: false }));
       await completePending(client, jobId);
@@ -1321,16 +1426,20 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const runOutil = useCallback(async (input: OutilRun): Promise<FinaliseOutcome> => {
     const outil = outilParId(input.outil);
     const creation = input.creation;
-    const row = creation ? gesteParId(bubbleGeste(creation.mode, input.images.length, Boolean(input.audio))) : outil ? outilRow(outil) : undefined;
+    // Image + references: open weights (Klein, or Qwen when chosen); Nano Banana only with partner services on.
+    const engine = creation ? bubbleImageEngine(creation.mode, input.images.length, creation.settings, prefs.openWeightsOnly) : null;
+    const row = creation ? gesteParId(bubbleGeste(creation.mode, input.images.length, Boolean(input.audio), engine)) : outil ? outilRow(outil) : undefined;
     if (!outil || !row || !outil.moteur || outil.bientot) return { ok: false, message: t(outil?.bientot ? `outils.why.${outil.bientot}` : "gestes.unwired") };
     if (creation && input.outil !== bubbleTool(creation.mode, input.images.length, Boolean(input.audio))) return { ok: false, message: t("bubble.invalid") };
-    if (!gesteVisible(row, prefs)) return { ok: false, message: t("safety.modelBlocked") };
-    if (outil.moteur.kind === "suite" && !creation) {
+    if (!gesteVisible(row, creation ? prefs : outilsFiltre)) return { ok: false, message: t("safety.modelBlocked") };
+    if (outil.moteur.kind === "suite" && !creation && !input.animeFinish) {
       const source = outil.entrees.includes("video") && row.id !== "suite-prolonger" ? input.video : input.images[0];
       if (!source) return { ok: false, message: t("videoGeste.needFiles") };
       return runSuite({ geste: row.id, source, audio: input.audio, prompt: input.prompt, confirmed: input.confirmed, aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, from: input.from, onStage: input.onStage, onCost: input.onCost });
     }
-    const quote = creation ? bubbleQuote(creation.mode, input.images.length, creation.settings, Boolean(input.audio)) : outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh, resolution: input.resolution, doublage: input.doublage });
+    const quoted = creation ? bubbleQuote(creation.mode, input.images.length, creation.settings, Boolean(input.audio), engine) : outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh, resolution: input.resolution, doublage: input.doublage, source: input.source });
+    const animeRow = input.animeFinish ? gesteParId("anime-finish") : null;
+    const quote = animeRow && animeRow.credits !== null && animeRow.high !== null ? { credits: animeRow.credits, high: animeRow.high, kind: "estime" as const } : quoted;
     if (!quote || !spendAllowed(quote.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
     if (outil.texte === "requis" && !input.prompt.trim()) return { ok: false, message: t("videoGeste.needText") };
     if (outil.entrees.includes("image") && !input.images[0]?.type.startsWith("image/")) return { ok: false, message: t("videoGeste.needFiles") };
@@ -1369,7 +1478,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       for (const [index, file] of input.images.entries()) images.push(await send(file, `image-${index + 1}`));
       const video = input.video ? await send(input.video, "video") : undefined;
       const audio = input.audio ? await send(input.audio, "son") : undefined;
-      const graph = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed() }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution, camera: input.camera, piste: input.piste, doublage: input.doublage });
+      const built = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed(), engine }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution, camera: input.camera, piste: input.piste, doublage: input.doublage });
+      const animeGraph = input.animeFinish && video ? grapheFinition({ video, prefix: "video/uttu-anime-finish" }) : null;
+      if (animeGraph && Object.values(animeGraph).some(node => /KSampler|SamplerCustom|EmptyLatent|WanImageToVideo/.test(node.class_type))) return { ok: false, message: t("finaliser.noQuote") };
+      const graph = animeGraph ?? built;
       const sortie = outil.sortie;
       const kind: PendingRender["kind"] = sortie === "audio" ? "son" : sortie;
       // The final save node by id (registry), never « the first video »: Comfy lists the source clip too.
@@ -1394,10 +1506,11 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
           if (notePath) {
             void writeText(vault, notePath, assetNote({ id, kind: kindNote, name, at, prompt: input.prompt, geste: row.id, template: row.template, refs, devis: quote.credits, cout: info.costCredits, media: mediaPath, note: notePath, preview: null, loose: false }));
           }
-          input.onCost?.(info.costCredits);
+          input.onCost?.(info.costCredits, info.gpuCredits && info.gpuSeconds ? { seconds: info.gpuSeconds, credits: info.gpuCredits } : null);
         },
       });
-      if (!result.video.size) throw new RenderError("failed", t("suite.emptyResult"));
+      if (!result.video.size) throw new RenderError("empty", t("suite.emptyResult"));
+      if (sortie === "image" && await imageVide(result.video)) throw new RenderError("empty", t("suite.blankResult"));
       const ext = sortie === "image" ? "png" : sortie === "video" ? "mp4" : sortie === "mesh" ? await modelExtension(result.video, "model.glb") : (result.video.type.includes("wav") ? "wav" : result.video.type.includes("flac") ? "flac" : "mp3");
       mediaPath = `Projets/${slug}/Assets/${id}.${ext}`;
       notePath = `Projets/${slug}/Assets/${id}.md`;
@@ -1421,11 +1534,13 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       await reload();
       return { ok: true, path: mediaPath, url: URL.createObjectURL(result.video), cost: result.costCredits, ...(extras.length ? { extras } : {}) };
     } catch (error) {
-      return failOutcome(error);
+      const outcome = failOutcome(error);
+      // Never a silent switch: a Nano Banana failure says so, and Klein is the visitor's explicit choice.
+      return engine === "nano" ? { ...outcome, message: t("bubble.nanoFailed", { reason: outcome.message }) } : outcome;
     } finally {
       setCreating(false);
     }
-  }, [client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, runSuite, store, t]);
+  }, [client, completePending, failOutcome, fingerprint, outilsFiltre, prefs, refreshBalance, reload, runSuite, store, t]);
 
   const rewriteCast = useCallback(async (cards: CastCard[]) => {
     const vault = store();
@@ -1576,7 +1691,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     setSheet("confirm");
   }, [client, connected, refreshBalance]);
 
-  const confirmRun = useCallback(async () => {
+  const pendingHeld = pendingTake;
+  const sheetSettings = settings;
+  const confirmRun = useCallback(async (given?: TakeRequest) => {
+    // `given`: a take built elsewhere (Plans, film2), launched without the session's confirm sheet.
+    const pendingTake = given ?? pendingHeld;
+    const settings = given ? given.settings : sheetSettings;
     if (run.phase === "running") return;
     if (!client) {
       setSheet("connect");
@@ -1594,12 +1714,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     if (pendingTake?.decorId && !place) { setNotice("Le décor choisi n’est pas enregistré dans ce projet. Enregistre-le dans DÉCOR avant de générer."); return; }
     const selected = pendingTake ? pendingTake.castIds.flatMap(id => held?.cast.find(item => item.id === id) ? [held.cast.find(item => item.id === id)!] : []) : held?.cast.filter(item => item.id === pickedCast) ?? [];
     if (pendingTake && selected.length !== pendingTake.castIds.length) { setNotice("Chaque personnage doit avoir une référence enregistrée. Retire les silhouettes neutres avant de générer."); return; }
-    const photos = [...(selected.length ? selected.flatMap(who => who.sheet ? [who.sheet] : who.photos.slice(0, 1)) : (pendingTake ? [] : held?.look.photos ?? [])), ...(pendingTake?.extraRefs ?? []).filter(path => path.startsWith("Projets/"))];
+    const photos = [...(selected.length ? castReferences(selected).photos : (pendingTake ? [] : held?.look.photos ?? [])), ...(pendingTake?.extraRefs ?? []).filter(path => path.startsWith("Projets/"))];
     const paths = referencePaths(photos, place, Infinity);
     const framingRef = pendingTake?.framingRef;
     if (framingRef?.startsWith("Projets/") && !paths.includes(framingRef)) paths.push(framingRef);
     if (paths.length > referenceLimit(settings)) { setNotice(t("safety.referencesMax", { max: referenceLimit(settings) })); return; }
-    let prompt = outgoing();
+    let prompt = given ? given.prompt : outgoing();
     if (framingRef && paths.includes(framingRef)) {
       const index = paths.indexOf(framingRef) + 1;
       const tag = settings.engine === "h3" ? `<Picture ${index}>` : `image ${index}`;
@@ -1641,10 +1761,13 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const at = new Date().toISOString();
       // P1-4: the take keeps every reference sent, framing maps included (P0-2).
       const sentRefs = [...paths, ...(pendingTake?.framing ? [pendingTake.framing.color, pendingTake.framing.depth, pendingTake.framing.edges] : [])];
-      const flightData: Omit<InFlight, "jobId"> = { at, project: slug, planId: pendingTake?.planId, refs: sentRefs, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits };
+      const flightData: Omit<InFlight, "jobId"> = {
+        at, project: slug, planId: pendingTake?.planId, refs: sentRefs, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits,
+        ...(pendingTake?.planId ? { envoi: { planId: pendingTake.planId, phrase: pendingTake.line, castIds: pendingTake.castIds, decorId: pendingTake.decorId } } : {}),
+      };
       const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: sentRefs, template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : freshQuote.source === "estimated" ? freshQuote.estimate.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
       const jobId = await submitTake(recoverableClient(client, localStorage, receipt), {
-        pictures, controls, prompt, settings, seed: randomSeed(), clientId: crypto.randomUUID(),
+        pictures, controls, prompt, settings, seed: randomSeed(), clientId: crypto.randomUUID(), ...(pendingTake?.roles ? { roles: pendingTake.roles } : {}),
       }, event => setRun({ phase: "running", event }), abort.current.signal);
       const flight: InFlight = { ...flightData, jobId };
       saveInFlight(localStorage, flight);
@@ -1654,7 +1777,69 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       setRun({ phase: "error", code: failure.code, message: failure.message, detail: failure.detail });
       abort.current = null;
     }
-  }, [client, completePending, fingerprint, finish, line, outgoing, pendingTake, pickedCast, pickedDecor, refreshBalance, run.phase, settings, store, t]);
+  }, [client, completePending, fingerprint, finish, line, outgoing, pendingHeld, pickedCast, pickedDecor, refreshBalance, run.phase, sheetSettings, store, t]);
+
+  const tournerPlan = useCallback(async (input: PlanShoot): Promise<boolean> => {
+    if (run.phase === "running") return false;
+    if (refusTournageStoryboard(input) === "REF_MISSING") { input.onEchec?.("REF_MISSING"); return false; }
+    if (!client || !connected) { setSheet("connect"); return false; }
+    const castIds = [...input.castIds];
+    let step = 0;
+    for (const who of input.nouveaux) {
+      const known = studioRef.current?.cast.find(card => card.name.trim().toLowerCase() === who.nom.trim().toLowerCase());
+      if (known) { castIds.push(known.id); step += 1; continue; }
+      input.onEtape?.(step);
+      lastNotice.current = "";
+      let id: string | null = null;
+      const photos = who.files?.slice(0, 3) ?? [];
+      const ok = await createCast({ name: who.nom, prompt: who.description ? `${who.nom}: ${who.description}. Full body, neutral light, plain background.` : `${who.nom}, the character of this film shot: ${input.phrase}. Full body, neutral light, plain background.`, source: photos.length ? "photos" : "texte", files: photos, confirmed: true, onFiled: filed => { id = filed.id; } });
+      if (!ok || !id) { input.onEchec?.(lastNotice.current || t("create.failed")); return false; }
+      castIds.push(id);
+      step += 1;
+    }
+    let decorId = input.decorId;
+    if (input.nouveauLieu) {
+      const known = studioRef.current?.scenes.find(scene => scene.name.trim().toLowerCase() === input.nouveauLieu!.nom.trim().toLowerCase());
+      if (known) decorId = known.id;
+      else {
+        input.onEtape?.(step);
+        lastNotice.current = "";
+        let id: string | null = null;
+        const file = input.nouveauLieu.file ?? null;
+        const ok = await createDecor({ name: input.nouveauLieu.nom, prompt: input.nouveauLieu.description ? `${input.nouveauLieu.nom}: ${input.nouveauLieu.description}. No people.` : `${input.nouveauLieu.nom}, the place of this film shot: ${input.phrase}. No people.`, source: file ? "photo" : "texte", file, confirmed: true, onFiled: filed => { id = filed.id; } });
+        if (!ok || !id) { input.onEchec?.(lastNotice.current || t("create.failed")); return false; }
+        decorId = id;
+      }
+      step += 1;
+    }
+    input.onEtape?.(step);
+    const held = studioRef.current;
+    const who = castIds.flatMap(id => held?.cast.find(card => card.id === id) ?? []);
+    const place = decorId ? held?.scenes.find(scene => scene.id === decorId) ?? null : null;
+    // Clean views before any sheet, balanced per character (#212); confirmRun sends the same list.
+    const refs = castReferences(who);
+    const photos = refs.photos;
+    const paths = referencePaths(photos, place, Infinity);
+    const placePictures = Math.max(0, paths.length - photos.length);
+    const prompt = takePrompt({
+      traits: [],
+      lookPictures: Math.min(photos.length, paths.length),
+      subject: who.length === 1 ? who[0].name : undefined,
+      cast: who.length > 1 ? refs.groups : undefined,
+      place: place ? { name: place.name, note: place.prompt || place.note, pictures: placePictures } : null,
+      line: input.ligne ?? input.phrase,
+      tags: input.settings.engine === "h3" ? "picture" : "image",
+    });
+    // H3 already names each character in `prompt`. LTX's first frame does not, unless it receives roles.
+    const roles = input.settings.engine === "ltx" && who.length >= 2
+      ? rolesLtx(
+        refs.groups.map((group, index) => ({ id: who[index]!.id, name: group.name, description: group.description, pictures: group.pictures })),
+        place && placePictures > 0 ? { id: place.id, name: place.name, pictures: placePictures } : null,
+      )
+      : undefined;
+    await confirmRun({ planId: input.planId, castIds, decorId, line: input.ligne ?? input.phrase, prompt, settings: input.settings, ...(roles ? { roles } : {}) });
+    return true;
+  }, [client, confirmRun, connected, createCast, createDecor, run.phase, t]);
 
   const cancelRun = useCallback(() => {
     abort.current?.abort();
@@ -1721,6 +1906,12 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         const ref = receipt.kind === "mesh" ? meshOutput(detail.outputs, node) : receipt.kind === "son" ? audioOutput(detail.outputs, node) : isVideo ? videoOutput(detail.outputs, node) : node ? imageOutput(detail.outputs, node) : stillOutput(detail.outputs);
         if (!ref) throw new Error("Le cloud annonce la fin mais le fichier manque. Le reçu est conservé.");
         const blob = await client.file(ref);
+        // A flat black picture is not a result: never file it, say so, and drop the receipt.
+        if ((isImage || receipt.kind === "cast" || receipt.kind === "decor") && await imageVide(blob)) {
+          clearPending(localStorage, receipt.jobId);
+          setPendingWatch(null);
+          throw new Error(t("suite.blankResult"));
+        }
         if (receipt.kind === "mesh") await modelExtension(blob, ref.filename);
         const ext = ref.filename.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || (receipt.kind === "son" ? "mp3" : "png");
         const kind = receipt.kind === "cast" ? "personnage" : receipt.kind === "decor" ? "decor" : isVideo ? "plan" : receipt.kind === "mesh" || isImage ? "importe" : "son";
@@ -1743,7 +1934,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         await recover();
       });
     })().catch(error => setNotice(error instanceof Error ? error.message : "Récupération impossible pour le moment.")).finally(() => { paidBusy.current = false; setCreating(false); });
-  }, [client, completePending, fingerprint, finish, reload, store]);
+  }, [client, completePending, fingerprint, finish, reload, store, t]);
 
   // Follow a pending receipt by itself: on load, every few seconds while the page is shown, and at
   // once when it comes back to the foreground. Only status reads (no POST, no spend); the file is
@@ -1798,6 +1989,49 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       window.removeEventListener("pageshow", shown);
     };
   }, [ready, client, resumeRun, fingerprint]);
+
+  // CE5 · the cinema controller: one service, React-free, held for the session. Credentials stay in the
+  // client in memory. The campaign limit counts the account's prior spend (lib/cinema/campaign.ts, sourced);
+  // without Web Locks there is no reliable exclusion between tabs, so no paid cinema POST either.
+  const projectLock = useMemo(() => browserProjectLock(typeof navigator === "undefined" ? null : navigator.locks ?? null).lock, []);
+  const [cinemaTick, setCinemaTick] = useState(0);
+  const cinemaChanged = useCallback(() => setCinemaTick(n => n + 1), []);
+  // Read after mount (no hydration gap); kept for the tab so in-app navigation does not drop it.
+  const [cinemaAgent, setCinemaAgent] = useState(false);
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_VERCEL_ENV === "production") return;
+    try {
+      if (new URLSearchParams(window.location.search).get("cinema") === "qualification") sessionStorage.setItem("u-ttu-cinema", "qualification");
+      setCinemaAgent(sessionStorage.getItem("u-ttu-cinema") === "qualification");
+    } catch { /* no storage: stays hidden */ }
+  }, []);
+  const cinema = useMemo(() => {
+    const locks = typeof navigator === "undefined" ? null : navigator.locks ?? null;
+    return lazyCinema({
+      storage: typeof window === "undefined" ? { getItem: () => null, setItem: () => undefined, removeItem: () => undefined } : window.localStorage,
+      // Lazy: the vault opens on first use in the browser, never during the server render.
+      vault: { list: () => store().list(), get: path => store().get(path), put: entry => store().put(entry), remove: path => store().remove(path) },
+      lock: projectLock, paidLocks: locks, sessionId: typeof crypto === "undefined" ? "ssr" : crypto.randomUUID(),
+      client: () => activeClient.current, now: () => new Date(), uuid: () => crypto.randomUUID(), seed: () => randomSeed(),
+      trancheCapCredits: 10, campaign: { capCredits: CAMPAIGN.capCredits, priorCredits: CAMPAIGN.priorCredits }, balance: async () => null,
+      projectAvailable: async slug => Boolean(studioRef.current?.projects.some(project => project.slug === slug)),
+      // The candidate intent workflow runs only under qualification (CE5 §1); the demo refuses it.
+      purpose: cinemaAgent ? "qualification" : "demo",
+    });
+  }, [store, projectLock, cinemaAgent]);
+
+  // CE5 · resume on open, without mounting any storyboard: incomplete journals of every project first,
+  // then the cinema receipts (GET only). Unavailable project or account = the receipt stays.
+  useEffect(() => {
+    if (!ready || !studio) return;
+    let alive = true;
+    void cinema.resumeResults({ projectIds: studio.projects.map(project => project.slug) }).then(answer => {
+      if (alive && (answer.data?.journals || answer.code === "RESULT_SETTLED")) setCinemaTick(n => n + 1);
+      const key = `storyboard.cinema.errors.${answer.code}`;
+      if (alive && !answer.ok && t.has(key)) setNotice(t(key));
+    }).catch(() => undefined);
+    return () => { alive = false; };
+  }, [ready, studio?.projects, cinema]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const connectKey = useCallback(async (raw: string) => {
     const key = cleanApiKey(raw);
@@ -2148,11 +2382,25 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         if (!incoming.fields.sequence && existing.fields.sequence) incoming.fields.sequence = existing.fields.sequence;
         text = withFrontmatter(incoming.fields, incoming.body);
       }
+      // A storyboard note that is new, renamed or (un)archived refreshes the project map (_MOC).
+      const carte = /^Storyboard\/[a-z0-9-]+\.md$/.test(file);
+      const resume = (note: string) => `${/^# .*$/m.exec(note)?.[0] ?? ""}|${/^statut:.*$/m.exec(note)?.[0] ?? ""}`;
+      const avant = carte ? (await store().get(projectPath(slug, file)))?.text : undefined;
       await writeText(store(), projectPath(slug, file), text);
+      if (carte && (avant === undefined || resume(avant) !== resume(text))) await writeMap(store());
     });
     saves.current = next;
     await next;
   }, [current.project, store]);
+
+  const saveBoard = useCallback(async (base: Storyboard | null, mine: Storyboard) => {
+    const slug = current.project ?? await ensureActiveProject(store());
+    const next = saves.current.catch(() => {}).then(() => saveBoardJournaled(projectFiles(store(), slug), projectLock, {
+      projectId: slug, operationId: `sb-${crypto.randomUUID()}`, base, mine, now: () => new Date().toISOString(),
+    }));
+    saves.current = next;
+    return next;
+  }, [current.project, store, projectLock]);
 
   const saveShot = useCallback(async (shot: Shot) => {
     await writeShot(store(), shot, current.takes, "");
@@ -2306,6 +2554,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
     await reload();
   }, [demoOn, prepareMontageClip, reload, store]);
+  toMontage.current = sendToMontage;
 
   const sendSequence = useCallback(async (inputs: MontageInput[]) => {
     await saves.current;
@@ -2342,7 +2591,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   );
   const value: StudioSession = {
     catalog, syncMedia, verifyMedia: checkMedia, cacheMedia: fetchMedia, previewMedia, classifyMedia, importManifest,
-    prefs, setPrefs,
+    prefs, outilsFiltre, setPrefs,
     ready, demo: demoOn, studio: current, media, cast, decor, references, saveReference, deleteReference, markCreation, storeCreationInput, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, pendingWatch, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
@@ -2350,7 +2599,8 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,
-    saveModel, savePrevis, saveFraming, saveExport, readProjectFile, writeProjectFile, saveShot, deleteShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
+    saveModel, savePrevis, saveFraming, saveExport, readProjectFile, writeProjectFile, saveBoard, cinema, cinemaTick, cinemaChanged, cinemaAgent, saveShot, deleteShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
+    tournerPlan: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.prise" }, () => paid(() => tournerPlan(input), false), ok => ({ ok })),
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

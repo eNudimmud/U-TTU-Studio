@@ -44,11 +44,11 @@ test("landing links: relative where login works, absolute with language elsewher
 });
 
 test("gate: unauthorized host sends /studio, /mon-studio and Comfy login pages to the authorized origin", () => {
-  const base = { method: "GET", hopCookie: false, locale: "es" as const };
+  const base = { method: "GET", hopCookie: null, locale: "es" as const };
   const hop = gateDecision({ ...base, url: new URL("https://uttu-studio.app/studio?step=prise"), host: "uttu-studio.app", isDocument: true }, config);
   assert.equal(hop.kind, "hop");
   if (hop.kind === "hop") assert.equal(hop.location, "https://u-ttu-studio.vercel.app/studio?step=prise&uttu_hop=1&uttu_lang=es");
-  for (const path of ["/studio/", "/mon-studio", "/cloud/login", "/oauth/x", "/login"]) {
+  for (const path of ["/studio/", "/mon-studio", "/storyboard", "/storyboard/court-a1/print", "/cloud/login", "/oauth/x", "/login"]) {
     assert.equal(gateDecision({ ...base, url: new URL(`https://uttu-studio.app${path}`), host: "uttu-studio.app", isDocument: true }, config).kind, "hop", path);
   }
   // The landing, assets and APIs stay on the public domain.
@@ -60,29 +60,43 @@ test("gate: unauthorized host sends /studio, /mon-studio and Comfy login pages t
 });
 
 test("gate: a hop that comes straight back is an explicit error, never a second redirect", () => {
-  const back = gateDecision({ url: new URL("https://uttu-studio.app/studio?uttu_hop=1&uttu_lang=fr"), host: "uttu-studio.app", method: "GET", isDocument: true, hopCookie: false, locale: null }, config);
+  const back = gateDecision({ url: new URL("https://uttu-studio.app/studio?uttu_hop=1&uttu_lang=fr"), host: "uttu-studio.app", method: "GET", isDocument: true, hopCookie: null, locale: null }, config);
   assert.equal(back.kind, "loop");
   if (back.kind === "loop") assert.equal(back.retry, "https://u-ttu-studio.vercel.app/studio?uttu_hop=1");
-  // Query dropped by the bounce: the short-lived cookie still catches it.
-  assert.equal(gateDecision({ url: new URL("https://uttu-studio.app/studio"), host: "uttu-studio.app", method: "GET", isDocument: true, hopCookie: true, locale: null }, config).kind, "loop");
+  // Query dropped by the bounce: the short-lived cookie still catches it on the same page.
+  assert.equal(gateDecision({ url: new URL("https://uttu-studio.app/studio"), host: "uttu-studio.app", method: "GET", isDocument: true, hopCookie: "/studio", fetchSite: "cross-site", locale: null }, config).kind, "loop");
+  assert.equal(gateDecision({ url: new URL("https://uttu-studio.app/studio"), host: "uttu-studio.app", method: "GET", isDocument: true, hopCookie: "/studio", locale: null }, config).kind, "loop");
+});
+
+test("gate S15: within 20 s, another page, Back then re-click, or a typed address is a fresh hop", () => {
+  const at = (path: string, hopCookie: string | null, fetchSite: string | null) => gateDecision({ url: new URL(`https://uttu-studio.app${path}`), host: "uttu-studio.app", method: "GET", isDocument: true, hopCookie, fetchSite, locale: null }, config).kind;
+  assert.equal(at("/storyboard", "/studio", "cross-site"), "hop");
+  assert.equal(at("/studio?step=prise", "/studio", null), "hop");
+  assert.equal(at("/studio", "/studio", "same-origin"), "hop");
+  assert.equal(at("/studio", "/studio", "none"), "hop");
+  // A cookie left by the previous build (value « 1 ») never counts.
+  assert.equal(at("/studio", "1", null), "hop");
+  // /look hops too, so look → studio stays on one origin.
+  assert.equal(at("/look", null, "same-origin"), "hop");
+  assert.equal(at("/look/bible", null, "same-origin"), "hop");
 });
 
 test("gate: a misconfigured origin on the same host never redirects to itself", () => {
   const self = studioOriginConfig({ origin: "https://uttu-studio.app", hosts: ".vercel.app" });
-  assert.equal(gateDecision({ url: new URL("https://uttu-studio.app/studio"), host: "uttu-studio.app", method: "GET", isDocument: true, hopCookie: false, locale: null }, self).kind, "pass");
+  assert.equal(gateDecision({ url: new URL("https://uttu-studio.app/studio"), host: "uttu-studio.app", method: "GET", isDocument: true, hopCookie: null, locale: null }, self).kind, "pass");
 });
 
 test("gate: on the authorized origin the markers are dropped and the language kept", () => {
-  const land = gateDecision({ url: new URL("https://u-ttu-studio.vercel.app/studio?uttu=1&uttu_hop=1&uttu_lang=en"), host: "u-ttu-studio.vercel.app", method: "GET", isDocument: true, hopCookie: false, locale: null }, config);
+  const land = gateDecision({ url: new URL("https://u-ttu-studio.vercel.app/studio?uttu=1&uttu_hop=1&uttu_lang=en"), host: "u-ttu-studio.vercel.app", method: "GET", isDocument: true, hopCookie: null, locale: null }, config);
   assert.deepEqual(land, { kind: "land", location: "/studio?uttu=1", locale: "en" });
-  assert.equal(gateDecision({ url: new URL("https://u-ttu-studio.vercel.app/studio"), host: "u-ttu-studio.vercel.app", method: "GET", isDocument: true, hopCookie: false, locale: null }, config).kind, "pass");
+  assert.equal(gateDecision({ url: new URL("https://u-ttu-studio.vercel.app/studio"), host: "u-ttu-studio.vercel.app", method: "GET", isDocument: true, hopCookie: null, locale: null }, config).kind, "pass");
 });
 
 test("proxy responses: 307 with marker cookie, landing sets language, loop page is 508 with two 44px actions", async () => {
   const hop = studioOriginGate(req("https://uttu-studio.app/studio#prise", { dest: "document", cookie: "u-ttu-locale=de" }), { basePath: "", config });
   assert.equal(hop?.status, 307);
   assert.equal(hop?.headers.get("location"), "https://u-ttu-studio.vercel.app/studio?uttu_hop=1&uttu_lang=de");
-  assert.match(hop?.headers.get("set-cookie") ?? "", /u-ttu-hop=1; Path=\/; Max-Age=20/);
+  assert.match(hop?.headers.get("set-cookie") ?? "", /u-ttu-hop=%2Fstudio; Path=\/; Max-Age=20/);
 
   const land = studioOriginGate(req("https://u-ttu-studio.vercel.app/studio?uttu_hop=1&uttu_lang=de"), { basePath: "", config });
   assert.equal(land?.status, 307);

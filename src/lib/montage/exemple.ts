@@ -27,7 +27,7 @@ export function exempleEdit(): Edit {
   ];
   return {
     id: EXEMPLE_ID,
-    name: "Exemple",
+    name: "Example",
     video: plans.map(plan => ({
       id: `plan-${plan.id}`,
       kind: "image" as const,
@@ -43,7 +43,7 @@ export function exempleEdit(): Edit {
         id: "voix-exemple",
         track: "voix",
         source: EXEMPLE_VOICE,
-        label: "Voix d’exemple",
+        label: "Example voice",
         media: EXEMPLE_VOICE_SECONDS,
         start: 0,
         end: EXEMPLE_VOICE_SECONDS,
@@ -56,7 +56,7 @@ export function exempleEdit(): Edit {
         id: "musique-exemple",
         track: "musique",
         source: EXEMPLE_MUSIC,
-        label: "Musique d’exemple",
+        label: "Example music",
         media: EXEMPLE_MUSIC_SECONDS,
         start: 0,
         end: EXEMPLE_MUSIC_SECONDS,

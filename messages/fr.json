@@ -7,24 +7,25 @@
   "skip": "Aller au contenu",
   "meta": {
     "title": "U*TTU Studio — Studio de cinéma IA open source sur ComfyUI",
-    "description": "Écris ce que tu veux tourner, image ou vidéo : 43 outils ComfyUI, références nommées, mise en scène 3D et montage. Open source (MIT), devis avant chaque crédit, rendus sur ton compte Comfy."
+    "description": "Écris ce que tu veux tourner, image ou vidéo : {n} outils ComfyUI, références nommées, mise en scène 3D et montage. Open source (MIT), devis avant chaque crédit, rendus sur ton compte Comfy."
   },
   "nav": {
     "character": "CAST",
     "scene": "DÉCOR",
     "take": "PRISE",
     "edit": "MONTAGE",
-    "chain": "CAST, DÉCOR, PRISE, MONTAGE",
+    "chain": "CAST, DÉCOR, PRISE, MONTAGE, FINALISER",
     "sphere": "Sphère",
     "sheets": "Fiches",
-    "studio": "Mes créations",
+    "studio": "Mon studio",
     "connect": "Relier",
     "credits": "crédits",
     "opening": "Ouverture de mon studio…",
     "takeRunning": "prise en cours",
     "sceneRunning": "scène en cours",
     "renderCredits": "Crédits du compte de rendu",
-    "rail": "Outils du studio"
+    "rail": "Outils du studio",
+    "finish": "FINALISER"
   },
   "project": {
     "lead": "Le nom est déjà écrit : {name}. Un geste crée le projet. Tu peux le changer."
@@ -37,13 +38,14 @@
     "kicker": "Studio de cinéma IA open source sur ComfyUI",
     "contact": "Contacter le studio ↗",
     "tryFree": "Découvrir avec Uttu",
-    "code": "Code source sur GitHub ↗"
+    "code": "Code source sur GitHub ↗",
+    "readGuide": "Lire le guide"
   },
   "accueil": {
     "kicker": "Open source · MIT · sur ComfyUI",
     "h1": "Ton <em>studio de cinéma</em> IA, open source, sur ComfyUI.",
     "sub": "Écris ce que tu veux tourner, en image ou en vidéo, avec tes personnages et tes lieux. Puis repère, mets en scène en 3D, tourne et monte ton film.",
-    "sub2": "43 outils ComfyUI sur ton propre compte Comfy, avec un devis avant chaque crédit.",
+    "sub2": "{n} outils ComfyUI sur ton propre compte Comfy, avec un devis avant chaque crédit.",
     "caps": {
       "0": "Un personnage",
       "1": "Un gros plan",
@@ -58,7 +60,7 @@
     "showLead": "Un personnage qui garde son visage d’un plan à l’autre, un décor tiré d’un texte ou d’une photo, un vrai lieu repéré sur la carte. Le tout avec les modèles de ComfyUI.",
     "g1Tag": "CAST",
     "g1": "Un personnage, le même d’un plan à l’autre.",
-    "g1Alt": "Gros plan d’Uttu, capuche et veines dorées",
+    "g1Alt": "Uttu, déesse arachnéenne de la création, encapuchonnée, sur un quai la nuit",
     "g2Tag": "DÉCOR · PRISE",
     "g2": "Un décor, une lumière, un mouvement.",
     "g2Alt": "Un coursier en veste jaune dans une gare abandonnée, rayons de lumière",
@@ -82,7 +84,7 @@
       },
       "montage": {
         "name": "MONTAGE",
-        "body": "Plans, voix, musique, export MP4 sans crédit."
+        "body": "Plans, voix, musique, l’export MP4 tourne dans ton navigateur — aucun rendu."
       },
       "finaliser": {
         "name": "FINALISER",
@@ -126,7 +128,7 @@
     "also": {
       "bubble": {
         "name": "Une bulle, image ou vidéo",
-        "body": "« Qu’est-ce qu’on tourne ? » Image avec Flux Klein ; vidéo avec MiniMax H3 si tu joins des références, LTX sinon. Dès ≈ 2 crédits estimés, devis avant l’envoi."
+        "body": "« Qu’est-ce qu’on tourne ? » Image avec Nano Banana 2.1 si tu joins des références, Flux Klein sinon ; vidéo avec MiniMax H3 si tu joins des références, LTX sinon. Dès ≈ 2 crédits estimés, devis avant l’envoi."
       },
       "refs": {
         "name": "Des références nommées",
@@ -138,7 +140,7 @@
       },
       "video": {
         "name": "Vidéo fidèle",
-        "body": "Fidèle aux références avec MiniMax H3 (≈ 4 crédits estimés), FastH3 en second modèle pour mieux garder le lieu (≈ 8). Images clés fidèles (≈ 14), transition de style (≈ 7)."
+        "body": "Fidèle aux références avec MiniMax H3 (≈ 4 crédits estimés), FastH3 en second modèle pour mieux garder le lieu (≈ 8). Keyframes fidèles (≈ 14), transition de style (≈ 7)."
       },
       "son": {
         "name": "Le son de ta vidéo",
@@ -149,7 +151,7 @@
         "body": "Huit angles du personnage, puis une prise MiniMax H3 sur l’angle choisi : ≈ 14 crédits estimés pour un premier plan, puis ≈ 4 par angle de plus."
       },
       "library": {
-        "name": "43 outils, chacun son devis",
+        "name": "{n} outils, chacun son devis",
         "body": "Créer, retoucher, vidéo, 3D, son. « Modèles du studio seulement » cache les outils qui passent par un service partenaire payant."
       },
       "upload": {
@@ -180,7 +182,8 @@
       "2": "Rien ne part sans ta confirmation"
     },
     "foot": "U*TTU Studio · open source (MIT)",
-    "attrib": "Carte : © contributeurs OpenStreetMap · OpenFreeMap · Terrain Tiles · © swisstopo"
+    "attrib": "Carte : © contributeurs OpenStreetMap · OpenFreeMap · Terrain Tiles · © swisstopo",
+    "partnerBadge": "Partenaire · API payante"
   },
   "guide": {
     "look-photos": "Deux photos, trois au plus. Face, puis trois-quarts. Je tisse le reste.",
@@ -947,11 +950,8 @@
     "creditsShort": "Crédits",
     "photoPlaceName": "Photo de lieu",
     "engine": {
-      "label": "Style du plan",
       "ltx": "LTX · Mouvement simple",
-      "h3": "H3 · Jusqu’à neuf images",
-      "ltxHint": "Le personnage est placé dans le décor, puis le plan s’anime.",
-      "h3Hint": "Jusqu’à neuf images de référence."
+      "h3": "MiniMax H3 · Jusqu’à neuf images"
     }
   },
   "create": {
@@ -969,11 +969,6 @@
     "decorButtonClosed": "Créer le décor",
     "ceilingHyp": "Estimation : {high} crédits",
     "ceilingMeasured": "Mesuré : {high} crédits",
-    "quoteLead": "Devis : {quote} · {status}",
-    "quoteUnknown": "Devis : inconnu",
-    "statusMeasured": "mesuré",
-    "statusHypothesis": "hypothèse",
-    "statusUnknown": "inconnu",
     "confirmTitle": "Créer maintenant ?",
     "confirmBody": "Le devis est là. Rien ne part sans ce geste.",
     "estimate": "Environ {amount} crédits, estimé. Le prix final peut varier.",
@@ -1158,7 +1153,8 @@
       "priseVidu": "Bientôt : prix pas encore vérifié.",
       "montLips": "Bientôt : prix pas encore vérifié.",
       "montUpscale": "Dans « Et ensuite ? » : ouvre une image ou une prise.",
-      "montFrames": "Dans « Et ensuite ? » : ouvre une image ou une prise."
+      "montFrames": "Dans « Et ensuite ? » : ouvre une image ou une prise.",
+      "animeLook": "Activé par le look du projet. Le devis s'affiche avant."
     },
     "cat": {
       "identite": "Identité",
@@ -1332,7 +1328,7 @@
     },
     "prisePlanH3": {
       "title": "Plan, second moteur",
-      "phrase": "Jusqu’à neuf références, prix déjà mesuré."
+      "phrase": "MiniMax H3, jusqu’à neuf références, prix déjà mesuré."
     },
     "priseOutpaint": {
       "title": "Élargir le plan",
@@ -1454,56 +1450,11 @@
   },
   "r7": {
     "maquette": "Maquette",
-    "hint": "Glisse un personnage pour le déplacer · glisse le fond pour tourner la caméra · pince pour zoomer",
-    "pose": "Garder la pose",
-    "cam": "Garder la caméra",
-    "essai": "Autre essai",
-    "gratuit": "sans rendu",
-    "annuler": "Annuler",
-    "annulerOff": "Rien à annuler.",
-    "add": "+ Personnage",
-    "neutral": "Neutre",
-    "neutralName": "Personnage",
-    "turn": "Pivoter",
-    "remove": "Retirer",
-    "turnName": "Pivoter {name}",
-    "removeName": "Retirer {name}",
-    "pairWhy": "Cette tuile demande deux personnages. Ajoute-en un avec + Personnage.",
     "pairShort": "Deux personnages",
-    "addOff": "La scène tient {max} personnages.",
-    "poseLock": "La pose est gardée.",
-    "link": "et",
     "rendre": "Rendre cette prise",
     "devis": "{credits, select, 1 {Devis avant envoi : ≈ 1 crédit (hypothèse, estimation à mesurer)} other {Devis avant envoi : ≈ {credits} crédits (hypothèse, estimation à mesurer)}}",
     "envoyer": "Envoyer au montage",
-    "tuiles": "Langage de cinéaste",
-    "cequi": "Ce qui se passe",
-    "lireCast": "Personnages",
-    "lireLieu": "Lieu",
-    "lireCadrage": "Cadrage",
-    "enPlace": "En place",
     "allerBusy": "Recherche en cours.",
-    "astuce": {
-      "bord": "Astuce : la tête de {name} touche le bord du cadre.",
-      "loin": "Astuce : {name} est trop loin pour ce plan.",
-      "tient": "Tout tient dans le cadre."
-    },
-    "tuile": {
-      "large": "Plan large",
-      "largeHint": "Tout le décor",
-      "taille": "Plan taille",
-      "tailleHint": "Les deux, à la taille",
-      "contre": "Champ / contrechamp",
-      "contreHint": "On suit qui parle",
-      "reac": "Silence",
-      "reacHint": "Gros plan sur qui écoute",
-      "impact": "Zoom d'impact",
-      "impactHint": "Pour un choc",
-      "regard": "Regard caméra",
-      "regardHint": "Il nous fixe",
-      "regardHintMany": "Ils nous fixent",
-      "tailleHintMany": "Le groupe, à la taille"
-    },
     "repere": "Repérage · un vrai lieu",
     "lieuPh": "Nom, lien, ou coordonnées",
     "ou": "Où ?",
@@ -1529,7 +1480,6 @@
     "lienCourt": "Ce lien court ne s'ouvre pas d'ici. Colle le lien complet, ou des coordonnées.",
     "creditRelief": "Relief : Terrarium, AWS Open Data",
     "quartierFail": "Le quartier n'a pas pu être chargé.",
-    "rue": "Dans la rue.",
     "pasCarte": "1. Touche un point sur la carte.",
     "pasSol": "2. Dans la rue",
     "pasAngle": "Glisse pour regarder autour de toi, puis avance de photo en photo.",
@@ -1556,10 +1506,6 @@
     "photosCredit": "© {author}, Mapillary, CC BY-SA",
     "photosAdded": "Photo ajoutée aux références.",
     "photosBusy": "Chargement des photos.",
-    "reacMontage": "Silence",
-    "stillShot": "Image fixe",
-    "distance": "Distance",
-    "pairTile": "Deux personnages",
     "cadrage": {
       "large": "Plan large",
       "americain": "Plan américain",
@@ -1602,6 +1548,7 @@
     "done": "Montage finalisé, enregistré dans Mes créations.",
     "cost": "Coût réel : {credits} crédits.",
     "costUnknown": "Coût réel pas encore lisible sur le solde.",
+    "costGpu": "≈ {credits} crédits estimés d’après le temps de calcul ({seconds} s) ; le solde ne montre pas encore cette prise.",
     "again": "Finaliser autrement",
     "fail": "La finalisation n'a pas abouti : {message}",
     "close": "Fermer",
@@ -1624,84 +1571,19 @@
     "cast": "Un vrai résultat du studio. Touche-le : photo, nom et texte se remplissent, tu n’as plus qu’à changer.",
     "decor": "Un vrai décor du studio. Touche-le : la référence, le nom et le geste se remplissent.",
     "prise": "La coursière sur le quai, déjà cadrée. Touche-la : personnage, décor, cadrage et action se remplissent.",
-    "montage": "Trois plans, une voix et une musique. Touche-le : le montage se remplit, rien n’est envoyé.",
-    "titles": {
-      "cast": "DJ",
-      "decor": "Le quai, la nuit",
-      "prise": "La coursière sur le quai",
-      "montage": "Le clip d’exemple"
-    }
+    "montage": "Trois plans, une voix et une musique. Touche-le : le montage se remplit, rien n’est envoyé."
   },
   "videoGeste": {
-    "title": "Depuis la maquette",
-    "lead": "À partir de la maquette ou d’une image. Le prix est une estimation.",
-    "slot": {
-      "debut": "Première image",
-      "fin": "Dernière image",
-      "plan": "Image du plan",
-      "clip": "Vidéo du plan"
-    },
-    "text": {
-      "prise-raccord": "Ce qui se passe entre les deux",
-      "prise-camera": "Le mouvement et la scène",
-      "prise-effacer": "Ce qu'il faut effacer",
-      "prise-previs": "Ce que l’on voit dans le plan"
-    },
-    "textOptional": "Ce qui apparaît sur les côtés (facultatif)",
-    "quote": "{credits, select, 1 {≈ 1 crédit estimé} other {≈ {credits} crédits estimés}}",
-    "estimate": "Le prix final peut varier.",
-    "confirm": "Je confirme cette estimation. Le prix final peut varier.",
-    "go": "{credits, select, 1 {Lancer · ≈ 1 crédit estimé} other {Lancer · ≈ {credits} crédits estimés}}",
-    "needLink": "Relie ton compte de rendu (Comfy) pour lancer.",
     "needFiles": "Il manque un fichier ou le texte.",
-    "needText": "Le texte est vide.",
-    "needConfirm": "Confirme pour lancer.",
-    "done": "Vidéo enregistrée dans Mes créations.",
-    "slotPrevis": {
-      "plan": "Image de rendu (personnage dans le décor)",
-      "clip": "Prévis (vidéo de la maquette)"
-    },
-    "previsLead": "Bouge la caméra et les personnages dans la maquette pendant {seconds} s : cette prévis guide le plan (profondeur, cadre, rythme).",
-    "previsRecord": "Filmer la maquette ({seconds} s)",
-    "previsRecording": "Prévis en cours… {seconds} s",
-    "previsMove": "Bouge la caméra dans la maquette maintenant.",
-    "previsReady": "Prévis de {seconds} s prête. Rien n’est parti.",
-    "previsNoCanvas": "La maquette 3D n’est pas filmable sur cet appareil : ajoute une vidéo de prévis."
+    "needText": "Le texte est vide."
   },
   "previs": {
     "title": "Prévis au doigt",
     "touch": "Un doigt : tourner la caméra, ou déplacer une personne, un objet. Deux doigts : pincer pour rapprocher.",
-    "agent": {
-      "label": "Phrase → scène",
-      "placeholder": "La coursière et le vieil homme dans une ruelle la nuit, une voiture, deux lampadaires, travelling avant",
-      "go": "Composer la scène",
-      "why": "Écris une phrase : qui, quels objets, quel mouvement.",
-      "people": "{n} personnage(s)",
-      "props": "objets : {list}",
-      "done": "Compris : {list}. Annuler revient à la scène d’avant.",
-      "none": "Rien reconnu. Essaie : « deux personnages, une table, la caméra tourne autour »."
-    },
     "props": "Objets",
     "glb": "Importer un .glb",
     "glbNote": "Le modèle et ses textures intégrées restent dans ton coffre et dans tes sauvegardes ZIP. Un modèle léger convient mieux au téléphone.",
     "propsFull": "{max} objets au plus.",
-    "prop": {
-      "caisse": "Caisse",
-      "mur": "Mur",
-      "voiture": "Voiture",
-      "arbre": "Arbre",
-      "lampadaire": "Lampadaire",
-      "table": "Table",
-      "glb": "Modèle 3D"
-    },
-    "move": {
-      "avant": "travelling avant",
-      "arriere": "travelling arrière",
-      "tour": "tour autour",
-      "pano": "panoramique",
-      "plongee": "plongée",
-      "fixe": "plan fixe"
-    },
     "path": "Trajet caméra ({seconds} s)",
     "pathLead": "Cadre au doigt, choisis l’instant, ajoute un point-clé. La caméra glisse d’un point à l’autre.",
     "keyAt": "Point-clé à {t} s",
@@ -1712,14 +1594,6 @@
     "film": "Filmer la prévis ({seconds} s)",
     "filmPath": "La caméra suit tes points-clés ; le clip part dans Caméra maîtrisée.",
     "filmFree": "Bouge la caméra pendant le film ; le clip part dans Caméra maîtrisée.",
-    "mesh": {
-      "title": "Générer en 3D",
-      "photo": "Photo de départ",
-      "needPhoto": "Ajoute une photo.",
-      "estimate": "Devis estimé, jamais encore mesuré. Workflow Comfy officiel, rien ne part sans ta confirmation.",
-      "go": "{credits, select, 1 {Générer · ≈ 1 crédit estimé} other {Générer · ≈ {credits} crédits estimés}}",
-      "done": "Modèle ajouté à la maquette."
-    },
     "keysFull": "{max} points-clés au plus.",
     "invalidModel": "Ce fichier n’est pas un modèle GLB ou glTF 2.0 lisible.",
     "externalModel": "Ce modèle dépend de fichiers séparés. Exporte un GLB avec les textures intégrées, puis importe-le.",
@@ -1766,7 +1640,6 @@
   "safety": {
     "modelBlocked": "Cet outil est masqué par tes choix de modèles. Rien n’est envoyé.",
     "finalBlocked": "Cette finition n’est pas encore disponible. L’export de la vidéo reste possible.",
-    "estimate": "Le prix est une estimation. Le prix final peut varier.",
     "projectMissing": "Le projet de ce lien est absent de cet appareil. Importe sa sauvegarde pour le retrouver.",
     "sequenceMissing": "Cette séquence est absente du projet. Aucun autre montage n’a été ouvert à sa place.",
     "referencesMax": "Ce style accepte au plus {max} images. Réduis-les avant de lancer.",
@@ -1848,123 +1721,35 @@
     "creditsLow": "Crédits insuffisants sur ton compte de rendu.",
     "subscriptionInactive": "Ton abonnement de rendu est inactif, ou la file est pleine.",
     "pendingRunning": "Un rendu est encore en cours dans le cloud : {name}. Attends qu’il finisse avant d’en lancer un autre. Rien n’est perdu, rien n’est renvoyé.",
-    "pendingDone": "Le rendu précédent est terminé : {name}. Range-le d’abord avec Récupérer le rendu (dans Crédits), sans nouvel envoi."
+    "pendingDone": "Le rendu précédent est terminé : {name}. Range-le d’abord avec Récupérer le rendu (dans Crédits), sans nouvel envoi.",
+    "opInterrupted": "Opération interrompue.",
+    "recoverLater": "Récupération impossible pour le moment.",
+    "receiptUnreadable": "Reçu illisible.",
+    "folderSyncFailed": "La synchronisation du dossier a échoué. Les données locales sont conservées.",
+    "importInterrupted": "Import interrompu. Les fichiers déjà enregistrés sont conservés.",
+    "editNotSavedKeepTab": "Le montage n’a pas pu être sauvegardé. Garde cet onglet ouvert.",
+    "editNotSaved": "Le montage n’a pas pu être sauvegardé.",
+    "cloudFailedShort": "Le rendu a échoué dans le cloud.",
+    "launchCancelled": "Lancement annulé dans le studio. Rien n’est parti.",
+    "comfyNotConnected": "Compte de rendu non connecté.",
+    "requestRefused": "Requête refusée.",
+    "pathRefused": "Chemin refusé."
   },
   "p0": {
-    "advanced": "Avancé",
     "importCast": "Importer un personnage",
     "importCastAria": "Importer un personnage",
     "importDecor": "Importer un décor",
     "importDecorAria": "Importer un décor",
     "confirmGo": "Confirmer et tourner",
-    "tourner": "Tourner",
-    "tournerSuivant": "Tourner le plan {n}",
-    "running": "Rendu en cours…",
-    "runningWhy": "Tu peux écrire le plan suivant pendant ce temps. Rien d’autre ne part.",
-    "monter": "Monter la séquence ({count, plural, one {# plan} other {# plans}})",
-    "monterStill": "Envoyer l’image fixe au montage",
-    "montageFailed": "Envoi au montage interrompu.",
-    "saveFailed": "Sauvegarde du plan impossible.",
-    "keep": "★ Garder cette prise",
-    "keptBtn": "★ Gardée",
-    "montageWait": "La vidéo de la prise n’est pas encore là. Elle ira au montage dès son arrivée.",
-    "keptOnMontage": "Prise gardée : elle est dans le montage.",
-    "kept": "gardée",
-    "another": "Autre prise",
-    "takeOf": "Prise {n} sur {total}",
-    "versions": "Versions de ce plan",
-    "versionN": "Prise {n}",
-    "recover": "Récupérer le rendu",
-    "relaunch": "Relancer · nouveau devis",
-    "nextLabel": "Plan {n} · ce qui se passe",
-    "nextAria": "Plan suivant : ce qui se passe",
-    "nextPh": "Même personnage, même décor. Écris la suite.",
     "plans": {
-      "copy": "copie",
-      "tools": "Plan {n} : outils",
-      "duplicate": "Dupliquer",
-      "up": "Monter le plan",
-      "down": "Descendre le plan",
-      "delete": "Supprimer",
-      "deleted": "« {name} » supprimé.",
-      "undo": "Annuler",
-      "label": "Plans"
+      "deleted": "« {name} » supprimé."
     },
-    "addPlan": "+ Plan",
-    "sequenceSum": "Séquence : {time} · {count, plural, one {# plan} other {# plans}}",
-    "preview": "Aperçu",
-    "planN": "Plan {n}",
-    "who": "Qui ?",
-    "where": "Où ?",
-    "addPerson": "Ajouter un personnage",
-    "addPlace": "Ajouter un lieu",
-    "firstPlace": "Crée ton premier lieu",
-    "firstPlaceHint": "Dans DÉCOR, depuis un texte ou une photo de rue. Il apparaîtra ici.",
-    "orExample": "Ou pars d’un exemple :",
-    "example": "Exemple",
-    "actionPh": "reste immobile, respire",
-    "duration": "Durée",
-    "speech": "Paroles",
-    "line": "La phrase",
-    "chain": "Enchaîner",
-    "chainStart": "Commencer là où le plan précédent s’arrête",
-    "chainEnd": "Imposer l’image de fin",
-    "chainNotKept": "Le plan précédent n’est pas encore gardé.",
     "yes": "oui",
     "no": "non",
-    "before": "Avant",
-    "after": "Après",
-    "compare": "Comparer avant et après",
     "engine": {
       "open": "modèle du studio",
       "partner": "service extérieur",
       "versatile": "modèle polyvalent"
-    },
-    "paroles": {
-      "aucune": "Aucune",
-      "replique": "Réplique",
-      "voix-off": "Voix off"
-    },
-    "etat": {
-      "vide": "Vide",
-      "image-cle": "Image clé",
-      "validee": "Validée",
-      "prise": "Prise",
-      "gardee": "Gardée",
-      "finalisee": "Finalisée"
-    },
-    "action": {
-      "0": "marche vers la caméra",
-      "1": "se retourne",
-      "2": "regarde au loin",
-      "3": "s'arrête",
-      "4": "tend la main",
-      "5": "baisse les yeux"
-    },
-    "camera": {
-      "free": "libre : rien n’est imposé",
-      "fromText": "« {words} » lu dans ton texte → {move}",
-      "fromTile": "{move}, d’après le mouvement choisi",
-      "move": {
-        "fixe": "caméra fixe",
-        "travelling-avant": "travelling avant",
-        "travelling-arriere": "travelling arrière",
-        "panoramique": "panoramique",
-        "suivi": "caméra qui suit",
-        "orbite": "orbite autour du sujet",
-        "epaule": "caméra à l’épaule",
-        "dolly": "Dolly"
-      }
-    },
-    "why": {
-      "demo": "La démonstration n’envoie aucun rendu.",
-      "busy": "Un rendu est en cours. Attends sa fin pour en lancer un autre.",
-      "h3Format": "H3 n’a de prix qu’en 5 secondes. Passe à 5 s, ou choisis LTX.",
-      "noQuote": "Ce réglage n’a pas encore de devis. Rien ne part.",
-      "refs": "Utilise au plus trois personnages enregistrés ; les silhouettes neutres servent seulement à préparer le cadre.",
-      "decorExample": "Le décor d’exemple sert à préparer le cadre. Crée ou importe ton décor dans DÉCOR pour l’envoyer.",
-      "nothing": "Choisis au moins un personnage ou un décor enregistré.",
-      "nextWords": "Écris ce qui se passe dans le plan {n}."
     },
     "quote": {
       "estimated": "{low, select, 1 {≈ 1 crédit estimé} other {≈ {low} crédits estimés}}",
@@ -2010,194 +1795,31 @@
       "technical": "Voir le détail technique",
       "stepNow": "Étape {n}/7 · {label}"
     },
-    "stillEmpty": "Choisis qui et où : l’aperçu apparaît ici.",
-    "groups": {
-      "maquette": "Maquette 3D et cadrage",
-      "rendu": "Style et durée",
-      "previs": "Prévis filmée"
-    },
     "rendu": {
-      "label": "Qualité",
-      "apercu": "Aperçu",
-      "apercuBody": "Pour essayer. Tu finalises plus tard ce que tu gardes.",
-      "finale": "Qualité finale",
-      "finaleBody": "Prête à monter telle quelle.",
-      "quote": "{credits, select, 1 {≈ 1 crédit estimé} other {≈ {credits} crédits estimés}}",
-      "go": "{credits, select, 1 {Tourner · ≈ 1 crédit estimé} other {Tourner · ≈ {credits} crédits estimés}}",
-      "goNext": "{credits, select, 1 {Tourner le plan {n} · ≈ 1 crédit estimé} other {Tourner le plan {n} · ≈ {credits} crédits estimés}}",
-      "keep": "Ton choix reste pour les prochains plans de ce projet.",
-      "apercuHint": "Un aperçu se finalise plus tard, seul ou avec tout le montage.",
       "range": "{low} à {high}"
-    },
-    "addToMontage": "Ajouter au montage",
-    "editor": {
-      "title": "Modifier ce plan",
-      "name": "Titre du plan",
-      "framing": "Cadrage",
-      "angle": "Angle caméra",
-      "move": "Mouvement caméra",
-      "position": "Position caméra",
-      "positionHint": "Par exemple : à gauche, à hauteur des yeux",
-      "duration": "Durée du plan",
-      "reference": "Référence de cadrage",
-      "refGroups": {
-        "decor": "DÉCOR · points de vue",
-        "cast": "CAST",
-        "autres": "Autres images"
-      },
-      "refKinds": {
-        "rendu": "rendu",
-        "vue": "vue",
-        "image": "image"
-      },
-      "none": "Aucune",
-      "referencesHint": "Choisis les personnages et le décor ci-dessous. La référence de cadrage est jointe au rendu comme indication visuelle.",
-      "changed": "Modification enregistrée dans l’historique.",
-      "retry": "Relancer",
-      "recover": "Récupérer le rendu",
-      "save": {
-        "saving": "Sauvegarde…",
-        "saved": "Enregistré automatiquement",
-        "error": "Sauvegarde impossible : réessaie avant de quitter."
-      },
-      "states": {
-        "draft": "Brouillon",
-        "queued": "En attente",
-        "running": "En cours",
-        "error": "En erreur",
-        "done": "Généré"
-      },
-      "framings": {
-        "large": "Plan large",
-        "moyen": "Plan moyen",
-        "rapproche": "Plan rapproché",
-        "americain": "Plan américain",
-        "gros": "Gros plan",
-        "tgp": "Très gros plan",
-        "plongee": "Plongée",
-        "contre": "Contre-plongée",
-        "epaule": "Par-dessus l’épaule"
-      },
-      "angles": {
-        "niveau": "À hauteur des yeux",
-        "plongee": "Plongée",
-        "contre-plongee": "Contre-plongée"
-      }
-    },
-    "etapes": {
-      "aria": "Étapes de la prise",
-      "step": "Étape {n} sur 5",
-      "preparer": "Préparer",
-      "plans": "Plans",
-      "previs": "Prévisualiser",
-      "generer": "Générer",
-      "reviser": "Réviser",
-      "next": "Suivant : {step}",
-      "prev": "Retour : {step}",
-      "lead": {
-        "preparer": "Personnage, décor, action, ambiance et références.",
-        "plans": "Compose la liste des plans, puis règle le plan choisi.",
-        "previs": "Vérifie le cadrage avant de dépenser des crédits.",
-        "generer": "Le devis d’abord, puis tu confirmes le lancement.",
-        "reviser": "Regarde, garde la bonne version, relance, envoie au MONTAGE."
-      }
-    },
-    "goPlan": "Aller au plan {n} · pas encore tourné"
+    }
   },
   "p1": {
     "hint": "Une phrase suffit : qui, où, ce qui se passe, la caméra, l’ambiance.",
     "chips": "Ce que j’ai compris",
     "chip": {
-      "who": "Qui",
-      "where": "Où",
-      "camera": "Caméra",
-      "ambiance": "Ambiance",
-      "duration": "Durée",
-      "format": "Format",
-      "none": "—",
-      "unknown": "Inconnu",
-      "drop": "Retirer l’ambiance {label}",
-      "cameraWords": "Selon tes mots",
-      "cameraFree": "Libre",
-      "degrees": "{move} · {degrees}°",
-      "sec": "{n} s",
-      "unknownGo": "« {word} » : ajouter dans CAST"
-    },
-    "say": {
-      "engineH3Refs": "Il y a {count} images, et ce style n’en prend que {max} : je passe à l’autre style.",
-      "engineH3Cast": "{count} personnages dans le plan : je passe au style fait pour plusieurs visages.",
-      "engineManual": "Style choisi à la main : {engine}.",
-      "refsDropped": "Au-delà de {max} références, {count} restent de côté.",
-      "missingRef": "Pas de photo pour {name} : son apparence peut changer.",
-      "missingDecorRef": "Pas d’image pour le lieu {name} : le décor suivra tes mots.",
-      "orbitDegreesWho": "Rotation de {degrees}° autour {deName}.",
-      "orbitDegrees": "Rotation de {degrees}° de la caméra.",
-      "orbitWho": "La caméra tourne autour {deName}.",
-      "orbit": "La caméra tourne autour de la scène.",
-      "ltxMoveNotExact": "Ce style ne garantit pas ce mouvement au centimètre.",
-      "camera": {
-        "fixe": "Caméra fixe.",
-        "travelling-avant": "Travelling avant, lent.",
-        "travelling-arriere": "Travelling arrière, lent.",
-        "panoramique": "Panoramique lent.",
-        "suivi": "La caméra suit le personnage.",
-        "orbite": "La caméra tourne autour du sujet.",
-        "epaule": "Caméra à l’épaule, léger tremblé."
-      },
-      "identitySheet": "Je conserve l’apparence {deName} avec sa planche de vues.",
-      "identityPhoto": "Je conserve l’apparence {deName} d’après sa photo.",
-      "stateKept": "{name} garde « {state} » depuis {code}.",
-      "continuityLight": "Je conserve son apparence et l’éclairage du plan précédent.",
-      "keyframeKlein": "L’image de départ est d’abord composée avec {count} références, puis le plan s’anime.",
-      "ambiance": "Ambiance : {label}.",
-      "durationClamped": "{asked} s demandées : la prise dure {seconds} s (5 ou 8 s).",
-      "unknownName": "Je ne connais pas « {word} » : ajoute-le dans CAST ou DÉCOR, ou corrige le mot.",
-      "noWho": "Personne n’est nommé : choisis qui joue dans Qui."
+      "format": "Format"
     },
     "uttu": "Assistant du studio",
     "fiab": {
-      "ambiance": "Ambiance",
-      "continuity": "Continuité",
-      "engine": "Style",
-      "engineAuto": "{engine} · choisi par le studio",
-      "engineHand": "{engine} · choisi à la main",
-      "resolution": "Résolution (estimée)",
       "graph": "Gabarit Comfy",
-      "refs": "Références",
-      "identity": "Identité",
       "identityplanche": "planche de vues",
       "identityphoto": "photo",
       "identityaucune": "aucune référence"
     },
-    "cont": {
-      "chip": "✓ {name} · {state} · depuis {code}",
-      "none": "{name} · aucun état",
-      "change": "Changer l’état",
-      "set": "Définir un état",
-      "label": "Nouvel état de {name} à partir de {code}",
-      "ph": "ex. tenue de chasseur",
-      "save": "Enregistrer",
-      "cancel": "Annuler",
-      "aria": "Continuité"
-    },
     "mem": {
-      "title": "Mémoire de production",
-      "canon": "Canon",
-      "characters": "Personnages",
-      "places": "Lieux",
-      "sequences": "Séquences",
-      "empty": "case vide",
-      "noState": "aucun état",
-      "states": "États",
-      "shots": "{count, plural, =0 {aucun plan} one {# plan} other {# plans}}",
-      "history": "Historique",
-      "saved": "Mémoire enregistrée dans Mes créations (.uttu/memoire.json et Memoire/)."
+      "history": "Historique"
     },
     "engineAuto": "Auto"
   },
   "rep3d": {
     "entryTitle": "Un vrai lieu en décor",
-    "entryLead": "Choisis un lieu et une vue 3D : Comfy en fait ton décor. Tu peux préciser avec un texte ou des photos.",
+    "entryLead": "Choisis un lieu et une vue 3D : le studio en fait ton décor. Tu peux préciser avec un texte ou des photos.",
     "open": "Choisir un lieu",
     "cardCost": "Vue 3D sur la carte",
     "toolLine": "Un vrai lieu devient ton décor : une vue 3D, plus des photos de la rue.",
@@ -2395,6 +2017,7 @@
     "needVoice": "Ajoute une voix (fichier audio).",
     "noFrame": "La dernière image de la prise n’a pas pu être lue sur cet appareil. Rien n’est parti.",
     "emptyResult": "Le rendu est revenu vide. L’original reste intact.",
+    "blankResult": "Le rendu est sorti entièrement noir (ou d’une seule couleur) : ce n’est pas un résultat, rien n’a été rangé. Des crédits ont pu être débités, ils restent visibles dans ton historique Comfy. Réessaie, ou raccourcis la consigne.",
     "toPrise": "Ouvrir dans un plan",
     "fluide": "Rendre le mouvement plus doux",
     "voice": "Voix (5 premières secondes)",
@@ -2606,7 +2229,7 @@
         "line": "Garde personnages et lieu d’une image à l’autre."
       },
       "vid-multi": {
-        "title": "Images clés fidèles",
+        "title": "Keyframes fidèles",
         "line": "Garde le personnage de ta première image et finit sur la deuxième, avec le son."
       },
       "vid-transition-style": {
@@ -2761,7 +2384,7 @@
       },
       "vid-recadrer": {
         "title": "Élargir une vidéo",
-        "line": "Agrandit le cadre d’un plan."
+        "line": "Plan en 16:9, 9:16 ou 1:1."
       },
       "vid-detourer": {
         "title": "Détourer une vidéo",
@@ -2869,7 +2492,12 @@
     "model": "Modèle",
     "modelChange": "Changer de modèle",
     "attribution": {
-      "vid-pika": "Pika H3 Flex, construit sur MiniMax H3"
+      "vid-pika": "Pika H3 Flex, construit sur MiniMax H3",
+      "vid-animer": "Construit sur MiniMax H3",
+      "vid-h3-refs": "Construit sur MiniMax H3",
+      "vid-fasth3": "FastH3, construit sur MiniMax H3",
+      "vid-multi": "Construit sur MiniMax H3",
+      "vid-prolonger": "Construit sur MiniMax H3"
     },
     "modelGone": "Ce modèle n’est pas disponible aujourd’hui sur ton compte de rendu. Rien n’est parti : la carte revient à son modèle par défaut.",
     "confirmTitle": "Lancer ce rendu ?",
@@ -2906,7 +2534,19 @@
       "label": "Piste à garder",
       "voix": "Voix",
       "musique": "Musique"
-    }
+    },
+    "cadre": {
+      "label": "Format final",
+      "16x9": "16:9 · paysage",
+      "9x16": "9:16 · vertical",
+      "1x1": "1:1 · carré",
+      "4x3": "4:3 · photo",
+      "video": "La vidéo sort en {w}×{h} : la zone ajoutée est inventée par l’IA, rien n’est étiré ni coupé.",
+      "image": "L’image sort exactement à ce format : la zone ajoutée est inventée par l’IA, rien n’est coupé.",
+      "bande": "Bandes fixes : le format final dépend de ton image.",
+      "avance": "Ou des bandes fixes (avancé)"
+    },
+    "costUnread": "Coût réel non lu : le solde Comfy n’a pas bougé dans la minute. Le débit reste visible dans ton historique Comfy."
   },
   "top": {
     "nav": "Navigation du studio",
@@ -2914,7 +2554,7 @@
     "create": "Créer",
     "make": "Réaliser",
     "edit": "Montage",
-    "creations": "Mes créations",
+    "creations": "Mon studio",
     "menu": "Menu",
     "close": "Fermer le menu",
     "search": "Rechercher",
@@ -2947,7 +2587,7 @@
       }
     },
     "film": "Film",
-    "creationsShort": "Créations"
+    "creationsShort": "Studio"
   },
   "projects": {
     "label": "Projet",
@@ -2976,7 +2616,8 @@
     "cast": "Créer un personnage",
     "decor": "Créer un décor",
     "take": "Prise",
-    "tool": "Outil"
+    "tool": "Outil",
+    "prise": "Tourner un plan"
   },
   "assistant": {
     "title": "Assistant du studio",
@@ -2998,7 +2639,7 @@
   },
   "creations": {
     "all": "Tout voir",
-    "title": "Mes créations",
+    "title": "Mon studio",
     "type": {
       "tout": "Tout",
       "images": "Images",
@@ -3367,12 +3008,12 @@
       "tabs": {
         "q": "Comment est organisé le studio ?",
         "k": "onglets étapes organisation sections cast décor prise montage",
-        "a": "Le studio suit quatre étapes : CAST (tes personnages), DÉCOR (tes lieux), PRISE (tes plans vidéo) et MONTAGE (tu assembles et exportes). « Outils » regroupe tous les outils Comfy par famille."
+        "a": "Le studio suit cinq étapes : CAST (tes personnages), DÉCOR (tes lieux), PRISE (tes plans), MONTAGE (tu assembles) et FINALISER (plus net et plus grand, rien n’est régénéré). Les outils rassemblent chaque outil Comfy par famille."
       },
       "bubble": {
         "q": "Image ou vidéo : comment créer ?",
         "k": "créer bulle image vidéo photo clip choisir différence générer tourne",
-        "a": "Dans « Qu’est-ce qu’on tourne ? », choisis Image ou Vidéo avant d’écrire. Image passe par Flux Klein. Vidéo passe par MiniMax H3 quand tu joins des références, sinon par LTX. Le devis « ≈ X crédits estimés » s’affiche sous la bulle avant tout envoi. Tu peux joindre jusqu’à 7 références visuelles et, en Vidéo, un son."
+        "a": "Dans « Qu’est-ce qu’on tourne ? », choisis Image ou Vidéo avant d’écrire. La vidéo avec références tourne sur MiniMax H3, sinon sur LTX. Le devis « ≈ X crédits estimés » s’affiche sous la bulle avant tout envoi."
       },
       "refs": {
         "q": "Comment utiliser des références ?",
@@ -3397,7 +3038,7 @@
       "which": {
         "q": "Quel outil choisir ?",
         "k": "quel outil outils choisir besoin bibliothèque famille conseil lequel recommander angle angles caméra multi-caméra lumière bruitage séparer transition clés",
-        "a": "Une image : Image rapide. Garder un personnage ou un lieu : CAST, DÉCOR, références. D’autres points de vue : Huit angles du personnage, Huit angles du décor, Déplacer la caméra. Une vidéo : la bulle en Vidéo, ou PRISE ; avec références : Vidéo fidèle aux références ; deux images clés : Images clés fidèles ; un style qui change : Transition de style. Multi-caméra : Huit angles du personnage, puis « Plan, second moteur » sur l’angle choisi : ≈ 14 crédits, puis ≈ 4 par angle de plus. Retoucher : Modifier, Élargir, Détourer, Agrandir et rendre net, Changer la lumière (« Lumière par consigne », ou « Portrait studio » en second modèle). Son : Voix, Musique, Bruitage, Bruitage d’une vidéo, Séparer voix et musique."
+        "a": "Une image : Image rapide. Garder un personnage ou un lieu : CAST, DÉCOR, références. D’autres points de vue : Huit angles du personnage, Huit angles du décor, Déplacer la caméra. Une vidéo : la bulle en Vidéo, ou PRISE ; avec références : Vidéo fidèle aux références ; deux images clés : Keyframes fidèles ; un style qui change : Transition de style. Multi-caméra : Huit angles du personnage, puis « Plan, second moteur » sur l’angle choisi : ≈ 14 crédits, puis ≈ 4 par angle de plus. Retoucher : Modifier, Élargir, Détourer, Agrandir et rendre net, Changer la lumière (« Lumière par consigne », ou « Portrait studio » en second modèle). Son : Voix, Musique, Bruitage, Bruitage d’une vidéo, Séparer voix et musique."
       },
       "projects": {
         "q": "Où sont mes projets ?",
@@ -3489,7 +3130,8 @@
         "refused": "Le modèle a refusé de répondre à ce message. Reformule-le.",
         "network": "Comfy ne répond pas. Vérifie ta connexion et réessaie ; le simulateur de coûts fonctionne hors ligne.",
         "timeout": "Comfy a mis trop de temps à répondre. Réessaie dans un instant.",
-        "failed": "L’agent Comfy n’a pas pu répondre. Réessaie dans un instant."
+        "failed": "L’agent Comfy n’a pas pu répondre. Réessaie dans un instant.",
+        "ineligible": "Ce modèle de conversation n’est pas disponible en mode poids ouverts. Rien n’a été envoyé, aucun crédit utilisé."
       },
       "welcome": "Je suis Uttu, l’agent du studio. Dis-moi ce que tu veux tourner : je te réponds, je te propose l’outil ou le plan, et tu vois le devis avant tout rendu. Chaque message est payé par ton compte Comfy."
     },
@@ -3528,7 +3170,11 @@
       "lieu": "Lieu réel",
       "lieuLine": "Une vraie adresse, en 3D",
       "son": "Son",
-      "sonLine": "Voix, musique, bruitages"
+      "sonLine": "Voix, musique, bruitages",
+      "storyboard": "Faire un storyboard",
+      "storyboardLine": "Uttu en fait un storyboard que tu peux regarder. Rien n'est filmé tant que tu n'as pas approuvé.",
+      "storyboardSoon": "Bientôt",
+      "storyboardSoonLine": "StoryWeave arrive. Tes storyboards restent où ils sont."
     },
     "settings": "Réglages",
     "rendu": {
@@ -3674,30 +3320,9 @@
     "elapsedAlmost": "Écoulé {time} · bientôt prêt"
   },
   "framing": {
-    "three": "Vue 3D",
-    "flat": "Cadrage 2D",
-    "zoom": "Zoom du cadrage 2D",
-    "flatHint": "Déplace une silhouette au doigt. Glisse le fond pour recadrer ; pince pour zoomer.",
-    "save": "Garder ce cadrage",
-    "saving": "Enregistrement du cadrage…",
-    "loading": "Préparation du cadrage…",
     "kept": "Cadrage gardé",
-    "color": "Aperçu",
-    "depth": "Profondeur",
-    "edges": "Contours",
-    "flatDepth": "En 2D, la profondeur est un guide de silhouettes ; elle ne reconstruit pas le relief du décor.",
-    "nativeDepth": "La profondeur vient des volumes de la maquette. Une photo de fond n’ajoute pas de géométrie.",
-    "pipeline": "Ce cadrage guide l’image clé, puis la vidéo. Il reste gardé jusqu’à ce que tu le remplaces ou le retires.",
-    "clear": "Retirer ce cadrage",
-    "ltx": "Ce cadrage utilise LTX. Retire-le pour choisir un autre moteur.",
     "missing": "Les images du cadrage sont introuvables. Garde à nouveau le cadrage avant de générer.",
-    "failed": "Le cadrage n’a pas pu être enregistré. Attends le chargement du décor, puis réessaie.",
-    "formatChanged": "Le format a changé. Garde à nouveau le cadrage dans ce format avant de générer.",
-    "unlock": "Déverrouille la caméra pour modifier le zoom.",
-    "ltxSent": "Cadrage gardé : ce plan part en LTX (profondeur + contours) · ≈ {credits} crédits estimés. H3 n’utilise pas le cadrage.",
-    "h3NotSent": "H3 choisi : le cadrage gardé reste enregistré mais n’est pas envoyé. Choisis LTX pour l’utiliser.",
-    "willSwitch": "Garder ce cadrage fait passer ce plan de H3 (≈ {before}) à LTX (≈ {after} crédits estimés). Tu pourras revenir à H3 dans « Style du plan ».",
-    "switched": "Cadrage gardé : ce plan passe en LTX, ≈ {after} crédits estimés au lieu de ≈ {before} avec H3."
+    "failed": "Le cadrage n’a pas pu être enregistré. Attends le chargement du décor, puis réessaie."
   },
   "namedRefs": {
     "title": "Références",
@@ -3744,6 +3369,8 @@
     "moreName": "Plus d’actions pour {name}"
   },
   "bubble": {
+    "mentionHint": "@ cite une référence",
+    "tooManyRefs": "Trop de références pour ce modèle : sept au plus par image. Retire une référence puis renvoie.",
     "audio": "Audio",
     "audioHelp": "Joindre un son de référence à une vidéo",
     "removeAudio": "Retirer le son",
@@ -3772,7 +3399,26 @@
     "draftFailed": "Le brouillon n’a pas pu être sauvegardé sur cet appareil.",
     "invalid": "Vérifie tes options : au plus 7 références visuelles et un son en mode Vidéo.",
     "asImageReference": "Utiliser la dernière image comme référence",
-    "runningConversation": "Attends le résultat pour commencer une nouvelle conversation. Tu peux continuer à parcourir le Studio."
+    "runningConversation": "Attends le résultat pour commencer une nouvelle conversation. Tu peux continuer à parcourir le Studio.",
+    "imageEngineNano": "Image · Nano Banana 2.1 · Propulsé par ComfyUI",
+    "imageEngineQwen": "Image · Qwen Image 2.1 · Propulsé par ComfyUI",
+    "imageEngineFlux2": "Image · FLUX.2 dev · Propulsé par ComfyUI",
+    "priceUnconfirmed": "prix à confirmer",
+    "engine": "Moteur image",
+    "engineName": {
+      "nano": "Nano Banana 2.1",
+      "klein": "Klein",
+      "qwen": "Qwen Image 2.1",
+      "flux2": "FLUX.2 dev"
+    },
+    "engineHelp": {
+      "nano": "Compose tes références, chaque photo lue à part (partenaire Google via Comfy).",
+      "klein": "Le modèle ouvert du studio.",
+      "qwen": "Modèle ouvert : lit chaque photo à part et garde ton action telle quelle.",
+      "flux2": "Modèle ouvert, fort avec plusieurs références. Plus lent et plus cher que Klein."
+    },
+    "engineStudioOnly": "Modèles open weights seulement.",
+    "nanoFailed": "Nano Banana 2.1 n’a pas abouti : {reason} Rien n’a été relancé. Pour réessayer avec Klein, choisis-le dans les réglages de la bulle."
   },
   "genjutsu": {
     "action": "Remplacer le personnage",
@@ -3827,5 +3473,330 @@
     "same": "Choisis une langue d’arrivée différente de la langue parlée.",
     "trim": "Le clip dépasse 599 secondes : VEED n’en prend pas plus.",
     "quoteFor": "Pour {seconds} s en {tier}, {from} → {to}. Le prix final peut varier."
+  },
+  "film2": {
+    "title": "PRISE",
+    "planN": "Plan {n} · Que se passe-t-il ?",
+    "phrase": "Que se passe-t-il ?",
+    "phrasePh": "Uttu marche sur un quai la nuit, sous la pluie. La caméra la suit.",
+    "qui": "Qui ?",
+    "ou": "Où ?",
+    "quiVide": "Personne · choisir",
+    "ouVide": "Lieu tiré de ta phrase",
+    "deTaDistribution": "de ta distribution",
+    "deTesLieux": "de tes lieux",
+    "nouveau": "nouveau · sera créé",
+    "compris": "Uttu a compris",
+    "duree": "{s} s",
+    "paysage": "Paysage",
+    "portrait": "Portrait",
+    "camera": "Caméra : {words}",
+    "video": "Vidéo {s} s",
+    "explication": "Ce qui manque est créé d’abord (image), puis le plan est tourné (vidéo). Une seule confirmation.",
+    "explicationPrete": "Tout est prêt : le plan est tourné (vidéo). Une seule confirmation.",
+    "tourner": "Tourner le plan",
+    "credits": "≈ {n} crédits estimés",
+    "confirmTitle": "Lancer ce plan ?",
+    "confirmLead": "{n} étapes, une seule confirmation. Rien ne part avant « Lancer ».",
+    "confirmLead1": "Une étape. Rien ne part avant « Lancer ».",
+    "etapePersonnage": "Créer le personnage « {nom} »",
+    "etapeLieu": "Créer le lieu « {nom} »",
+    "etapePrise": "Tourner le plan",
+    "depuisPhrase": "Image · depuis ta phrase",
+    "etapePriseSous": "Vidéo {s} s · {qui}",
+    "total": "Total",
+    "soldeApres": "Solde après : ≈ {n} crédits. Le plan sera rangé dans Mes créations et ajouté au montage.",
+    "soldeInconnu": "Le plan sera rangé dans Mes créations et ajouté au montage.",
+    "lancer": "Lancer",
+    "modifier": "Modifier",
+    "envoye": "Ce qui sera envoyé",
+    "envoyeLead": "Ta phrase part telle quelle au service de rendu vidéo (MiniMax H3), avec les images de chaque personnage et du lieu.",
+    "enCours": "Étape {i} sur {n} : {label}",
+    "fini": "Plan tourné. Il est dans Mes créations et au montage.",
+    "planSuivant": "Plan suivant",
+    "voirMontage": "Voir le montage",
+    "erreur": "Le plan n’a pas abouti : {raison}",
+    "reessayer": "Réessayer",
+    "phraseVide": "Écris d’abord ce qui se passe.",
+    "plusieurs": "{a} et {b}",
+    "fermer": "Fermer",
+    "choix": {
+      "quiTitre": "Qui joue dans ce plan ?",
+      "ouTitre": "Où se passe ce plan ?",
+      "quiLead": "Jusqu’à 3 personnages. Ils restent dans ta distribution (CAST) pour tout le film.",
+      "ouLead": "Un lieu par plan. Il reste dans tes lieux (DÉCOR) pour tout le film.",
+      "personne": "Garder ce que dit ma phrase",
+      "lieuPhrase": "Garder le lieu de ma phrase",
+      "utiliser": "Utiliser {nom}",
+      "utiliserN": "Utiliser ces {n} personnages",
+      "aucunPersonnage": "Pas encore de personnage dans ta distribution. Crée le premier ci-dessous.",
+      "aucunLieu": "Pas encore de lieu. Crée le premier ci-dessous.",
+      "nouveauPersonnage": "Nouveau personnage",
+      "nouveauLieu": "Nouveau lieu",
+      "depuisPhotos": "Depuis 1 à 3 photos",
+      "depuisPhoto": "Depuis une photo",
+      "depuisPhotosSous": "Image · le studio garde son visage · {prix}",
+      "depuisPhotoSous": "Image · le studio garde le lieu · {prix}",
+      "depuisDescription": "Depuis une description",
+      "depuisDescriptionSous": "Image · « une femme au manteau rouge… » · {prix}",
+      "depuisDescriptionLieuSous": "Image · « une gare sous la pluie… » · {prix}",
+      "lieuReel": "Lieu réel en 3D",
+      "lieuReelSous": "Une rue vraie, cadrée en 3D · s’ouvre dans DÉCOR",
+      "max": "3 personnages au plus : retire-en un pour en ajouter un autre.",
+      "nom": "Nom",
+      "nomPh": "La coursière",
+      "nomLieuPh": "La gare",
+      "description": "À quoi ressemble-t-il ?",
+      "descriptionPh": "Une femme au manteau rouge, cheveux courts",
+      "descriptionLieuPh": "Une gare vide sous la pluie, néons",
+      "photos": "Photos (1 à 3)",
+      "choisirPhotos": "Choisir des photos",
+      "choisirPhoto": "Choisir une photo",
+      "photo": "Photo",
+      "verification": "Vérification des photos…",
+      "photosPretes": "{n} photo(s) prête(s)",
+      "doublons": "{n} en double retirée(s)",
+      "dejaLa": "Déjà dans ta galerie : {nom}",
+      "lUtiliser": "L’utiliser",
+      "retour": "Retour",
+      "ajouter": "Ajouter au plan",
+      "toutCast": "Ouvrir toute la distribution (CAST)",
+      "toutDecor": "Ouvrir tous les lieux (DÉCOR)",
+      "photoIllisible": "Cette photo n’a pas pu être lue. Essaie une autre image.",
+      "nomVide": "Donne-lui d’abord un nom.",
+      "photoVide": "Choisis au moins une photo.",
+      "descriptionVide": "Décris-le en quelques mots."
+    },
+    "garde": "Déjà fait et gardé : {faits}. « Réessayer » ne relance que : {reste}.",
+    "compte": {
+      "titre": "Réglages du compte",
+      "partenaires": "Utiliser aussi des services partenaires payants",
+      "partenairesSous": "Non par défaut : le studio n’utilise que ses propres modèles. Oui : quelques outils de plus passent par un service extérieur, toujours avec leur prix « ≈ X crédits estimés » avant de lancer."
+    },
+    "reglages": {
+      "titre": "Réglages du plan",
+      "lead": "Tout est déjà choisi. Change seulement ce que tu veux.",
+      "changer": "Changer les réglages du plan",
+      "duree": "Durée",
+      "format": "Format",
+      "paysage": "Paysage · YouTube",
+      "paysageSous": "Large, pour un écran d’ordinateur ou de télé",
+      "portrait": "Portrait · Reels",
+      "portraitSous": "En hauteur, pour un téléphone",
+      "camera": "Caméra",
+      "cam": {
+        "phrase": "Comme dans ma phrase",
+        "phraseSous": "Le studio suit ce que tu as écrit",
+        "fixe": "Ne bouge pas",
+        "fixeSous": "Plan posé, comme sur un pied",
+        "suit": "Suit le personnage",
+        "suitSous": "La caméra marche avec lui",
+        "approche": "S’approche",
+        "approcheSous": "Doucement, vers le visage ou l’objet",
+        "autour": "Tourne autour",
+        "autourSous": "Un tour lent autour du sujet"
+      },
+      "paroles": "Paroles",
+      "par": {
+        "aucune": "Aucune",
+        "aucuneSous": "Plan sans paroles",
+        "replique": "Une réplique",
+        "repliqueSous": "Le personnage dit une phrase",
+        "voixoff": "Voix off",
+        "voixoffSous": "Une voix raconte par-dessus l’image",
+        "texteReplique": "Ce qu’il dit",
+        "texteVoix": "Ce que dit la voix"
+      },
+      "rendu": "Rendu",
+      "renduLead": "Le studio choisit la bonne méthode pour toi.",
+      "rapide": "Rapide",
+      "rapideSous": "Pour essayer : image plus simple, à rendre plus nette ensuite au montage",
+      "fidele": "Plus fidèle à mes références",
+      "fideleSous": "Visages et lieux mieux gardés",
+      "sansPrix": "pas encore de prix avec ce rendu",
+      "sansPrixLong": "Ce plan n’a pas encore de prix : choisis une autre durée ou un autre rendu dans les réglages.",
+      "ok": "C’est bon",
+      "moteur": "Moteur utilisé : {moteur}",
+      "ltxApercu": "LTX 2.5 (aperçu)"
+    },
+    "montage": {
+      "titre": "MONTAGE",
+      "monFilm": "Mon film",
+      "exporter": "Exporter",
+      "mesPlans": "Mes plans · touche pour ajouter à la fin",
+      "ajouterFin": "Ajouter le plan {n} à la fin : {nom}",
+      "nouveauPlan": "Tourner un nouveau plan",
+      "nouveauPlanCourt": "Nouveau plan",
+      "binVide": "Tes plans tournés apparaissent ici.",
+      "chargement": "Le plan se charge…",
+      "vide": "Ton film est vide : tourne un plan ou touche un plan de « Mes plans ».",
+      "planN": "Plan {n}",
+      "brouillon": "aperçu brouillon",
+      "planChoisi": "Plan {n} sélectionné",
+      "vitesse": "Vitesse",
+      "vitesseN": "Vitesse {n}×",
+      "fondu": "Fondu vers le suivant",
+      "toucheUnPlan": "Touche un plan pour le modifier.",
+      "outils": "Outils de montage",
+      "action": {
+        "lecture": "Lecture",
+        "pause": "Pause",
+        "annuler": "Annuler",
+        "retablir": "Rétablir",
+        "couper": "Couper ici",
+        "enleverAvant": "Enlever avant",
+        "enleverApres": "Enlever après",
+        "dupliquer": "Dupliquer",
+        "supprimer": "Supprimer"
+      },
+      "pourquoi": {
+        "vide": "Le film est vide.",
+        "rienAnnuler": "Rien à annuler.",
+        "rienRetablir": "Rien à rétablir.",
+        "placer": "Place la tête de lecture dans un plan.",
+        "choisir": "Touche un plan d’abord."
+      },
+      "aimant": "Aimant · activé",
+      "recoller": "Recoller les trous · activé",
+      "zoomMoins": "Zoom arrière",
+      "zoomPlus": "Zoom avant",
+      "bulle": "Fais glisser pour te déplacer, touche un plan pour le modifier.",
+      "timeline": "Film : fais glisser pour te déplacer",
+      "piste": "Plans",
+      "son": "Son",
+      "clipAria": "Plan {n} : {nom}, {s}",
+      "exporterTitre": "Exporter le film",
+      "exporterLead": "Ton film de {d} est assemblé sur ton appareil, puis enregistré dans Mes créations.",
+      "net": "Rendre plus net",
+      "netSous": "Améliore l’image du film déjà monté. Ne refait jamais les plans.",
+      "netLong": "Pas disponible pour ce film (vide ou trop long).",
+      "exporterLocal": "Exporter la vidéo",
+      "exporterNet": "Exporter et rendre plus net",
+      "prepare": "Le film se prépare…",
+      "progres": "Assemblage du film… {p} %",
+      "exporte": "Film exporté : téléchargé et enregistré dans Mes créations.",
+      "netFini": "Film rendu plus net, enregistré dans Mes créations.",
+      "sauvegarde": "Le montage n’a pas pu être enregistré. Garde cet onglet ouvert.",
+      "etape": {
+        "envoi": "Envoi du film…",
+        "file": "En file d’attente…",
+        "calcul": "L’image devient plus nette…",
+        "retour": "Récupération du film…",
+        "mesure": "Lecture du coût réel…"
+      },
+      "touches": {
+        "lecture": "Espace",
+        "annuler": "Ctrl+Z",
+        "retablir": "Ctrl+Maj+Z",
+        "supprimer": "Suppr"
+      }
+    },
+    "nav": {
+      "plans": "Plans",
+      "vide": "vide"
+    },
+    "autrePrise": "Autre prise",
+    "modifierRefaire": "Modifier et refaire",
+    "finiAutre": "Prise {n} de ce plan. Elle est dans Mes créations et dans « Mes plans » au MONTAGE ; le montage garde la première.",
+    "soldeApresAutre": "Solde après : ≈ {n} crédits. La prise sera rangée dans Mes créations et dans « Mes plans » ; le montage garde la première.",
+    "soldeInconnuAutre": "La prise sera rangée dans Mes créations et dans « Mes plans » ; le montage garde la première.",
+    "exemples": {
+      "titre": "Ou pars d’un exemple",
+      "liste": "{n} exemples, glisse pour les voir",
+      "resultat": "Résultat réel du studio",
+      "reel": "résultat réel",
+      "video": "VIDÉO {s} s",
+      "image": "IMAGE",
+      "recetteVideo": "{n} références → 1 vidéo",
+      "recetteTexte": "1 phrase → 1 image",
+      "recettePhoto": "1 photo → 1 image",
+      "sansPrix": "prix indisponible",
+      "refaire": "Refaire cet exemple",
+      "prepare": "Préparation…",
+      "note": "Remplit le plan sous tes yeux. Rien ne part avant « Lancer ».",
+      "introuvable": "L’exemple n’a pas pu être chargé. Réessaie, rien n’a été envoyé.",
+      "uttuQuai": {
+        "titre": "Uttu sur le quai",
+        "phrase": "Uttu marche sur le quai la nuit, la caméra la suit."
+      },
+      "lieuPhoto": {
+        "titre": "Un lieu depuis une photo"
+      },
+      "persoTexte": {
+        "titre": "Un personnage depuis une phrase",
+        "texte": "Vieux pêcheur breton, la soixantaine passée, casquette plate en laine marine, caban marine huilé sur un pull irlandais crème, barbe blanche de trois jours, bottes de cuir usées. Character turnaround : face, trois-quarts, profil, dos. Lumière de studio douce, fond gris moyen."
+      }
+    }
+  },
+  "exampleItems": {
+    "decor-quai-nuit": {
+      "title": "Le quai, la nuit"
+    },
+    "decor-rue-pluie": {
+      "title": "Sous la pluie"
+    },
+    "decor-piece": {
+      "title": "Une pièce",
+      "prompt": "Une pièce vide, lumière douce, parquet, sans personne."
+    },
+    "decor-toit-aube": {
+      "title": "Un toit au lever du jour"
+    },
+    "decor-gare": {
+      "title": "Un hall de gare"
+    },
+    "decor-couloir": {
+      "title": "Un couloir",
+      "prompt": "Un couloir clair, lignes longues, sans personne."
+    },
+    "cast-coursiere": {
+      "title": "La coursière",
+      "prompt": "Jeune coursière, carré bouclé brun, veste de pluie jaune moutarde, besace en toile olive, pantalon cargo noir, baskets noires. Character turnaround : face, trois-quarts, profil, dos. Lumière studio douce, fond gris neutre."
+    },
+    "cast-vieil-homme": {
+      "title": "Le vieil homme",
+      "prompt": "Vieil homme, environ 75 ans, casquette plate en tweed gris, barbe blanche courte, manteau de laine anthracite, écharpe tricotée noire, bottines en cuir brun usées. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre."
+    },
+    "cast-dj": {
+      "title": "DJ",
+      "prompt": "DJ, cheveux ras décolorés, créoles dorées, chaînes dorées superposées, bomber noir, casque autour du cou, rangers noires. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre."
+    }
+  },
+  "demoPrompts": {
+    "demo-coursiere": "Jeune coursière, carré bouclé brun, veste de pluie jaune moutarde, besace en toile olive, pantalon cargo noir, baskets noires. Character turnaround : face, trois-quarts, profil, dos. Lumière studio douce, fond gris neutre.",
+    "demo-vieil-homme": "Vieil homme, environ 75 ans, casquette plate en tweed gris, barbe blanche courte, manteau de laine anthracite, écharpe tricotée noire, bottines en cuir brun usées. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre.",
+    "demo-dj": "DJ, cheveux ras décolorés, créoles dorées, chaînes dorées superposées, bomber noir, casque autour du cou, rangers noires. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre.",
+    "demo-quai": "Un quai la nuit, eau noire, lumières lointaines, sans personne.",
+    "demo-gare": "Un hall de gare, vide, lumière froide, sans personne.",
+    "demo-pluie": "Une rue sous la pluie, lumières floues, sans personne.",
+    "demo-toit": "Des toits de zinc à l’aube, brume dorée, sans personne."
+  },
+  "chrome": {
+    "studio": "Studio",
+    "mine": "Mon studio",
+    "guide": "Guide",
+    "uttu": "Uttu",
+    "soon": "Bientôt",
+    "storyweave": "StoryWeave",
+    "look": "Look",
+    "lookStandard": "Standard",
+    "lookAnime": "Anime 2.5D",
+    "openGuide": "Ouvrir le guide",
+    "nextFinish": "Ensuite : Finaliser — rendre les prises gardées plus nettes",
+    "finishLead": "Plus net et plus grand. Rien n’est régénéré.",
+    "finishEmpty": "Garde une prise dans Montage, puis finalise-la ici.",
+    "finishEngineSeed": "SeedVR2",
+    "finishEngineAnime": "Real-ESRGAN anime",
+    "finishThis": "Finaliser cette prise",
+    "finishConfirm": "Confirmer la finition",
+    "finishKept": "Prise gardée",
+    "finishMissing": "Le fichier gardé n’est pas encore dans ce navigateur.",
+    "finishDone": "La prise plus nette est dans Mon studio. L’originale reste.",
+    "finishQuote": "≈ {n}–{high} crédits estimés",
+    "menuAria": "Menu : Studio, Mon studio, Guide, langue, crédits",
+    "places": "Lieux",
+    "trackVoice": "Voix",
+    "trackMusic": "Musique",
+    "trackText": "Texte"
   }
 }

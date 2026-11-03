@@ -3,7 +3,7 @@
 // account was charged from two real balance readings. Following is separate
 // so a take queued before a reload can be picked up again.
 
-import { measuredCost } from "../credits.ts";
+import { BILLED_CREDITS_PER_GPU_SECOND, gpuTimeCredits, measuredCost } from "../credits.ts";
 import { executionSeconds, jobStage, pickOutput, pickOutputs, RenderError, type OutputRef, type RenderClient } from "./client.ts";
 import { LTX_REFS_MAX, ltxTakeGraph } from "./ltx-graph.ts";
 import type { UploadedControls } from "./framed-key.ts";
@@ -16,10 +16,10 @@ function checkReferences(settings: TakeSettings, count: number): void {
 }
 
 /** The graph for the chosen engine. Same pictures, same text. */
-export function takeGraphFor(settings: TakeSettings, prompt: string, pictures: readonly string[], seed: number, controls?: UploadedControls): ApiGraph {
+export function takeGraphFor(settings: TakeSettings, prompt: string, pictures: readonly string[], seed: number, controls?: UploadedControls, roles?: string): ApiGraph {
   checkReferences(settings, pictures.length);
   if (Boolean(settings.cadrage) !== Boolean(controls) || (controls && takeEngine(settings) !== "ltx")) throw new RenderError("invalid", "Le cadrage gardé demande ses deux contrôles et le moteur LTX.");
-  if (takeEngine(settings) === "ltx") return ltxTakeGraph({ prompt, pictures, seed, seconds: settings.seconds, aspect: settings.aspect, apercu: takeRendu(settings) === "apercu", controls });
+  if (takeEngine(settings) === "ltx") return ltxTakeGraph({ prompt, pictures, seed, seconds: settings.seconds, aspect: settings.aspect, apercu: takeRendu(settings) === "apercu", controls, ...(roles ? { roles } : {}) });
   return takeGraph({ ...settings, prompt, pictures, seed });
 }
 
@@ -30,6 +30,8 @@ export interface TakeRunInput {
   settings: TakeSettings;
   seed: number;
   clientId: string;
+  /** CE1 slot text for an LTX take with two or more characters. Absent: the historical preamble. */
+  roles?: string;
 }
 
 export type TakeRunEvent =
@@ -79,7 +81,7 @@ export interface TakeRunOptions {
    */
   deferMeasure?: boolean;
   /** Fired when a deferred (or sync) balance read finishes. */
-  onCost?: (info: { balanceAfter: number | null; costCredits: number | null }) => void;
+  onCost?: (info: { balanceAfter: number | null; costCredits: number | null; gpuSeconds?: number | null; gpuCredits?: number | null }) => void;
 }
 
 const defaultSleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
@@ -109,7 +111,7 @@ export async function submitTake(
   } : undefined;
   if (signal?.aborted) throw new RenderError("cancelled", "Envoi interrompu avant la soumission.");
   onEvent({ stage: "submit" });
-  const graph = takeGraphFor(input.settings, input.prompt, names, input.seed, controls);
+  const graph = takeGraphFor(input.settings, input.prompt, names, input.seed, controls, input.roles);
   return client.submit(graph, input.clientId);
 }
 
@@ -125,7 +127,9 @@ export async function followTake(
   const now = options.now ?? Date.now;
   const pollMs = options.pollMs ?? 3000;
   const timeoutMs = options.timeoutMs ?? 35 * 60 * 1000;
-  const measureTries = options.measureTries ?? 4;
+  // A deferred read never blocks the result, so it can wait for Comfy's slow balance update
+  // (about a minute) and for the job's billed row in the event feed, instead of leaving the cost unread.
+  const measureTries = options.measureTries ?? (options.deferMeasure ? 24 : 4);
   const measureMs = options.measureMs ?? 5000;
   const networkTries = options.networkTries ?? 5;
 
@@ -189,18 +193,26 @@ export async function followTake(
     ...(options.all ? { extras } : {}),
   });
 
-  const readCost = async (): Promise<{ balanceAfter: number | null; costCredits: number | null }> => {
+  const gpuSeconds = executionSeconds(detail);
+  const readCost = async (): Promise<{ balanceAfter: number | null; costCredits: number | null; gpuSeconds: number | null; gpuCredits: number | null }> => {
     // When deferred, skip the measure stage event so the progress label never says
     // « Lecture du coût réel… » after the bytes are already shown (or mid-render).
     if (!options.deferMeasure) onEvent({ stage: "measure", jobId });
     let balanceAfter: number | null = null;
+    let billed: number | null = null;
     for (let attempt = 0; attempt < measureTries; attempt++) {
+      // The job's own billed row first (GPU seconds × the billed rate): a balance moves with grants,
+      // other tabs and invoice lag, so its difference is only the fallback.
+      const charge = typeof client.jobCharge === "function" ? await client.jobCharge(jobId, BILLED_CREDITS_PER_GPU_SECOND).catch(() => null) : null;
+      if (charge) billed = charge.credits;
       balanceAfter = await client.balance().catch(() => null);
-      if (balanceAfter !== null && balanceAfter !== balanceBefore) break;
+      if (billed !== null || (balanceAfter !== null && balanceAfter !== balanceBefore)) break;
       if (attempt < measureTries - 1) await sleep(measureMs);
     }
     const charged = balanceAfter !== null && balanceAfter !== balanceBefore ? balanceAfter : null;
-    const info = { balanceAfter: charged, costCredits: measuredCost(balanceBefore, charged) };
+    const costCredits = billed ?? measuredCost(balanceBefore, charged);
+    // Neither readable yet: keep the job's compute time as a fallback figure (« ≈ … estimés »).
+    const info = { balanceAfter: charged, costCredits, gpuSeconds, gpuCredits: costCredits === null ? gpuTimeCredits(gpuSeconds) : null };
     options.onCost?.(info);
     return info;
   };
@@ -208,7 +220,7 @@ export async function followTake(
   if (options.deferMeasure) {
     // Never block the result on the balance poll: show bytes first, fill the quote line later.
     void readCost().catch(() => {
-      options.onCost?.({ balanceAfter: null, costCredits: null });
+      options.onCost?.({ balanceAfter: null, costCredits: null, gpuSeconds, gpuCredits: gpuTimeCredits(gpuSeconds) });
     });
     return pack(null, null);
   }

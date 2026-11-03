@@ -100,28 +100,6 @@ test("Finaliser : une vidéo de 25 Mo n’est jamais dégradée, elle est refus�
   expect(seen).toHaveLength(0);
 });
 
-test("CAST, DÉCOR puis PRISE : deux photos de téléphone de 9 Mo partent sous la limite et la prise arrive", async ({ page }, info) => {
-  await simulateComfy(page);
-  const relay = await simulateRelay(page);
-  const nav = (name: string) => page.getByRole("navigation").getByRole("button", { name, exact: false });
-  await page.goto("/studio#personnage");
-  await page.getByLabel("Importer un personnage", { exact: true }).setInputFiles(heavyJpeg(info.outputPath("lea.jpg")));
-  await expect(nav("CAST")).toContainText("Prêt");
-  await nav("DÉCOR").tap();
-  await page.getByLabel("Importer un décor", { exact: true }).setInputFiles(heavyJpeg(info.outputPath("labo.jpg"), 11_000_000));
-  await expect(nav("DÉCOR")).toContainText("Prêt");
-  await nav("PRISE").tap();
-  await expect(page.locator('[data-prise-ready="true"]')).toBeVisible();
-  await page.getByRole("textbox", { name: "Ce qui se passe", exact: true }).fill("Léa ouvre la porte du laboratoire");
-  await page.locator(".u-prise-actions .u-primary").tap();
-  await page.locator("[data-confirm-gold]").tap();
-  await expect(page.locator("[data-take-view] video")).toBeVisible({ timeout: 90_000 });
-  const sent = await relay.sent();
-  expect(sent.length).toBeGreaterThan(0);
-  for (const file of sent) expect(file.bytes).toBeLessThan(RELAY_LIMIT);
-  expect(await relay.refused()).toBe(0);
-});
-
 test("Bulle · références (#158) : une référence de 9 Mo part sous la limite et l’image arrive", async ({ page }, info) => {
   await simulateComfy(page);
   const relay = await simulateRelay(page);

@@ -4,7 +4,7 @@ import { knowledge } from "../scripts/agent-knowledge.mjs";
 import { REGISTRE } from "../src/lib/workflows/registre.ts";
 import { formatCr, simItems, simulate, simulateText, type Knowledge } from "../src/lib/agent/uttu.ts";
 
-const k = knowledge("local") as Knowledge;
+const k = knowledge("local", false) as Knowledge;
 const reg = (id: string) => REGISTRE.find(g => g.id === id)!;
 
 test("3 portraits + 2 LTX takes uses the studio cost table, in every language", () => {
