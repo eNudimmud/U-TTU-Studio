@@ -99,7 +99,7 @@ test('« Refaire cet exemple » (image) : le formulaire DÉCOR se remplit, surli
   await expect(page.locator('[data-film-refaire="lieuPhoto"]')).toBeVisible();
   await page.locator('[data-film-refaire="lieuPhoto"]').click();
   await expect(page.locator('[data-decor-form]')).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator('[data-decor-form] input')).toHaveValue('Le quai, la nuit');
+  await expect(page.locator('[data-decor-form] input')).toHaveValue('Place Saint-François, Lausanne');
   await expect(page.locator('[data-decor-form][data-rempli]')).toBeVisible();
   await expect(page.locator('[role="dialog"][aria-labelledby="u-create-title"]')).toBeVisible({ timeout: 5_000 });
   await snap(page, '20-exemple-image-confirmer');
