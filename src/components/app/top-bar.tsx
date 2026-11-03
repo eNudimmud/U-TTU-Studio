@@ -244,7 +244,7 @@ function SearchPalette({ onClose }: { onClose(): void }) {
   }, [onClose]);
   const needle = query.trim();
   const places = [
-    { id: "look", href: "/look", label: t("chrome.look"), line: t("chrome.lookAnime") },
+    { id: "look", href: "/anime", label: t("chrome.look"), line: t("chrome.lookAnime") },
     { id: "finish", href: "/studio#finaliser", label: t("nav.finish"), line: t("chrome.finishLead") },
     { id: "guide", href: "/guide", label: t("chrome.guide"), line: t("chrome.openGuide") },
   ].filter(item => !needle || cherche(`${item.label} ${item.line}`, needle));

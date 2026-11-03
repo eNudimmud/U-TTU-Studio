@@ -7,7 +7,7 @@ import { ANISORA_HIGH, ANISORA_LOW, FINISH_TEMPLATE, KLEIN_EDIT_TEMPLATE, KREA_S
 import { annulerLook, appliquerLook, estGuide, lireLook, lookAnime, sansGuide } from "../src/lib/look/model.ts";
 import { annulerLookProjet, confirmerLook, lireLookProjet } from "../src/lib/look/persist.ts";
 import { COUT_PLAN_JEU, EXEMPLE_FILM, EXEMPLE_PREPA, devisFilm, devisPreparation, libelleEstime } from "../src/lib/look/quote.ts";
-import { consulterLook, resolveLook, routePlan, seedDuPlan } from "../src/lib/look/resolve.ts";
+import { animeLookPromptSuffix, consulterLook, resolveLook, routePlan, seedDuPlan } from "../src/lib/look/resolve.ts";
 import { LOOK_COPY } from "../src/lib/look/copy.ts";
 import { gesteParId, gesteVisible } from "../src/lib/workflows/registre.ts";
 
@@ -114,6 +114,14 @@ describe("anime look, pipeline", () => {
     assert.equal(JSON.stringify(graph).includes("utility_video_upscale"), false);
   });
 
+  it("gives Cast and Décor the look's style instructions, even before the dedicated graphs are wired", () => {
+    assert.equal(animeLookPromptSuffix(null), "");
+    const text = animeLookPromptSuffix(look);
+    assert.match(text, /cel shading/);
+    assert.match(text, /No text\.$/);
+    assert.equal(animeLookPromptSuffix(lookAnime("neon")).includes("neon-night"), true);
+  });
+
   it("hides the anime rows until the look is on, and keeps them off partner nodes", () => {
     for (const id of ["anime-style-frame", "anime-sheet", "anime-sheet-klein", "anime-decor", "anime-decor-photo", "anime-first-frame", "anime-prise-jeu", "anime-prise-camera", "anime-finish"]) {
       const row = gesteParId(id);
@@ -145,8 +153,9 @@ describe("anime look, quotes", () => {
 });
 
 describe("anime look, page copy", () => {
-  it("keeps every price an estimate and the concept-art caption in English", () => {
-    assert.equal(LOOK_COPY.en.caption, "Concept art — your project is rendered on Comfy with the open anime pipeline");
+  it("keeps every price an estimate and the concept-art caption honest about what it is", () => {
+    assert.equal(LOOK_COPY.en.caption, "Concept art — shows the direction only. Nothing here was rendered by this project.");
+    assert.equal(/rendered on Comfy|rendu sur Comfy|gerendert auf Comfy|renderizado en Comfy/i.test(LOOK_COPY.en.caption), false);
     for (const [locale, copy] of Object.entries(LOOK_COPY)) {
       for (const step of copy.steps) assert.equal(FORBIDDEN_PRICE.test(step.cost), false, `${locale} ${step.cost}`);
       assert.match(copy.finalNote, /≈ 70/);

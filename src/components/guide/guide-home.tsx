@@ -41,7 +41,8 @@ export function GuideHome() {
       <section className="g-sec" id="look">
         <h2>{copy.lookTitle}</h2>
         <p className="g-muted">{copy.lookBody}</p>
-        <p><a className="g-link" href={assetPath("/look")}>/look</a> · <a className="g-link" href={assetPath("/look/bible")}>/look/bible</a></p>
+        <p><a className="g-link" href={assetPath("/anime")}>/anime</a> · <a className="g-link" href={assetPath("/anime/bible")}>/anime/bible</a></p>
+        <p><a className="g-link" href={assetPath("/guide/anime")}>{copy.animeGuideLink} ›</a></p>
       </section>
       <section className="g-sec" id="costs">
         <h2>{copy.costsTitle}</h2>

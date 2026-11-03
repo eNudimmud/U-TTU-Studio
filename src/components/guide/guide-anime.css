@@ -1,0 +1,15 @@
+.ga-glossary { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px 32px; margin-top: 20px; }
+.ga-term { padding: 0; margin: 0; }
+.ga-term dt { font-weight: 500; color: var(--accent); }
+.ga-term dd { margin: 4px 0 0; color: var(--fg-2); }
+.ga-models { display: grid; gap: 20px; margin-top: 24px; }
+.ga-model { background: var(--surface); border-radius: 14px; padding: 20px 22px; display: grid; gap: 10px; }
+.ga-model h3 { margin: 0; font: 400 22px/1.2 var(--font-title), Georgia, serif; }
+.ga-template { font: 12px var(--font-mono); color: var(--fg-3); word-break: break-all; }
+.ga-good, .ga-bad { display: grid; gap: 4px; padding: 10px 12px; border-radius: 10px; }
+.ga-good { background: rgba(120, 200, 140, .08); border: 1px solid rgba(120, 200, 140, .25); }
+.ga-bad { background: rgba(220, 110, 110, .06); border: 1px solid rgba(220, 110, 110, .2); }
+.ga-good p, .ga-bad p { margin: 0; }
+.ga-tag { display: inline-flex; min-height: 22px; align-items: center; padding: 0 8px; border-radius: 999px; font: 11px var(--font-mono); text-transform: uppercase; letter-spacing: .06em; width: fit-content; }
+.ga-tag-good { background: rgba(120, 200, 140, .18); color: #8fdca3; }
+.ga-tag-bad { background: rgba(220, 110, 110, .15); color: #e59c9c; }

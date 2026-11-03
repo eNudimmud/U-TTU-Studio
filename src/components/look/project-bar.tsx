@@ -12,7 +12,7 @@ const HREF: Record<(typeof TABS)[number], string> = {
   cast: "/studio#personnage",
   places: "/studio#scene",
   shots: "/studio#prise",
-  look: "/look",
+  look: "/anime",
 };
 
 export function ProjectBar({ copy, name, current }: { copy: LookCopy; name: string; current: (typeof TABS)[number] }) {

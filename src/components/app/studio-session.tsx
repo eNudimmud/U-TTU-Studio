@@ -68,6 +68,9 @@ import { failView, type FailKind } from "@/lib/render/fail";
 import { imageVide } from "@/lib/render/blank";
 import { readMontages, writeMontageEdit } from "@/lib/montage/vault";
 import { namedReferenceNote, readNamedReferences, referenceNotePath, REFERENCE_CATEGORIES, REFERENCE_PHOTOS_MAX, type NamedReference, type ReferenceCategory } from "@/lib/creation/named-references";
+import { confirmerLook, lireLookProjet } from "@/lib/look/persist";
+import { animeLookPromptSuffix } from "@/lib/look/prompt-suffix";
+import type { ProjectLook } from "@/lib/look/model";
 import { referenceBoard } from "@/lib/creation/reference-board";
 import { bubbleGraph, bubbleGeste, bubbleImageEngine, bubbleQuote, bubbleTool, type BubbleMode, type BubbleSettings } from "@/lib/creation/bubble";
 
@@ -200,6 +203,10 @@ export interface StudioSession {
   loose: AssetRecord[];
   createCast(input: { name: string; prompt: string; source: "texte" | "photos"; files: File[]; confirmed: boolean; geste?: string; onFiled?(filed: { id: string; name: string }): void }): Promise<boolean>;
   createDecor(input: DecorInput): Promise<boolean>;
+  /** The active project's Anime 2.5D look (`.uttu/look.json`), or null with no look set. */
+  animeLook: ProjectLook | null;
+  /** The single place `.uttu/look.json` is written. Confirms are free: nothing is sent to Comfy. */
+  confirmLook(next: ProjectLook | null): Promise<ProjectLook | null>;
   createStem(input: { geste: string; text: string; confirmed: boolean }): Promise<File | null>;
   prefs: StudioPrefs;
   /** Filter of the tool catalogue (Outils, rail, search): explicit device choices only, never film2. */
@@ -536,6 +543,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const [references, setReferences] = useState<NamedReference[]>([]);
   const [pendingRef, setPendingRef] = useState<HeldRef | null>(null);
   const [pendingClip, setPendingClip] = useState<HeldClip | null>(null);
+  const [animeLook, setAnimeLookState] = useState<ProjectLook | null>(null);
 
   const store = useCallback((): VaultStore => {
     const base = baseRef.current ?? idbVault();
@@ -589,6 +597,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const vault = store();
     const next = await loadStudio(vault);
     setStudio(next);
+    setAnimeLookState(next.project ? (await lireLookProjet(vault, next.project).catch(() => null))?.look ?? null : null);
     try {
       const labels: Parameters<typeof discoverLocal>[2] = {};
       for (const card of next.cast) for (const path of [card.sheet, ...card.photos]) if (path) labels[path] = { name: card.name, character: card.name, createdAt: card.at, workflowId: card.template };
@@ -605,6 +614,13 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     await showMedia(vault, next);
     return next;
   }, [setStudio, showMedia, store]);
+
+  const confirmLook = useCallback(async (next: ProjectLook | null) => {
+    const slug = studioRef.current?.project ?? await ensureActiveProject(store());
+    const change = await confirmerLook(store(), slug, next, new Date().toISOString(), Math.random().toString(36).slice(2, 10));
+    setAnimeLookState(change.document.look);
+    return change.document.look;
+  }, [store]);
 
   const client = useMemo<RenderClient | null>(() => {
     // Refonte FILM (registre): a picture already sent is not uploaded again.
@@ -986,7 +1002,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const kind = row?.still === "photo-cast" || row?.still === "planche" || row?.still === "texte-cast"
       ? row.still
       : input.source === "photos" ? "planche" : "texte-cast";
-    const sent = [input.prompt.trim(), row?.consigne ?? ""].filter(Boolean).join("\n\n");
+    const sent = [input.prompt.trim(), row?.consigne ?? "", animeLookPromptSuffix(animeLook)].filter(Boolean).join("\n\n");
     setCreating(true);
     try {
       const refs: string[] = [];
@@ -1029,7 +1045,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [animeLook, client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   const createDecor = useCallback(async (input: DecorInput) => {
     const row = input.geste ? gesteParId(input.geste) : null;
@@ -1076,7 +1092,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       : row?.still === "photo-decor" || row?.still === "texte-decor"
         ? row.still
         : input.source === "photo" ? "photo-decor" : "texte-decor";
-    const sent = cadre ? input.prompt.trim() : [input.prompt.trim(), row?.consigne ?? ""].filter(Boolean).join("\n\n");
+    const sent = cadre ? input.prompt.trim() : [input.prompt.trim(), row?.consigne ?? "", animeLookPromptSuffix(animeLook)].filter(Boolean).join("\n\n");
     setCreating(true);
     try {
       const refs: string[] = [];
@@ -1131,7 +1147,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally {
       setCreating(false);
     }
-  }, [client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, store, t]);
+  }, [animeLook, client, completePending, failOutcome, fingerprint, prefs, refreshBalance, reload, store, t]);
 
   const createStem = useCallback(async (input: { geste: string; text: string; confirmed: boolean }) => {
     const row = gesteParId(input.geste);
@@ -2592,6 +2608,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const value: StudioSession = {
     catalog, syncMedia, verifyMedia: checkMedia, cacheMedia: fetchMedia, previewMedia, classifyMedia, importManifest,
     prefs, outilsFiltre, setPrefs,
+    animeLook, confirmLook,
     ready, demo: demoOn, studio: current, media, cast, decor, references, saveReference, deleteReference, markCreation, storeCreationInput, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
     pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, pendingWatch, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,

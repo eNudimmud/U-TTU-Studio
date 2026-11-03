@@ -6,10 +6,11 @@ export const dynamic = "force-static";
 const PAGES: { path: string; priority: number }[] = [
   { path: "", priority: 1 },
   { path: "/studio", priority: 0.8 },
-  { path: "/look", priority: 0.6 },
-  { path: "/look/bible", priority: 0.5 },
+  { path: "/anime", priority: 0.6 },
+  { path: "/anime/bible", priority: 0.5 },
   { path: "/guide", priority: 0.7 },
   { path: "/guide/tools", priority: 0.4 },
+  { path: "/guide/anime", priority: 0.4 },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

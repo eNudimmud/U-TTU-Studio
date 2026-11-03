@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useLocaleSwitch } from "@/components/i18n/provider";
 import { bibleCopy, PALETTES } from "@/lib/look/bible-copy";
 import { lookAnime, type AnimeLocks } from "@/lib/look/model";
-import { devisPreparation, libelleEstime } from "@/lib/look/quote";
 import { storyboardDoor } from "@/app/storyboard/closed";
 import { assetPath } from "@/lib/site";
 import { Em } from "./project-bar";
@@ -19,17 +18,22 @@ import "./look.css";
 type LockKey = keyof AnimeLocks;
 
 export function BiblePage() {
+  return <StudioProvider><BibleChrome><BiblePageInner /></BibleChrome></StudioProvider>;
+}
+
+function BiblePageInner() {
   const { locale } = useLocaleSwitch();
   const copy = bibleCopy(locale);
   const { doc, confirm } = useProjectLook();
   const look = doc.look ?? lookAnime("theatrical");
+  const applied = Boolean(doc.look);
   const [pending, setPending] = useState<LockKey | null>(null);
   const [timingAsk, setTimingAsk] = useState(false);
-  const [quoteOpen, setQuoteOpen] = useState(false);
-  const [prepared, setPrepared] = useState(false);
+  const [applyAsk, setApplyAsk] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [frameUrl, setFrameUrl] = useState<string | null>(null);
+
   const palette = PALETTES[look.preset];
-  const price = devisPreparation(1, 2);
-  const label = libelleEstime(locale, price.credits);
 
   async function save(nextLocks: AnimeLocks, onTwos: boolean) {
     await confirm(lookAnime(look.preset, { ...look, locks: nextLocks, onTwos }));
@@ -37,7 +41,21 @@ export function BiblePage() {
     setTimingAsk(false);
   }
 
-  return <StudioProvider><BibleChrome>
+  async function applyLook() {
+    await confirm(look);
+    setApplyAsk(false);
+    setNotice(copy.applied);
+  }
+
+  async function replaceFrame(file: File) {
+    const url = URL.createObjectURL(file);
+    setFrameUrl(current => { if (current) URL.revokeObjectURL(current); return url; });
+    const name = file.name.replace(/[^\w.-]+/g, "-").slice(0, 80);
+    await confirm(lookAnime("own", { locks: look.locks, onTwos: look.onTwos, styleFrameRef: look.styleFrameRef, ownRefs: [name] }));
+    setNotice(copy.replaced);
+  }
+
+  return <>
     <div className="look-root" data-look-bible="">
     <main className="look-main look-bible">
       <header className="look-page-head">
@@ -48,14 +66,14 @@ export function BiblePage() {
       <div className="look-grid">
         <article className="look-card">
           <div className="look-card-pic">
-            <img src={assetPath("/look/anime/hero-key.webp")} alt="" width={1280} height={720} fetchPriority="high" decoding="async" />
+            <img src={frameUrl ?? assetPath("/look/anime/hero-key.webp")} alt="" width={1280} height={720} fetchPriority="high" decoding="async" />
             <span className="look-tag">{copy.concept}</span>
           </div>
           <div className="look-pad">
             <div className="look-row">
               <b>{copy.frame}</b>
               <label className="look-ghost">{copy.replace}
-                <input className="look-file" type="file" accept="image/*" onChange={event => { if (event.target.files?.[0]) setQuoteOpen(true); }} />
+                <input className="look-file" type="file" accept="image/*" onChange={event => { const file = event.target.files?.[0]; if (file) void replaceFrame(file); event.target.value = ""; }} />
               </label>
             </div>
             <div className="look-locks">
@@ -93,7 +111,7 @@ export function BiblePage() {
           <article className="look-card">
             <div className="look-pad look-row">
               <div><div className="look-kicker">{copy.castKicker}</div><b>{copy.sheet}</b></div>
-              <span className="look-made">{copy.made}</span>
+              {applied && <span className="look-made">{copy.made}</span>}
             </div>
             <div className="look-sheet">
               <img src={assetPath("/look/anime/char-sheet.webp")} alt="" width={1200} height={675} loading="lazy" decoding="async" />
@@ -101,7 +119,7 @@ export function BiblePage() {
             </div>
             <div className="look-pad">
               <div className="look-row">
-                <a className="look-chip look-chip-add" href={assetPath("/studio#personnage")}>{copy.addCharacter}</a>
+                <a className="look-chip look-chip-add" href={assetPath("/studio#personnage")}>{applied ? copy.nextCast : copy.addCharacter}</a>
               </div>
               <p className="look-note" style={{ marginTop: 8 }}>{copy.sheetNote}</p>
             </div>
@@ -109,37 +127,39 @@ export function BiblePage() {
           <article className="look-card">
             <div className="look-pad look-row">
               <div><div className="look-kicker">{copy.placesKicker}</div><b>{copy.places}</b></div>
-              <span className="look-made">{copy.made}</span>
+              {applied && <span className="look-made">{copy.made}</span>}
             </div>
             <div className="look-bgs">
               <div className="look-card-pic"><img src={assetPath("/look/anime/bg-city-dawn.webp")} alt="" width={640} height={360} loading="lazy" decoding="async" /><span className="look-tag">{copy.concept}</span></div>
               <div className="look-card-pic"><img src={assetPath("/look/anime/bg-workshop-night.webp")} alt="" width={640} height={360} loading="lazy" decoding="async" /><span className="look-tag">{copy.concept}</span></div>
             </div>
+            {applied && <div className="look-pad"><a className="look-chip look-chip-add" href={assetPath("/studio#decor")}>{copy.nextDecor}</a></div>}
           </article>
         </div>
       </div>
       <div className="look-go" style={{ marginTop: 22 }}>
-        <button type="button" className="look-primary" onClick={() => setQuoteOpen(true)}>{copy.make} <span className="cost">· {label}</span></button>
+        {applied
+          ? <p className="look-status" role="status" data-look-applied="">{copy.applied}</p>
+          : <button type="button" className="look-primary" onClick={() => setApplyAsk(true)}>{copy.apply}</button>}
         <a className="look-secondary" href={assetPath(storyboardDoor("/storyboard?storyboard=u11"))}>{copy.storyboard}</a>
       </div>
-      <p className="look-note">1 + 1 + 2 · {label}. {copy.note}</p>
-      {prepared && <p className="look-status" role="status">{copy.prepared}</p>}
+      {!applied && <p className="look-note">{copy.applyNote}</p>}
+      {notice && !applied && <p className="look-status" role="status">{notice}</p>}
+      {notice && applied && notice !== copy.applied && <p className="look-status" role="status">{notice}</p>}
       <p className="look-caption">{copy.caption}</p>
-      {quoteOpen && <div className="look-modal" role="dialog" aria-modal="true" aria-labelledby="look-quote-title">
+      {applyAsk && <div className="look-modal" role="dialog" aria-modal="true" aria-labelledby="look-quote-title">
         <div className="look-modal-card">
           <h2 id="look-quote-title">{copy.confirmTitle}</h2>
           <p>{copy.confirmBody}</p>
-          <p className="look-cost-line">{label}</p>
-          <p className="look-note">1 style frame · ≈ 3 · 1 sheet · ≈ 4 · 2 places · ≈ 3</p>
           <div className="look-go">
-            <button type="button" className="look-primary" onClick={() => { setQuoteOpen(false); setPrepared(true); void confirm(look); }}>{copy.confirmYes}</button>
-            <button type="button" className="look-ghost" onClick={() => setQuoteOpen(false)}>{copy.confirmNo}</button>
+            <button type="button" className="look-primary" onClick={() => void applyLook()}>{copy.confirmYes}</button>
+            <button type="button" className="look-ghost" onClick={() => setApplyAsk(false)}>{copy.confirmNo}</button>
           </div>
         </div>
       </div>}
     </main>
     </div>
-  </BibleChrome></StudioProvider>;
+  </>;
 }
 
 function BibleChrome({ children }: { children: React.ReactNode }) {
