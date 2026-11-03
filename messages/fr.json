@@ -60,7 +60,7 @@
     "showLead": "Un personnage qui garde son visage d’un plan à l’autre, un décor tiré d’un texte ou d’une photo, un vrai lieu repéré sur la carte. Le tout avec les modèles de ComfyUI.",
     "g1Tag": "CAST",
     "g1": "Un personnage, le même d’un plan à l’autre.",
-    "g1Alt": "Gros plan d’Uttu, capuche et veines dorées",
+    "g1Alt": "Uttu, déesse arachnéenne de la création, encapuchonnée, sur un quai la nuit",
     "g2Tag": "DÉCOR · PRISE",
     "g2": "Un décor, une lumière, un mouvement.",
     "g2Alt": "Un coursier en veste jaune dans une gare abandonnée, rayons de lumière",
@@ -140,7 +140,7 @@
       },
       "video": {
         "name": "Vidéo fidèle",
-        "body": "Fidèle aux références avec MiniMax H3 (≈ 4 crédits estimés), FastH3 en second modèle pour mieux garder le lieu (≈ 8). Images clés fidèles (≈ 14), transition de style (≈ 7)."
+        "body": "Fidèle aux références avec MiniMax H3 (≈ 4 crédits estimés), FastH3 en second modèle pour mieux garder le lieu (≈ 8). Keyframes fidèles (≈ 14), transition de style (≈ 7)."
       },
       "son": {
         "name": "Le son de ta vidéo",
@@ -2229,7 +2229,7 @@
         "line": "Garde personnages et lieu d’une image à l’autre."
       },
       "vid-multi": {
-        "title": "Images clés fidèles",
+        "title": "Keyframes fidèles",
         "line": "Garde le personnage de ta première image et finit sur la deuxième, avec le son."
       },
       "vid-transition-style": {
@@ -3038,7 +3038,7 @@
       "which": {
         "q": "Quel outil choisir ?",
         "k": "quel outil outils choisir besoin bibliothèque famille conseil lequel recommander angle angles caméra multi-caméra lumière bruitage séparer transition clés",
-        "a": "Une image : Image rapide. Garder un personnage ou un lieu : CAST, DÉCOR, références. D’autres points de vue : Huit angles du personnage, Huit angles du décor, Déplacer la caméra. Une vidéo : la bulle en Vidéo, ou PRISE ; avec références : Vidéo fidèle aux références ; deux images clés : Images clés fidèles ; un style qui change : Transition de style. Multi-caméra : Huit angles du personnage, puis « Plan, second moteur » sur l’angle choisi : ≈ 14 crédits, puis ≈ 4 par angle de plus. Retoucher : Modifier, Élargir, Détourer, Agrandir et rendre net, Changer la lumière (« Lumière par consigne », ou « Portrait studio » en second modèle). Son : Voix, Musique, Bruitage, Bruitage d’une vidéo, Séparer voix et musique."
+        "a": "Une image : Image rapide. Garder un personnage ou un lieu : CAST, DÉCOR, références. D’autres points de vue : Huit angles du personnage, Huit angles du décor, Déplacer la caméra. Une vidéo : la bulle en Vidéo, ou PRISE ; avec références : Vidéo fidèle aux références ; deux images clés : Keyframes fidèles ; un style qui change : Transition de style. Multi-caméra : Huit angles du personnage, puis « Plan, second moteur » sur l’angle choisi : ≈ 14 crédits, puis ≈ 4 par angle de plus. Retoucher : Modifier, Élargir, Détourer, Agrandir et rendre net, Changer la lumière (« Lumière par consigne », ou « Portrait studio » en second modèle). Son : Voix, Musique, Bruitage, Bruitage d’une vidéo, Séparer voix et musique."
       },
       "projects": {
         "q": "Où sont mes projets ?",
@@ -3724,7 +3724,7 @@
       },
       "persoTexte": {
         "titre": "Un personnage depuis une phrase",
-        "texte": "Un vieil homme, personnage fictif."
+        "texte": "Vieux pêcheur breton, la soixantaine passée, casquette plate en laine marine, caban marine huilé sur un pull irlandais crème, barbe blanche de trois jours, bottes de cuir usées. Character turnaround : face, trois-quarts, profil, dos. Lumière de studio douce, fond gris moyen."
       }
     }
   },
@@ -3751,21 +3751,21 @@
     },
     "cast-coursiere": {
       "title": "La coursière",
-      "prompt": "Une coursière, planche de vues, personnage fictif."
+      "prompt": "Jeune coursière, carré bouclé brun, veste de pluie jaune moutarde, besace en toile olive, pantalon cargo noir, baskets noires. Character turnaround : face, trois-quarts, profil, dos. Lumière studio douce, fond gris neutre."
     },
     "cast-vieil-homme": {
       "title": "Le vieil homme",
-      "prompt": "Un vieil homme, planche de vues, personnage fictif."
+      "prompt": "Vieil homme, environ 75 ans, casquette plate en tweed gris, barbe blanche courte, manteau de laine anthracite, écharpe tricotée noire, bottines en cuir brun usées. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre."
     },
     "cast-dj": {
       "title": "DJ",
-      "prompt": "Un DJ, planche de vues, personnage fictif."
+      "prompt": "DJ, cheveux ras décolorés, créoles dorées, chaînes dorées superposées, bomber noir, casque autour du cou, rangers noires. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre."
     }
   },
   "demoPrompts": {
-    "demo-coursiere": "Une coursière, planche de vues, personnage fictif.",
-    "demo-vieil-homme": "Un vieil homme, planche de vues, personnage fictif.",
-    "demo-dj": "Un DJ, planche de vues, personnage fictif.",
+    "demo-coursiere": "Jeune coursière, carré bouclé brun, veste de pluie jaune moutarde, besace en toile olive, pantalon cargo noir, baskets noires. Character turnaround : face, trois-quarts, profil, dos. Lumière studio douce, fond gris neutre.",
+    "demo-vieil-homme": "Vieil homme, environ 75 ans, casquette plate en tweed gris, barbe blanche courte, manteau de laine anthracite, écharpe tricotée noire, bottines en cuir brun usées. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre.",
+    "demo-dj": "DJ, cheveux ras décolorés, créoles dorées, chaînes dorées superposées, bomber noir, casque autour du cou, rangers noires. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre.",
     "demo-quai": "Un quai la nuit, eau noire, lumières lointaines, sans personne.",
     "demo-gare": "Un hall de gare, vide, lumière froide, sans personne.",
     "demo-pluie": "Une rue sous la pluie, lumières floues, sans personne.",

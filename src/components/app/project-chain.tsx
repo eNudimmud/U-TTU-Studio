@@ -62,9 +62,8 @@ export function ProjectChain({
       <span className="u-step-look-label">{t("chrome.look")}</span>
       <b>{anime ? t("chrome.lookAnime") : t("chrome.lookStandard")}</b>
     </a>
-    {STORYBOARD_CLOSED
-      ? <span className="u-step-soon" data-chain-weave="soon">{t("chrome.storyweave")} <span className="u-soon">{t("chrome.soon")}</span></span>
-      : <a className="u-step-soon" href={assetPath("/storyboard?storyboard=sw")} data-chain-weave="open">{t("chrome.storyweave")}</a>}
+    {/* A closed StoryWeave is not a step: the landing announces it, the bar stays for working. */}
+    {!STORYBOARD_CLOSED && <a className="u-step-soon" href={assetPath("/storyboard?storyboard=sw")} data-chain-weave="open">{t("chrome.storyweave")}</a>}
     <span className="u-step-tail">
       <button type="button" className="u-top-icon" data-chain-menu="" aria-label={t("chrome.menuAria")} onClick={onMenu}><MenuIcon /></button>
       <button type="button" className="u-uttu u-uttu-face" data-chain-uttu="" aria-expanded={uttuOpen ? true : false} aria-label={t("uttu.openAria")} onClick={onUttu}>
