@@ -3798,5 +3798,16 @@
     "trackVoice": "Voice",
     "trackMusic": "Music",
     "trackText": "Text"
+  },
+  "doors": {
+    "label": "Choose a section",
+    "cinema": {
+      "name": "Cinema",
+      "line": "Photoreal CGI, in five steps."
+    },
+    "anime": {
+      "name": "Anime 2.5D",
+      "line": "Stylised look, same five steps."
+    }
   }
 }

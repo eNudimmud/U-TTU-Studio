@@ -1,0 +1,22 @@
+/* Cinema prompting guide. Built on guide.css; adds only the glossary list and the tool cards. */
+
+.gg-lede { max-width: 640px; margin-top: 4px; }
+
+.gg-glossary { display: grid; gap: 18px; margin: 24px 0 0; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.gg-term { margin: 0; }
+.gg-term dt { font: 600 15px/1.3 var(--font-mono); color: var(--accent); }
+.gg-term dd { margin: 4px 0 0; color: var(--fg-2); font-size: 14px; line-height: 1.5; }
+
+.gg-tools { display: grid; gap: 28px; margin-top: 24px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.gg-tool { display: grid; gap: 8px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.gg-tool h3 { margin: 0; font: 400 22px/1.2 var(--font-title), Georgia, serif; }
+.gg-tip { color: var(--fg-2); font-size: 14px; margin: 0; }
+
+.gg-example { margin: 6px 0 0; padding: 10px 14px; border-radius: var(--radius-card); font: 13px/1.5 var(--font-mono); }
+.gg-example span { display: block; font: 600 11px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+.gg-good { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.gg-good span { color: var(--accent); }
+.gg-bad { background: var(--surface); color: var(--fg-2); }
+.gg-bad span { color: var(--fg-2); }
+
+.gg-why { margin: 0; color: var(--fg-2); font-size: 13px; line-height: 1.5; }

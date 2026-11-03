@@ -1,0 +1,31 @@
+/* Cinema CGI studio page. Builds on guide.css (g-top, g-wrap, g-hero, g-sec, g-link, g-ph) —
+   only what's specific to the curated-card layout lives here. Whitespace over boxes: a card is a
+   borderless block separated by gap, not a bordered panel; gold appears only on the cost line. */
+
+.cgi-wrap .g-hero { max-width: 760px; }
+.cgi-note { max-width: 620px; color: var(--fg-2); font-size: 14px; margin: 8px 0 0; }
+
+.cgi-step-lede { max-width: 620px; margin-top: 2px; }
+
+.cgi-group { margin-top: 28px; }
+.cgi-group:first-of-type { margin-top: 20px; }
+.cgi-group-title { font: 500 12px/1.4 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--fg-2); margin: 0 0 12px; }
+
+.cgi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 4px 28px; }
+
+.cgi-card { display: grid; gap: 6px; min-height: 44px; padding: 14px 0; border-bottom: 1px solid var(--line); color: var(--fg); text-decoration: none; }
+.cgi-card:hover { color: var(--accent); }
+.cgi-card:hover .cgi-card-top strong { color: var(--accent); }
+
+.cgi-card-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.cgi-card-top strong { font: 500 16px/1.3 var(--font-body); }
+
+.cgi-card-line { color: var(--fg-2); font-size: 13px; line-height: 1.45; }
+.cgi-card-cost { font: 12px var(--font-mono); color: var(--accent); }
+
+.cgi-licence { padding-top: 40px; }
+.cgi-licence-list { display: grid; gap: 10px; max-width: 680px; margin: 0; padding: 0; list-style: none; color: var(--fg-2); font-size: 13px; line-height: 1.5; }
+
+@media (max-width: 480px) {
+  .cgi-grid { grid-template-columns: 1fr; }
+}

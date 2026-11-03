@@ -8,7 +8,7 @@ import { useProjectLook } from "@/components/look/use-look";
 import { assetPath } from "@/lib/site";
 import { TAB_HASH, type Tab } from "@/lib/studio-route";
 import { BrandMark } from "@/components/brand";
-import { SectionSwitch, type StudioSectionId } from "./section-switch";
+import { SectionPill, type StudioSectionId } from "./section-pill";
 import type { ReactNode } from "react";
 
 export const CHAIN: { id: "lora" | "scene" | "prise" | "montage" | "finaliser"; key: "nav.character" | "nav.scene" | "nav.take" | "nav.edit" | "nav.finish" }[] = [
@@ -60,7 +60,7 @@ export function ProjectChain({
       </button>
     </span>)}
     <span className="u-step-div" aria-hidden="true" />
-    <SectionSwitch active={section} sections={{
+    <SectionPill active={section} sections={{
       cinema: { href: "/anime", label: t("chrome.lookStandard") },
       anime: { href: "/anime", label: t("chrome.look") },
     }} />

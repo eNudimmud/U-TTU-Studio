@@ -1,26 +1,30 @@
 "use client";
 
-// One small, isolated piece: the production-section pill in the project chain. Cinema and
-// ANIME Studio are built in separate PRs; each only edits its own entry in `sections` below.
+// The studio's one door into its two sections. Small and isolated on purpose: the Cinema PR and
+// the Anime PR both read src/lib/studio-sections.ts, so this file rarely needs edits from either
+// side. Progressive disclosure, not a nav bar: two quiet cards, not a row of chips.
 
+import { useI18n } from "@/components/i18n/provider";
 import { assetPath } from "@/lib/site";
+import { STUDIO_SECTIONS, type SectionId } from "@/lib/studio-sections";
 
-export type StudioSectionId = "cinema" | "anime";
+const ICON = { width: 20, height: 20, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
 
-export interface StudioSectionConfig {
-  /** Where the pill sends the visitor: that section's own setup page. */
-  href: string;
-  /** The section's name, shown as-is (never a jargon word needing explanation). */
-  label: string;
+function SectionIcon({ id }: { id: SectionId }) {
+  if (id === "cinema") return <svg {...ICON}><rect x="3" y="5.5" width="18" height="13" rx="2" /><path d="M7 5.5v13M17 5.5v13M3 10h4M3 15h4M17 10h4M17 15h4" /><circle cx="12" cy="12" r="2.2" /></svg>;
+  return <svg {...ICON}><path d="M9 4.5c1 2 1 4.5-1 6.5 3-.5 5 1 6 3-1 3-4 5-7 4.5" /><path d="M8 3.5c2.5 0 5 1.5 5.5 4" /></svg>;
 }
 
-/**
- * Names the production section this project is in right now, and links to where it is set up.
- * Replaces the old two-tier "Look / Standard / Anime 2.5D" pill with one clear name.
- */
-export function SectionSwitch({ active, sections }: { active: StudioSectionId; sections: Record<StudioSectionId, StudioSectionConfig> }) {
-  const config = sections[active];
-  return <a className="u-step u-step-look" href={assetPath(config.href)} data-chain-section={active}>
-    <b>{config.label}</b>
-  </a>;
+/** The studio home's one additive entry: two doors, Cinema and Anime. */
+export function SectionSwitch() {
+  const { t } = useI18n();
+  return <nav className="u-sections" aria-label={t("doors.label")}>
+    {STUDIO_SECTIONS.map(section => <a key={section.id} className="u-section-door" href={assetPath(section.href)} data-section={section.id}>
+      <span className="u-section-icon" aria-hidden="true"><SectionIcon id={section.id} /></span>
+      <span className="u-section-copy">
+        <strong>{t(`doors.${section.i18nKey}.name`)}</strong>
+        <span>{t(`doors.${section.i18nKey}.line`)}</span>
+      </span>
+    </a>)}
+  </nav>;
 }

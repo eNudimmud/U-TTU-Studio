@@ -2168,3 +2168,14 @@ button.u-outil-card:focus-visible { outline: 2px solid var(--fg); outline-offset
   .u-app:is([data-studio="lora"], [data-studio="scene"], [data-studio="prise"], [data-studio="montage"], [data-studio="finaliser"]) .u-tabs { display: none; }
   .u-app:is([data-studio="lora"], [data-studio="scene"], [data-studio="prise"], [data-studio="montage"], [data-studio="finaliser"]) .u-film-dock { bottom: 0; }
 }
+
+/* SectionSwitch: the studio's one door into Cinema and Anime. Whitespace over boxes: a single
+   hairline divider between two quiet rows, gold only on the icon. */
+.u-sections { display: grid; gap: 1px; margin: 4px 0 2px; background: var(--u-line); border: 1px solid var(--u-line); border-radius: var(--radius-card); overflow: hidden; }
+.u-section-door { display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 12px 16px; background: var(--bg); color: var(--fg); }
+.u-section-door:hover { background: var(--surface); }
+.u-section-icon { display: grid; place-items: center; flex: none; width: 36px; height: 36px; color: var(--u-accent); }
+.u-section-copy { display: grid; gap: 1px; min-width: 0; }
+.u-section-copy strong { font: 600 16px/1.2 var(--font-heading); letter-spacing: -.01em; }
+.u-section-copy span { color: var(--fg-2); font-size: 13px; }
+@media (min-width: 560px) { .u-sections { grid-template-columns: 1fr 1fr; grid-auto-flow: column; } }
