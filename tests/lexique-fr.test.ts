@@ -5,7 +5,7 @@ import { describe, it } from "node:test";
 const read = (path: string) => readFileSync(path, "utf8");
 const fr = JSON.parse(read("messages/fr.json")) as {
   _status: string;
-  nav: { character: string; scene: string; take: string; edit: string; chain: string; studio: string };
+  nav: { character: string; scene: string; take: string; edit: string; finish: string; chain: string; studio: string };
   verb: Record<string, string>;
 };
 
@@ -69,17 +69,19 @@ describe("lexique français", () => {
   });
 
   it("names the chain, the file engine and the file path apart", () => {
-    const steps = read("src/components/app/studio-app.tsx");
-    const chain = steps.slice(steps.indexOf("const STEPS"), steps.indexOf("export function StudioApp"));
+    const chainFile = read("src/components/app/project-chain.tsx");
+    const chain = chainFile.slice(chainFile.indexOf("export const CHAIN"), chainFile.indexOf("const MenuIcon"));
     assert.match(chain, /key: "nav.character"/);
     assert.match(chain, /key: "nav.scene"/);
     assert.match(chain, /key: "nav.take"/);
+    assert.match(chain, /key: "nav.finish"/);
     assert.equal(fr.nav.character, "CAST");
     assert.equal(fr.nav.scene, "DÉCOR");
     assert.equal(fr.nav.take, "PRISE");
     assert.equal(fr.nav.edit, "MONTAGE");
-    assert.equal(fr.nav.chain, "CAST, DÉCOR, PRISE, MONTAGE");
-    assert.equal(fr.nav.studio, "Mes créations");
+    assert.equal(fr.nav.finish, "FINALISER");
+    assert.equal(fr.nav.chain, "CAST, DÉCOR, PRISE, MONTAGE, FINALISER");
+    assert.equal(fr.nav.studio, "Mon studio");
     assert.doesNotMatch(chain, /Personnage \(fichier\)|Look|Rôle/);
   });
 

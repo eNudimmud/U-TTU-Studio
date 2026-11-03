@@ -3,6 +3,10 @@
 // The storyboards of the open project: read from `.uttu/sb-<id>.json` (the files listed under
 // Storyboard/ in the vault tree), kept in memory, written back as JSON + Markdown after each change.
 // An unreadable file is listed by name and never overwritten.
+// CE5: the JSON is never rewritten whole from memory. Each save is a three-way, journaled transaction
+// under the project lock (base = the file as last read or written here), so a take linked by a settlement
+// or a change by the agent is kept, and every edited shot gets a new revision (its quotes are void).
+// What is held in memory is what the files say after the save.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/provider";
@@ -15,7 +19,9 @@ import { quotesToRecords } from "@/lib/render/measured-quote";
 import { takeProfile, type TakeSettings } from "@/lib/render/take-graph";
 import { devisPlan, devisStoryboard, type ContexteDevis } from "@/lib/storyboard/devis";
 import { storyboardMarkdown, type LibellesMd } from "@/lib/storyboard/markdown";
-import { cheminJson, cheminMarkdown, etatDuPlan, lireStoryboard, storyboardJson, type PlanSB, type RefPlan, type Storyboard } from "@/lib/storyboard/storyboard";
+import { rebaseBoard } from "@/lib/cinema/board-writer";
+import { emptyMeta } from "@/lib/cinema/journal";
+import { cheminJson, cheminMarkdown, etatDuPlan, lireStoryboard, type PlanSB, type RefPlan, type Storyboard } from "@/lib/storyboard/storyboard";
 import { useStudio } from "../app/studio-session";
 
 const WRITE_DELAY = 400;
@@ -23,14 +29,18 @@ const WRITE_DELAY = 400;
 export function useStoryboards() {
   const studio = useStudio();
   const { t } = useI18n();
-  const { studio: vault, readProjectFile, writeProjectFile, ready } = studio;
+  const { studio: vault, readProjectFile, writeProjectFile, saveBoard, cinemaTick, ready } = studio;
   const [registre, setRegistreState] = useState<Registre>(() => lireRegistre(null));
   const [boards, setBoards] = useState<Record<string, Storyboard>>({});
   const [illisibles, setIllisibles] = useState<string[]>([]);
   const [charge, setCharge] = useState(false);
   const [echecEcriture, setEchecEcriture] = useState(false);
+  /** CE5: fields where this page and the file disagreed; the file was kept, the page's copy written beside. */
+  const [conflits, setConflits] = useState<string[]>([]);
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   const latest = useRef<Record<string, Storyboard>>({});
+  /** The file as this page last read or wrote it: the base of the next three-way save. */
+  const bases = useRef<Record<string, Storyboard>>({});
   const project = vault.project;
 
   const ids = useMemo(() => (vault.tree.find(folder => folder.label === "Storyboards")?.files ?? [])
@@ -38,7 +48,7 @@ export function useStoryboards() {
   const idsKey = ids.join(",");
 
   // A new project starts from its own files.
-  useEffect(() => { latest.current = {}; setBoards({}); setIllisibles([]); setCharge(false); }, [project]);
+  useEffect(() => { latest.current = {}; bases.current = {}; setBoards({}); setIllisibles([]); setCharge(false); setConflits([]); }, [project]);
 
   useEffect(() => {
     if (!ready) return;
@@ -51,7 +61,7 @@ export function useStoryboards() {
         const raw = await readProjectFile(cheminJson(id));
         if (raw === undefined) continue;
         const sb = lireStoryboard(raw);
-        if (sb) found[id] = sb; else bad.push(cheminJson(id));
+        if (sb) { found[id] = sb; bases.current[id] = sb; } else bad.push(cheminJson(id));
       }
       if (gone) return;
       latest.current = { ...found, ...latest.current };
@@ -61,6 +71,25 @@ export function useStoryboards() {
     })();
     return () => { gone = true; };
   }, [idsKey, ready, readProjectFile, project]);
+
+  // CE5: a resume or the agent wrote the files: re-read the open boards, keeping what is typed here.
+  useEffect(() => {
+    if (!ready || !cinemaTick) return;
+    let gone = false;
+    void (async () => {
+      const next = { ...latest.current };
+      for (const id of Object.keys(next)) {
+        const disk = lireStoryboard(await readProjectFile(cheminJson(id)));
+        if (!disk || gone) continue;
+        next[id] = rebaseBoard(bases.current[id] ?? null, next[id], disk, emptyMeta(id)).board;
+        bases.current[id] = disk;
+      }
+      if (gone) return;
+      latest.current = next;
+      setBoards({ ...next });
+    })();
+    return () => { gone = true; };
+  }, [cinemaTick, ready, readProjectFile]);
 
   useEffect(() => {
     let gone = false;
@@ -123,15 +152,21 @@ export function useStoryboards() {
 
   const ecrireFichiers = useCallback(async (sb: Storyboard) => {
     try {
-      await writeProjectFile(cheminJson(sb.id), storyboardJson(sb));
-      await writeProjectFile(cheminMarkdown(sb.id), markdownDe(sb));
+      const saved = await saveBoard(bases.current[sb.id] ?? null, sb);
+      bases.current[sb.id] = saved.board;
+      // Memory = files: what was typed during the save is replayed on top of what the file now says.
+      const held = latest.current[sb.id];
+      const next = !held || held === sb ? saved.board : rebaseBoard(sb, held, saved.board, emptyMeta(sb.id)).board;
+      if (next !== held) { latest.current = { ...latest.current, [sb.id]: next }; setBoards({ ...latest.current }); }
+      setConflits(saved.conflicts);
+      await writeProjectFile(cheminMarkdown(sb.id), markdownDe(saved.board));
       setEchecEcriture(false);
       return true;
     } catch {
       setEchecEcriture(true);
       return false;
     }
-  }, [writeProjectFile, markdownDe]);
+  }, [saveBoard, writeProjectFile, markdownDe]);
 
   /** Keeps a change in memory at once; the two files follow a moment later (or now with `now: true`). */
   const sauver = useCallback(async (sb: Storyboard, options: { now?: boolean } = {}) => {
@@ -153,7 +188,7 @@ export function useStoryboards() {
 
   const liste = useMemo(() => Object.values(boards).sort((a, b) => b.majLe.localeCompare(a.majLe)), [boards]);
 
-  return { boards, liste, illisibles, charge, echecEcriture, registre, setRegistre, prixPrise, ctxDevis, sauver, priseDuPlan, markdownDe };
+  return { boards, liste, illisibles, charge, echecEcriture, conflits, registre, setRegistre, prixPrise, ctxDevis, sauver, priseDuPlan, markdownDe };
 }
 
 export type Storyboards = ReturnType<typeof useStoryboards>;

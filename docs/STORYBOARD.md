@@ -1,19 +1,22 @@
 # Storyboard
 
-Ouvert à tous depuis SB11 (31 octobre 2026, oui de JD). Page à part, thème clair « Papier » : `/storyboard` (les storyboards du projet), `/storyboard/<id>` (le tableau), `/storyboard/<id>/print` (A4, 6 plans par page).
+Ouvert à tous depuis SB11 (31 octobre 2026, oui de JD). Depuis le 2 novembre 2026 (JD : « Oui remplace l'ancienne »), `/storyboard` est le storyboard simplifié U1.1, dans toutes les langues, sur ordinateur et sur mobile.
+
+U1.1 : une histoire, un plan, un endroit pour demander un changement. La lecture passe par l'agent de texte natif (poids ouverts, compte Comfy). Le bouton affiche `≈ X crédits estimés`. Rien n'est filmé avant l'approbation. `?storyboard=u11` ouvre la même page.
 
 ## Entrées
 
-- Accueil du studio (outils) : la carte **Storyboard**.
-- Bulle U*TTU, menu « + » : **Make a storyboard** ouvre `/storyboard?idee=…` avec le texte de la bulle. Rien n’est écrit ni rendu avant « Write ».
+- Accueil du studio (outils) : la carte **Storyboard** ouvre `/storyboard`.
+- Bulle U*TTU, menu « + » : **Faire un storyboard** ouvre `/storyboard?idee=…` avec le texte de la bulle. Rien n'est filmé avant l'approbation.
 - Pas d’onglet dans la barre film2, rien dans PRISE (décision D2 du design).
 
-## Ce qui se passe
+## Ancienne page
 
-- Uttu écrit le storyboard à partir d’une phrase, sans modèle ni crédit : séquences → plans, cadrage, caméra, durée 5/8/10 s (8 et 10 s seulement quand un devis existe), refs CAST/DÉCOR, réplique citée et modifiable. Une seule question au plus.
-- Le lieu vient, dans l’ordre : d’un `@` sur une carte DÉCOR ou une référence de lieu, d’une carte DÉCOR nommée, d’un lieu après une préposition, d’un nom de lieu courant (« la ville », « the city », « die Stadt », « la ciudad »). Sans lieu, les plans s’écrivent sans.
-- Chaque plan porte son devis (`≈ X credits estimated`). « Film · ≈ X » ouvre la confirmation PRISE : une seule confirmation liste chaque étape avant « Start ». Moteurs : Fidèle (H3) et Rapide, Comfy uniquement.
-- La suggestion de répliques reste cachée tant que son prix n’est pas mesuré.
+L'ancienne page « Papier » (liste, tableau, fiche, impression) reste dans le code, seulement derrière `?storyboard=legacy`. Le choix est gardé pour l'onglet. À retirer plus tard.
+
+`/storyboard/<id>/print` reste la vue A4 (6 plans par page).
+
+Sur cette page, Uttu écrit encore à partir d'une phrase, sans modèle : séquences, plans, cadrage, caméra, durée 5/8/10 s, refs CAST/DÉCOR. Chaque plan porte son devis (`≈ X crédits estimés`). « Film · ≈ X » ouvre une seule confirmation avant « Start ». Moteurs : Fidèle (H3) et Rapide, Comfy uniquement.
 
 ## Fichiers
 
@@ -23,6 +26,6 @@ Ouvert à tous depuis SB11 (31 octobre 2026, oui de JD). Page à part, thème cl
 
 ## Échappatoire
 
-`?storyboard=0` désactive le storyboard dans ce navigateur pendant une version (cookie `u-ttu-storyboard=0` : la page répond 404, l’entrée de la bulle et la carte disparaissent). `?storyboard=1` le rallume. À retirer à la version suivante.
+`?storyboard=0` désactive le storyboard dans ce navigateur pendant une version (cookie `u-ttu-storyboard=0` : la page répond 404, l’entrée de la bulle et la carte disparaissent). `?storyboard=1` le rallume sur U1.1. À retirer à la version suivante.
 
 Code : [`src/lib/storyboard/`](../src/lib/storyboard/), [`src/components/storyboard/`](../src/components/storyboard/).

@@ -1,236 +1,205 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Arrow } from "@/components/glyph";
-import { LanguageSwitcher, useI18n } from "@/components/i18n/provider";
+import type { ReactNode } from "react";
+import { LanguageSwitcher, useI18n, useLocaleSwitch } from "@/components/i18n/provider";
 import { NOMBRE_OUTILS } from "@/lib/outils/nombre";
+import { OPEN_WEIGHTS_MODE } from "@/lib/open-weights";
 import { assetPath, contactEmail, sourceRepo } from "@/lib/site";
+import { landingCopy } from "@/lib/landing/page-copy";
 import { LegacyStudioHash } from "./legacy-hash";
 import { Brand, BrandLockup } from "@/components/brand";
 import { PoweredBy } from "@/components/powered-by";
 import { useStudioHref } from "@/components/use-studio-href";
 import "./home.css";
+import "./landing.css";
 
-const STUDIO_HREF = assetPath("/studio");
-/** « Try free · 0 credits »: the studio opens with the free U*TTU guide (start, FAQ, cost simulator) and the example tiles. */
-const UTTU_HREF = assetPath("/studio?uttu=1");
-const IMG = (name: string) => assetPath(`/images/accueil/${name}`);
-const MEDIA = (name: string) => assetPath(`/media/accueil/${name}`);
-/** Uttu in HD: one webp per width, the browser picks the one it needs. */
-const srcset = (base: string) => [960, 1280, 1920, 2560].map(w => `${IMG(`${base}-${w}.webp`)} ${w}w`).join(", ");
-/** On a portrait phone the hero image is drawn about 2.3× the screen width (object-fit: cover on a tall box). */
-const HERO_SIZES = "(max-width: 900px) and (orientation: portrait) 232vw, 100vw";
+const STUDIO = assetPath("/studio");
 
-/* Hero: five inspiration images in a slow Ken Burns crossfade (CSS only), Uttu on the quay first. */
-const SLIDES = [
-  { cls: "s1", src: IMG("uttu-quai-1920.webp"), set: srcset("uttu-quai") },
-  { cls: "s2", src: IMG("uttu-portrait-1920.webp"), set: srcset("uttu-portrait") },
-  { cls: "s3", src: IMG("hero-gare.webp") },
-  { cls: "s4", src: IMG("hero-village.webp") },
-  { cls: "s5", src: IMG("hero-village-clair.webp") },
-] as const;
-const FLOW = ["cast", "decor", "prise", "montage", "finaliser"] as const;
-const ALSO = ["bubble", "refs", "angles", "video", "son", "multicam", "library", "upload", "guide", "creations", "quote", "langs"] as const;
-
-function PauseIcon({ paused }: { paused: boolean }) {
-  return paused
-    ? <svg viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><path d="M3 1.5v11l9.5-5.5z" /></svg>
-    : <svg viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="3.5" height="12" rx="1" /><rect x="8.5" y="1" width="3.5" height="12" rx="1" /></svg>;
-}
+const widths = (dir: string, name: string, sizes: readonly number[], ext: string) => sizes.map(w => `${assetPath(`${dir}/${name}-${w}.${ext}`)} ${w}w`).join(", ");
+const heroSet = (name: string, sizes: readonly number[], ext: string) => widths("/images/accueil", name, sizes, ext);
+const mediaSet = (name: string, sizes: readonly number[], ext: string) => widths("/media/accueil", name, sizes, ext);
 
 export function HomeLanding() {
   const { t } = useI18n();
-  // On a host where the render login is not allowed (uttu-studio.app), the studio opens on the allowed origin (src/lib/studio-origin.ts).
-  const studioHref = useStudioHref(STUDIO_HREF);
-  const uttuHref = useStudioHref(UTTU_HREF);
+  const { locale } = useLocaleSwitch();
+  const copy = landingCopy(locale);
+  const studioHref = useStudioHref(STUDIO);
   const rich = (key: string) => t.rich(key, { em: (chunks: ReactNode) => <em>{chunks}</em> });
-  const list = (key: string, n: number) => Array.from({ length: n }, (_, i) => t(`${key}.${i}`));
-  const root = useRef<HTMLDivElement>(null);
-  const [solid, setSolid] = useState(false);
-  const [userPaused, setUserPaused] = useState(false);
-  const [hidden, setHidden] = useState(false);
-  // Only the first slide is in the HTML: the four others wait for the page load, so the LCP image
-  // gets the whole connection on a phone (they appear from ~7 s into the crossfade).
-  const [rest, setRest] = useState(false);
-  useEffect(() => {
-    const go = () => setRest(true);
-    if (document.readyState === "complete") { go(); return; }
-    window.addEventListener("load", go, { once: true });
-    return () => window.removeEventListener("load", go);
-  }, []);
-
-  useEffect(() => {
-    const onScroll = () => setSolid(window.scrollY > 40);
-    const onVisible = () => setHidden(document.hidden);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    document.addEventListener("visibilitychange", onVisible);
-    return () => { window.removeEventListener("scroll", onScroll); document.removeEventListener("visibilitychange", onVisible); };
-  }, []);
-
-  /* Sections below the hero rise in once; the two studio loops only play while on screen (never with reduced motion). */
-  useEffect(() => {
-    const el = root.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    el.dataset.reveal = still ? "off" : "on";
-    const reveal = new IntersectionObserver(entries => entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add("in");
-      reveal.unobserve(entry.target);
-    }), { threshold: .12, rootMargin: "0px 0px -6% 0px" });
-    el.querySelectorAll(".hv-rv").forEach(node => reveal.observe(node));
-    const loops = new IntersectionObserver(entries => entries.forEach(entry => {
-      const video = entry.target as HTMLVideoElement;
-      if (still) return;
-      if (entry.isIntersecting) { video.preload = "auto"; video.play().catch(() => {}); } else video.pause();
-    }), { threshold: .25 });
-    // Their posters are far below the hero: fetched a screen ahead, so they never compete with the first paint.
-    const posters = new IntersectionObserver(entries => entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      const video = entry.target as HTMLVideoElement;
-      if (video.dataset.poster) video.poster = video.dataset.poster;
-      posters.unobserve(video);
-    }), { rootMargin: "1200px 0px" });
-    el.querySelectorAll<HTMLVideoElement>("video[data-lazy]").forEach(node => { loops.observe(node); posters.observe(node); });
-    return () => { reveal.disconnect(); loops.disconnect(); posters.disconnect(); };
-  }, []);
-
-  const paused = userPaused || hidden;
-  return <div className="hv" ref={root}>
+  return <div className="ln">
     <LegacyStudioHash />
-    <header className={solid ? "hv-bar is-solid" : "hv-bar"}>
-      <Brand href={assetPath("/")} label={t("landing.home")} className="wordmark hv-mark" />
-      <span className="hv-sp" />
+    <header className="ln-top">
+      <Brand href={assetPath("/")} label={t("landing.home")} />
+      <span className="ln-sp" />
+      <a className="hv-btn hv-glass ln-hide" href={assetPath("/guide")}>{copy.readGuide}</a>
       <LanguageSwitcher />
-      <a className="hv-btn hv-glass hv-bar-cta" href={studioHref}>{t("landing.enter")}</a>
+      <a className="hv-btn hv-gold" href={studioHref}>{t("landing.enter")}</a>
     </header>
-    <main id="contenu" className="hv-main" tabIndex={-1}>
-      <section className={paused ? "hv-hero is-paused" : "hv-hero"} aria-labelledby="landing-title" data-hero="">
-        <div className="hv-slides" aria-hidden="true">
-          {SLIDES.map((slide, i) => <div key={slide.cls} className={`hv-slide ${slide.cls}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            {(i === 0 || rest) && <img src={slide.src} srcSet={"set" in slide ? slide.set : undefined} sizes={"set" in slide ? HERO_SIZES : undefined} alt="" decoding="async" fetchPriority={i === 0 ? "high" : "low"} />}
-          </div>)}
+    <main id="contenu" tabIndex={-1}>
+      <section className="ln-hero" data-hero="" aria-labelledby="landing-title">
+        {/* Hero from the official Uttu sheet (3 Nov): AVIF first, WebP fallback. Under 700 px a 4:5 crop of the same master.
+            To swap the art, replace the files and keep the names and widths. */}
+        <picture className="ln-hero-pic">
+          <source media="(max-width: 700px)" type="image/avif" sizes="100vw" srcSet={heroSet("uttu-fiche-4x5", [640, 1280, 2048], "avif")} />
+          <source media="(max-width: 700px)" type="image/webp" sizes="100vw" srcSet={heroSet("uttu-fiche-4x5", [640, 1280, 2048], "webp")} />
+          <source type="image/avif" sizes="100vw" srcSet={heroSet("uttu-fiche", [640, 1280, 1920, 2560], "avif")} />
+          <img src={assetPath("/images/accueil/uttu-fiche-1920.webp")} sizes="100vw" srcSet={heroSet("uttu-fiche", [640, 1280, 1920, 2560], "webp")}
+            alt={t("accueil.g1Alt")} fetchPriority="high" decoding="async" />
+        </picture>
+        <div className="ln-hero-in">
+          <BrandLockup className="hv-lockup" alt="U*TTU Studio" />
+          <p className="eyebrow" data-landing-kicker="">{t("accueil.kicker")}</p>
+          <h1 id="landing-title">{rich("accueil.h1")}</h1>
+          <p className="ln-lead">{copy.heroLead}</p>
+          <div className="ln-ctas">
+            <a className="hv-btn hv-gold" href={studioHref} data-enter-studio="">{t("landing.enter")}</a>
+            <a className="hv-btn hv-glass" href={assetPath("/guide")} data-read-guide="">{copy.readGuide}</a>
+          </div>
+          <p className="ln-fine">{t("accueil.sub2", { n: String(NOMBRE_OUTILS) })}</p>
+          <PoweredBy className="hv-badge" />
         </div>
-        <div className="hv-hero-in">
-          <div className="hv-copy">
-            <BrandLockup className="hv-lockup" alt="U*TTU Studio" />
-            <p className="hv-kicker hv-mono" data-landing-kicker="">{t("accueil.kicker")}</p>
-            <h1 id="landing-title">{rich("accueil.h1")}</h1>
-            <p className="hv-lead"><span>{t("accueil.sub")}</span><span>{t("accueil.sub2", { n: String(NOMBRE_OUTILS) })}</span></p>
-            <div className="hv-ctas">
-              <a className="hv-btn hv-gold" href={studioHref} data-enter-studio="">{t("landing.enter")} <Arrow /></a>
-              <a className="hv-btn hv-glass" href={uttuHref} data-try-free="">{t("landing.tryFree")}</a>
-              <PoweredBy className="hv-badge" />
+      </section>
+
+      <div className="ln-wrap">
+        <section id="steps">
+          <p className="eyebrow">{t("accueil.flowTitle")}</p>
+          <h2>{copy.stepsTitle}</h2>
+          <p className="ln-lead">{copy.stepsLead}</p>
+          <ol className="ln-steps">
+            {copy.steps.map((step, index) => <li key={step.id}>
+              <a href={assetPath(step.href)}>
+                <div className="ln-im">{step.image ? <img src={assetPath(step.image)} alt={step.alt} /> : <span className="ln-ph">{step.placeholder}</span>}</div>
+                <span className="ln-n">0{index + 1}</span>
+                <b>{step.name}</b>
+                <p>{step.body}</p>
+                <span className="ln-go">{step.go}</span>
+              </a>
+            </li>)}
+          </ol>
+        </section>
+
+        <section id="anime" className="ln-split">
+          <div>
+            <img src={assetPath("/look/anime/hero-key.webp")} alt="" />
+            <div className="ln-strip">
+              <img src={assetPath("/look/anime/shot-1-wide.webp")} alt="" />
+              <img src={assetPath("/look/anime/shot-2-medium.webp")} alt="" />
+              <img src={assetPath("/look/anime/shot-3-closeup.webp")} alt="" />
             </div>
           </div>
-          <div className="hv-side">
-            <div className="hv-caps" aria-hidden="true">{list("accueil.caps", 5).map(cap => <span key={cap}>{cap}</span>)}</div>
-            <div className="hv-track" aria-hidden="true">{SLIDES.map(slide => <i key={slide.cls}><b /></i>)}</div>
-            <button className="hv-pp" type="button" aria-label={paused ? t("accueil.play") : t("accueil.pause")} aria-pressed={userPaused} onClick={() => setUserPaused(value => !value)}><PauseIcon paused={paused} /></button>
+          <div>
+            <p className="eyebrow">{copy.animeLook}</p>
+            <h2>{copy.animeTitle}</h2>
+            <p className="ln-lead">{copy.animeBody}</p>
+            <ul>{copy.animePoints.map(point => <li key={point}>{point}</li>)}</ul>
+            <p className="ln-fine">{copy.animeCost}</p>
+            <div className="ln-ctas">
+              <a className="hv-btn hv-glass" href={assetPath("/look")}>{copy.animeLook}</a>
+              <a className="ln-go" href={assetPath("/look/bible")}>{copy.animeBible}</a>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="hv-show hv-wrap" aria-labelledby="hv-show-title">
-        <p className="hv-eyebrow hv-mono hv-rv">{t("accueil.showEyebrow")}</p>
-        <div className="hv-head"><h2 id="hv-show-title" className="hv-rv">{rich("accueil.showTitle")}</h2><p className="hv-rv d1">{t("accueil.showLead")}</p></div>
-        <div className="hv-gal">
-          <figure className="hv-shot g1 hv-rv">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={IMG("uttu-portrait-1280.webp")} srcSet={srcset("uttu-portrait")} sizes="(max-width: 900px) 100vw, 58vw" alt={t("accueil.g1Alt")} loading="lazy" decoding="async" />
-            <figcaption><p className="hv-tag hv-mono">{t("accueil.g1Tag")}</p><b>{t("accueil.g1")}</b></figcaption>
-          </figure>
-          <figure className="hv-shot g2 hv-rv d1">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={IMG("gare.webp")} alt={t("accueil.g2Alt")} loading="lazy" decoding="async" />
-            <figcaption><p className="hv-tag hv-mono">{t("accueil.g2Tag")}</p><b>{t("accueil.g2")}</b></figcaption>
-          </figure>
-          <figure className="hv-shot g3 hv-rv d2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={IMG("village.webp")} alt={t("accueil.g3Alt")} loading="lazy" decoding="async" />
-            <figcaption><p className="hv-tag hv-mono">{t("accueil.g3Tag")}</p><b>{t("accueil.g3")}</b></figcaption>
-          </figure>
-        </div>
-        <p className="hv-fine hv-rv">{t("accueil.fine")}</p>
-      </section>
-
-      <section className="hv-flow hv-wrap" aria-labelledby="hv-flow-title">
-        <p className="hv-eyebrow hv-mono hv-rv" id="hv-flow-title">{t("accueil.flowTitle")}</p>
-        <ol className="hv-steps hv-rv d1">
-          {FLOW.map(step => <li key={step}><b>{t(`accueil.flow.${step}.name`)}</b><span>{t(`accueil.flow.${step}.body`)}</span></li>)}
-        </ol>
-      </section>
-
-      <section className="hv-tools hv-wrap" aria-labelledby="hv-tools-title">
-        <div className="hv-head"><h2 id="hv-tools-title" className="hv-rv">{rich("accueil.toolsTitle")}</h2><p className="hv-rv d1">{t("accueil.toolsLead")}</p></div>
-        <div className="hv-bento">
-          <article className="hv-tile big t-map hv-rv">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={IMG("village-clair.webp")} alt={t("accueil.mapAlt")} loading="lazy" decoding="async" />
-            <figure className="hv-inset">
-              <video muted loop playsInline preload="none" data-poster={MEDIA("loop-map-poster.webp")} data-lazy="" aria-hidden="true">
-                <source src={MEDIA("loop-map.webm")} type="video/webm" /><source src={MEDIA("loop-map.mp4")} type="video/mp4" />
-              </video>
-              <figcaption>{t("accueil.inStudio")}</figcaption>
-            </figure>
-            <div className="hv-txt"><p className="hv-tag hv-mono">{t("accueil.mapTag")}</p><h3>{t("accueil.mapTitle")}</h3><p>{t("accueil.mapBody")}</p><p className="hv-specs">{list("accueil.mapSpecs", 3).map(spec => <span key={spec}>{spec}</span>)}</p></div>
-          </article>
-          <article className="hv-tile big t-stage hv-rv d1">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={IMG("uttu-quai-1280.webp")} srcSet={srcset("uttu-quai")} sizes="(max-width: 900px) 100vw, 50vw" alt={t("accueil.stageAlt")} loading="lazy" decoding="async" />
-            <figure className="hv-inset">
-              <video muted loop playsInline preload="none" data-poster={MEDIA("loop-stage-poster.webp")} data-lazy="" aria-hidden="true">
-                <source src={MEDIA("loop-stage.webm")} type="video/webm" /><source src={MEDIA("loop-stage.mp4")} type="video/mp4" />
-              </video>
-              <figcaption>{t("accueil.inStudio")}</figcaption>
-            </figure>
-            <div className="hv-txt"><p className="hv-tag hv-mono">{t("accueil.stageTag")}</p><h3>{t("accueil.stageTitle")}</h3><p>{t("accueil.stageBody")}</p><p className="hv-specs">{list("accueil.stageSpecs", 3).map(spec => <span key={spec}>{spec}</span>)}</p></div>
-          </article>
-          <article className="hv-tile small t-ltx hv-rv">
-            <div className="hv-txt"><p className="hv-big5">5 s</p><p className="hv-tag hv-mono">{t("accueil.ltxTag")}</p><h3>{t("accueil.ltxTitle")}</h3><p>{t("accueil.ltxBody")}</p></div>
-          </article>
-          <article className="hv-tile small t-cap hv-rv d1">
-            <figure className="hv-cap" role="img" aria-label={t("accueil.capAlt")}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={IMG("capture-cadrage.webp")} alt="" loading="lazy" decoding="async" />
-              <figcaption aria-hidden="true">{list("accueil.capParts", 3).map(part => <span key={part}>{part}</span>)}</figcaption>
-            </figure>
-            <div className="hv-txt"><p className="hv-tag hv-mono">{t("accueil.capTag")}</p><h3>{t("accueil.capTitle")}</h3><p>{t("accueil.capBody")}</p></div>
-          </article>
-        </div>
-      </section>
-
-      <section className="hv-also hv-wrap" aria-labelledby="hv-also-title">
-        <p className="hv-eyebrow hv-mono hv-rv" id="hv-also-title">{t("accueil.alsoTitle")}</p>
-        <ul className="hv-rv d1">
-          {ALSO.map(item => <li key={item}><b>{t(`accueil.also.${item}.name`, { n: String(NOMBRE_OUTILS) })}</b><span>{t(`accueil.also.${item}.body`)}</span></li>)}
-        </ul>
-      </section>
-
-      <section className="hv-end" aria-labelledby="hv-end-title">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="hv-end-bg" src={IMG("hero-gare.webp")} alt="" loading="lazy" decoding="async" />
-        <div className="hv-wrap">
-          <BrandLockup className="hv-end-logo hv-rv" alt="U*TTU Studio" />
-          <h2 id="hv-end-title" className="hv-rv d1">{rich("accueil.endTitle")}</h2>
-          <div className="hv-ctas hv-rv d2">
-            <a className="hv-btn hv-gold" href={studioHref}>{t("landing.enter")} <Arrow /></a>
-            <a className="hv-btn hv-glass" href={uttuHref}>{t("landing.tryFree")}</a>
+        <section id="h3" className="ln-split">
+          <div>
+            <img src={assetPath("/exemples/vignettes/vid-h3-refs@2x.webp")} alt="" />
+            <div className="ln-strip">
+              <img src={assetPath("/exemples/vignettes/vid-multi@2x.webp")} alt="" />
+              <img src={assetPath("/exemples/vignettes/vid-prolonger@2x.webp")} alt="" />
+            </div>
           </div>
-          <ul className="hv-trust hv-rv d3">{list("accueil.trust", 3).map(line => <li key={line}>{line}</li>)}</ul>
-          <PoweredBy className="hv-badge hv-rv d3" />
-        </div>
-      </section>
-    </main>
-    <footer className="hv-foot">
-      <div className="hv-wrap">
-        <span>{t("accueil.foot")}</span>
-        <a href={`mailto:${contactEmail}`}>{t("landing.contact")}</a>
-        <a href={sourceRepo} target="_blank" rel="noopener noreferrer" data-source-code="">{t("landing.code")}</a>
-        <span>{t("accueil.attrib")}</span>
+          <div>
+            <p className="eyebrow">{copy.h3Badge}</p>
+            <h2>{copy.h3Title}</h2>
+            <p className="ln-lead">{copy.h3Body}</p>
+            <ul className="ln-feat">
+              {copy.h3.map(item => <li key={item.name} data-soon={item.soon ? "" : undefined} data-partner={item.partner ? "" : undefined}>
+                {item.href && !item.soon && !(item.partner && OPEN_WEIGHTS_MODE)
+                  ? <a href={assetPath(item.href)}><b>{item.name}</b><span>{item.body}</span><small>{item.cost}</small></a>
+                  : <div><b>{item.name} {item.soon && <span className="ln-soon">{copy.soonWord}</span>}</b><span>{item.body}{item.partner && OPEN_WEIGHTS_MODE ? ` ${copy.partnerSwapHidden}` : ""}</span><small>{item.cost}</small></div>}
+              </li>)}
+            </ul>
+          </div>
+        </section>
+
+        <section id="only">
+          <h2>{copy.onlyTitle}</h2>
+          <p className="ln-lead">{copy.onlyLead}</p>
+          {/* The touch-staging card is gone: that feature was removed on 31 Oct. One real capture, the red roofs. */}
+          <div className="ln-duo">
+            <picture>
+              <source type="image/avif" sizes="(max-width: 700px) 100vw, 50vw" srcSet={mediaSet("loop-map-poster", [640, 1280, 1920, 2560], "avif")} />
+              <img src={assetPath("/media/accueil/loop-map-poster-1280.webp")} sizes="(max-width: 700px) 100vw, 50vw" srcSet={mediaSet("loop-map-poster", [640, 1280, 1920, 2560], "webp")} alt="" loading="lazy" decoding="async" />
+            </picture>
+            <div>
+              <h3>{copy.scoutTitle}</h3>
+              <p>{copy.scoutBody}</p>
+              <a className="ln-go" href={assetPath("/studio#outils/reperage")}>{copy.scoutLink}</a>
+            </div>
+          </div>
+        </section>
+
+        <section id="uttu" className="ln-split">
+          <img src={assetPath("/images/accueil/uttu-portrait-1280.webp")} sizes="(max-width: 900px) 100vw, 560px"
+            srcSet={`${assetPath("/images/accueil/uttu-portrait-960.webp")} 960w, ${assetPath("/images/accueil/uttu-portrait-1280.webp")} 1280w, ${assetPath("/images/accueil/uttu-portrait-1920.webp")} 1920w`}
+            alt={t("accueil.g1Alt")} loading="lazy" />
+          <div>
+            <h2>{copy.uttuTitle}</h2>
+            <p className="ln-lead">{copy.uttuBody}</p>
+            <p className="ln-fine">{copy.uttuCost}</p>
+            <a className="hv-btn hv-glass" href={assetPath("/guide")}>{copy.uttuLink}</a>
+          </div>
+        </section>
+
+        <section id="storyweave" className="ln-band">
+          <span className="ln-soon">{copy.soonWord}</span>
+          <h3>{copy.swTitle}</h3>
+          <p>{copy.swBody}</p>
+          <a className="ln-go" href={assetPath("/storyboard")}>{copy.swLink}</a>
+        </section>
+
+        <section id="models">
+          <h2>{copy.modelsTitle}</h2>
+          <p className="ln-lead">{copy.modelsLead}</p>
+          <div className="ln-models">
+            <div>
+              <h3>{copy.openTitle} <span className="ln-lic">{copy.openOn}</span></h3>
+              <p className="ln-fine">{copy.openWhy}</p>
+              <dl>{copy.openList.map(row => <div key={row.k}><dt>{row.k}</dt><dd>{row.v}</dd></div>)}</dl>
+            </div>
+            <div>
+              <h3>{copy.partnerTitle} <span className="ln-lic ln-lic-p">{t("accueil.partnerBadge")}</span></h3>
+              <p className="ln-fine">{copy.partnerWhy}</p>
+              <p data-partner-mode={OPEN_WEIGHTS_MODE ? "hidden" : "on"}>{OPEN_WEIGHTS_MODE ? copy.partnerHidden : copy.partnerOn}</p>
+              <dl>{copy.partnerList.map(row => <div key={row.k}><dt>{row.k}</dt><dd>{row.v}</dd></div>)}</dl>
+              <p className="ln-fine">{copy.partnerMore}</p>
+            </div>
+          </div>
+          <p className="ln-licence" data-licence-note="">{copy.licenceNote}</p>
+        </section>
+
+        <section id="costs">
+          <h2>{copy.costsTitle}</h2>
+          <p className="ln-lead">{copy.costsLead}</p>
+          {copy.costs.map(row => <div className="ln-price" key={row.label}><span>{row.label}</span><span>{row.price}</span></div>)}
+          <a className="ln-go" href={assetPath("/guide#costs")}>{copy.costsLink}</a>
+        </section>
+
+        <section className="ln-end">
+          <h2>{copy.endTitle}</h2>
+          <div className="ln-ctas">
+            <a className="hv-btn hv-gold" href={studioHref}>{t("landing.enter")}</a>
+            <a className="hv-btn hv-glass" href={assetPath("/guide")}>{copy.readGuide}</a>
+          </div>
+          <ul className="ln-trust">{copy.trust.map(line => <li key={line}>{line}</li>)}</ul>
+        </section>
       </div>
+    </main>
+    <footer className="ln-foot">
+      <span>{t("accueil.foot")}</span>
+      <a href={assetPath("/guide")}>{copy.readGuide}</a>
+      <a href={sourceRepo} target="_blank" rel="noopener noreferrer">{t("landing.code")}</a>
+      <a href={`mailto:${contactEmail}`}>{t("landing.contact")}</a>
+      <span>{t("accueil.attrib")}</span>
     </footer>
   </div>;
 }

@@ -1,16 +1,26 @@
 import { expect, test, type Page } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { STORYBOARD_CLOSED } from '../src/app/storyboard/closed';
 import { simulateComfy } from './helpers/film2-comfy';
 
-// Storyboard (SB5–SB11), open to everyone; ?storyboard=0 is the one-version escape hatch. Comfy is simulated: 0 real credits. Proves the path,
-// the saved files, the one confirmation and the 44 px targets on the paper theme.
+// While STORYBOARD_CLOSED is true, /storyboard (and u11 / legacy) is the holding page.
+// ?storyboard=sw is not gated. ?storyboard=0 still hides the door. Flip the constant to restore the board.
 
-const SHOTS = process.env.STORYBOARD_SHOTS;
 const SIZES = [[390, 844], [844, 390], [1024, 600], [1280, 800]] as const;
+const FREE = /gratuit|\bfree\b|kostenlos|gratis/i;
+const PRICE = /\$|€|£|\bcr\./i;
 
-async function targets44(page: Page) {
-  const small = await page.locator('[data-theme="paper"] :is(button, a, input, select, textarea, summary):visible').evaluateAll(nodes => nodes
+function watchPrompts(page: Page) {
+  const posts: string[] = [];
+  page.on('request', request => {
+    if (request.method() !== 'POST') return;
+    const path = new URL(request.url()).pathname.replace(/\/+$/, '');
+    if (path.endsWith('/api/prompt')) posts.push(path);
+  });
+  return posts;
+}
+
+async function targets44(page: Page, scope: string) {
+  const small = await page.locator(`${scope} :is(button, a, input, select, textarea, summary):visible`).evaluateAll(nodes => nodes
     .filter(node => !(node as HTMLElement).closest('.sr-only, [aria-hidden="true"]'))
     .map(node => { const box = node.getBoundingClientRect(); return { box, label: (node.getAttribute('aria-label') || node.textContent || node.tagName).trim().slice(0, 40), type: (node as HTMLInputElement).type } })
     .filter(item => item.type !== 'checkbox' && item.box.width > 0 && Math.min(item.box.height, item.box.width) < 43.5)
@@ -18,9 +28,86 @@ async function targets44(page: Page) {
   expect(small, 'targets under 44 px').toEqual([]);
 }
 
-test('open to everyone: /storyboard answers 200; ?storyboard=0 hides it on this device, ?storyboard=1 brings it back', async ({ page }) => {
+async function noSideScroll(page: Page, label: string) {
+  const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(over, `horizontal overflow ${label}`).toBeLessThanOrEqual(1);
+}
+
+test('closed: /storyboard, u11 and legacy hold; sw is not gated; nothing is posted', async ({ page }) => {
+  test.skip(!STORYBOARD_CLOSED, 'the board is open again');
+  const posts = watchPrompts(page);
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+
+  for (const url of ['/storyboard', '/storyboard?storyboard=u11', '/storyboard?storyboard=legacy', '/storyboard/kept-safe']) {
+    expect((await page.goto(url))?.status()).toBe(200);
+    const hold = page.locator('[data-storyboard-holding][data-storyboard-gate="closed"]');
+    await expect(hold).toBeVisible();
+    await expect(page.locator('[data-u11], [data-storyboard-page]')).toHaveCount(0);
+    await expect(hold.locator('[data-uttu-portrait]')).toBeVisible();
+    await expect(hold.locator('h1')).toContainText(/tissée|woven|gewebt|tejida/);
+    await expect(hold).toContainText('Uttu');
+    await expect(hold).not.toContainText('Mira');
+    await expect(hold).not.toContainText(FREE);
+    await expect(hold).not.toContainText(PRICE);
+    await expect(page.locator('[data-storyboard-back]')).toHaveAttribute('href', '/studio');
+  }
+
+  expect((await page.goto('/storyboard?storyboard=sw'))?.status()).toBe(200);
+  await expect(page.locator('[data-storyboard-gate="sw"]')).toBeVisible();
+  await expect(page.locator('[data-storyboard-gate="closed"]')).toHaveCount(0);
+  await expect(page.locator('[data-u11]')).toHaveCount(0);
+
+  expect((await page.goto('/storyboard?storyboard=0'))?.status()).toBe(404);
+  await page.waitForTimeout(400);
+  expect(posts, 'no /api/prompt POST').toEqual([]);
+  expect(errors, 'no page errors').toEqual([]);
+});
+
+test('closed: four sizes, 44 px targets, no side scroll, the portrait stays', async ({ page }, info) => {
+  test.skip(!STORYBOARD_CLOSED, 'the board is open again');
+  test.skip(info.project.name !== 'desktop', 'the four sizes are taken in one run');
+  await page.context().addCookies([{ name: 'u-ttu-locale', value: 'en', domain: '127.0.0.1', path: '/' }]);
+  for (const [width, height] of SIZES) {
+    await page.setViewportSize({ width, height });
+    await page.goto('/storyboard');
+    const hold = page.locator('[data-storyboard-holding]');
+    await expect(hold).toBeVisible();
+    await expect(hold.locator('h1')).toContainText('woven');
+    await noSideScroll(page, `${width}×${height}`);
+    await targets44(page, '[data-storyboard-holding]');
+    await page.screenshot({ path: info.outputPath(`holding-${width}x${height}.png`), fullPage: false });
+  }
+});
+
+test('closed: the studio keeps the door, marked Soon, and it opens the holding page', async ({ page }) => {
+  test.skip(!STORYBOARD_CLOSED, 'the board is open again');
+  await page.goto('/studio');
+  const bar = page.locator('[data-barre]');
+  await bar.locator('[data-barre-plus]').click();
+  const item = page.locator('[data-barre-storyboard]');
+  await expect(item).toBeVisible();
+  await expect(item.locator('[data-storyboard-soon]')).toHaveText(/Soon|Bientôt|Bald|Pronto/);
+  expect((await item.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await item.click();
+  await expect(page).toHaveURL(/\/storyboard/);
+  await expect(page.locator('[data-storyboard-holding][data-storyboard-gate="closed"]')).toBeVisible();
+
+  await page.goto('/studio');
+  const entry = page.locator('[data-storyboard-entry]');
+  await expect(entry).toBeVisible({ timeout: 20_000 });
+  await expect(entry.locator('[data-storyboard-soon]')).toBeVisible();
+  await entry.locator('a').click();
+  await expect(page.locator('[data-storyboard-holding][data-storyboard-gate="closed"]')).toBeVisible();
+});
+
+test('open to everyone: /storyboard is U1.1; ?storyboard=0 hides it, ?storyboard=1 brings U1.1 back', async ({ page }) => {
+  test.skip(STORYBOARD_CLOSED, 'holding page covers this until StoryWeave; flip STORYBOARD_CLOSED');
   expect((await page.goto('/storyboard'))?.status()).toBe(200);
-  await expect(page.locator('[data-storyboard-page]')).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('[data-u11]')).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('[data-sb-idea]')).toHaveCount(0);
+  expect((await page.goto('/storyboard?storyboard=u11'))?.status()).toBe(200);
+  await expect(page.locator('[data-u11]')).toBeVisible({ timeout: 60_000 });
   expect((await page.goto('/storyboard?storyboard=0'))?.status()).toBe(404);
   await page.goto('/studio?storyboard=0');
   const bar = page.locator('[data-barre]');
@@ -29,105 +116,50 @@ test('open to everyone: /storyboard answers 200; ?storyboard=0 hides it on this 
   await expect(page.locator('[data-barre-storyboard]')).toHaveCount(0);
   expect((await page.goto('/storyboard'))?.status()).toBe(404);
   expect((await page.goto('/storyboard?storyboard=1'))?.status()).toBe(200);
+  await expect(page.locator('[data-u11]')).toBeVisible({ timeout: 60_000 });
   expect((await page.goto('/storyboard'))?.status()).toBe(200);
+  await expect(page.locator('[data-u11]')).toBeVisible({ timeout: 60_000 });
 });
 
-test('idea → saved board → shot sheet → one confirmation; four sizes', async ({ page }, info) => {
-  test.skip(info.project.name !== 'desktop', 'the four sizes are taken in one run');
-  test.setTimeout(240_000);
-  await simulateComfy(page);
-  if (SHOTS) mkdirSync(SHOTS, { recursive: true });
-  const snap = async (name: string) => {
-    await page.waitForTimeout(350);
-    const [w, h] = [page.viewportSize()!.width, page.viewportSize()!.height];
-    await page.screenshot({ path: info.outputPath(`${w}x${h}-${name}.png`) });
-    if (SHOTS) await page.screenshot({ path: join(SHOTS, `${w}x${h}-${name}.png`) });
-  };
-
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto('/storyboard');
-  await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
-  await expect(page.locator('[data-sb-idea]:visible')).toBeVisible();
-  await page.locator('[data-sb-idea-field]:visible').fill('Uttu traverse la ville sous la pluie pour atteindre un toit à l’aube. Elle dit : « On y est presque. »');
-  await page.locator('[data-sb-write]:visible').click();
-  await expect(page.locator('[data-sb-writer-reply]')).toBeVisible({ timeout: 30_000 });
-  await expect(page).toHaveURL(/\/storyboard\/[a-z0-9-]+/);
-  await snap('00-written');
-  const shots = page.locator('[data-sb-shot]');
-  await expect(shots.first()).toBeVisible();
-  const count = await shots.count();
-  expect(count).toBeGreaterThanOrEqual(3);
-  // Every shot written has a quote: the dock offers the whole board, priced.
-  await expect(page.locator('[data-sb-film-all]')).toContainText(/≈ [\d.,]+ (crédits estimés|credits estimated)/);
-  await expect(page.locator('[data-sb-no-quote]')).toHaveCount(0);
-  // The quoted words of the idea become a line, shown quoted on the board.
-  await expect(page.locator('[data-sb-line]').first()).toContainText('On y est presque.');
-  await expect(page.locator('[data-sb-shot]').filter({ hasText: /dit :/ })).toHaveCount(0);
-  // Saved: a reload finds the same board.
-  const url = page.url();
-  await page.waitForTimeout(800);
-  await page.reload();
-  await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
-  await expect(shots).toHaveCount(count, { timeout: 30_000 });
-  expect(page.url()).toBe(url);
-
+test('U1.1 default: four sizes, 44 px targets, no side scroll', async ({ page }) => {
+  test.skip(STORYBOARD_CLOSED, 'holding page covers this until StoryWeave; flip STORYBOARD_CLOSED');
+  test.skip(test.info().project.name !== 'desktop', 'the four sizes are taken in one run');
   for (const [width, height] of SIZES) {
     await page.setViewportSize({ width, height });
-    await page.goto(url);
-    await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
-    const narrow = width < 800;
-    if (narrow) {
-      // Board first; the Uttu toggle swaps the column in.
-      await expect(shots.first()).toBeVisible();
-      await snap('02-board');
-      await page.locator('[data-sb-toggle]').click();
-      await expect(page.locator('[data-sb-chat]')).toBeVisible();
-      await snap('04-uttu');
-      await targets44(page);
-      await page.locator('[data-sb-toggle]').click();
-    } else {
-      await expect(page.locator('[data-sb-chat]')).toBeVisible();
-      await snap('02-board-uttu');
-    }
-    await targets44(page);
-    await page.locator('[data-sb-open]').nth(1).click();
-    const sheet = page.locator('[data-sb-sheet]');
-    await expect(sheet).toBeVisible();
-    await snap('03-sheet');
-    await targets44(page);
-    await expect(page.locator('[data-sb-sheet-film]')).toContainText(/≈ [\d.,]+/);
-    await page.locator('[data-sb-sheet-film]').click();
-    const confirm = page.locator('[data-sb-confirm]');
-    await expect(confirm).toBeVisible();
-    await expect(confirm.locator('[data-sb-total]')).toContainText(/≈ [\d.,]+ (crédits estimés|credits estimated)/);
-    await expect(confirm).not.toContainText(/gratuit|\bfree\b|kostenlos|gratis/i);
-    await snap('05-confirm');
-    await confirm.locator('[data-sb-cancel]').click();
-    await expect(confirm).toHaveCount(0);
-    await page.keyboard.press('Escape');
-    await expect(sheet).toHaveCount(0);
-    // The list.
-    await page.locator('[data-sb-back]').click();
-    await expect(page.locator('[data-sb-card]').first()).toBeVisible();
-    await snap('01-list');
-    await targets44(page);
+    await page.goto('/storyboard');
+    await expect(page.locator('[data-u11][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator('[data-u11-phase="write"]')).toBeVisible();
+    await expect(page.locator('[data-storyboard-page]')).not.toContainText(FREE);
+    await noSideScroll(page, `${width}×${height}`);
+    await targets44(page, '[data-theme="obsidian"]');
   }
-
-  // A correction in plain words changes the board without a render.
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto(url);
-  await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
-  await page.locator('[data-sb-ask]').fill('ajoute un plan');
-  await page.locator('[data-sb-ask]').press('Enter');
-  await expect(shots).toHaveCount(count + 1);
-
-  // Print view: A4, six per page.
-  await page.goto(`${url}/print`);
-  await expect(page.locator('[data-sb-print-page]').first()).toBeVisible({ timeout: 60_000 });
-  await snap('06-print');
 });
 
-test('bubble: « Make a storyboard » for everyone, carrying the idea to /storyboard', async ({ page }, info) => {
+test('legacy hatch: ?storyboard=legacy still opens the paper page; an unknown name makes no POST', async ({ page }) => {
+  test.skip(STORYBOARD_CLOSED, 'holding page covers this until StoryWeave; flip STORYBOARD_CLOSED');
+  test.skip(test.info().project.name !== 'desktop', 'one desktop check of the hatch');
+  await simulateComfy(page);
+  const posts: string[] = [];
+  page.on('request', request => {
+    if (request.method() === 'POST' && /\/api\/prompt$/.test(new URL(request.url()).pathname)) posts.push(request.url());
+  });
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/storyboard?storyboard=legacy');
+  await expect(page.locator('[data-storyboard-page][data-theme="paper"][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('[data-u11]')).toHaveCount(0);
+  await page.locator('[data-sb-idea-field]:visible').fill('Uttu traverse la ville sous la pluie pour atteindre un toit à l’aube. Elle dit : « On y est presque. »');
+  await page.locator('[data-sb-write]:visible').click();
+  await expect(page.locator('[data-sb-no-quote]').first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('[data-sb-film-all]')).toHaveCount(0);
+  await expect(page.locator('[data-storyboard-page]')).not.toContainText(FREE);
+  expect(posts, 'an unknown name does not start a render').toEqual([]);
+  const url = page.url();
+  await page.goto(`${url.split('?')[0]}/print?storyboard=legacy`);
+  await expect(page.locator('[data-sb-print-page]').first()).toBeVisible({ timeout: 60_000 });
+});
+
+test('bubble: « Make a storyboard » for everyone, carrying the idea to /storyboard', async ({ page }) => {
+  test.skip(STORYBOARD_CLOSED, 'holding page covers this until StoryWeave; flip STORYBOARD_CLOSED');
   test.setTimeout(120_000);
   await page.goto('/studio');
   const bar = page.locator('[data-barre]');
@@ -137,24 +169,13 @@ test('bubble: « Make a storyboard » for everyone, carrying the idea to /storyb
   const item = page.locator('[data-barre-storyboard]');
   await expect(item).toBeVisible();
   expect((await item.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-  await expect(item).not.toContainText(/gratuit|free|kostenlos|gratis/i);
-  if (SHOTS) {
-    mkdirSync(SHOTS, { recursive: true });
-    const { width, height } = page.viewportSize()!;
-    await page.screenshot({ path: join(SHOTS, `${width}x${height}-07-bubble-entry.png`) });
-  }
+  await expect(item).not.toContainText(FREE);
   await item.click();
   await expect(page).toHaveURL(/\/storyboard\?idee=/);
-  await expect(page.locator('[data-storyboard-page][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
-  await expect(page.locator('[data-sb-idea-field]:visible')).toHaveValue(idea);
-  // The place is read from « la ville », not « the place ».
-  await page.locator('[data-sb-write]:visible').click();
-  await expect(page.locator('[data-sb-writer-reply]')).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator('[data-sb-writer-reply]')).toContainText(/la ville/i);
-  if (SHOTS) {
-    const { width, height } = page.viewportSize()!;
-    await page.waitForTimeout(350);
-    await page.screenshot({ path: join(SHOTS, `${width}x${height}-08-from-bubble.png`) });
-  }
-  void info;
+  await expect(page.locator('[data-u11][data-ready="true"]')).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('[data-u11-story]')).toHaveValue(idea);
+  await page.locator('[data-u11-write]').click();
+  await expect(page.locator('[data-u11-phase="plan"]')).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('[data-u11-plan]')).toContainText(/ville/i);
+  await expect(page.locator('[data-storyboard-page]')).not.toContainText(FREE);
 });

@@ -14,17 +14,18 @@
     "scene": "Decorado",
     "take": "Toma",
     "edit": "Montaje",
-    "chain": "Reparto, decorado, toma, montaje",
+    "chain": "Reparto, decorado, toma, montaje, finalizar",
     "sphere": "Esfera",
     "sheets": "Fichas",
-    "studio": "Mis creaciones",
+    "studio": "Mi estudio",
     "connect": "Vincular",
     "credits": "créditos",
     "opening": "Abriendo mi estudio…",
     "takeRunning": "toma en curso",
     "sceneRunning": "escena en curso",
     "renderCredits": "Créditos de la cuenta de render",
-    "rail": "Herramientas del estudio"
+    "rail": "Herramientas del estudio",
+    "finish": "FINALIZAR"
   },
   "project": {
     "lead": "El nombre ya está escrito: {name}. Un gesto crea el proyecto. Puedes cambiarlo."
@@ -37,7 +38,8 @@
     "kicker": "Estudio de cine IA de código abierto en ComfyUI",
     "contact": "Contactar el estudio ↗",
     "tryFree": "Descubrir con Uttu",
-    "code": "Código fuente en GitHub ↗"
+    "code": "Código fuente en GitHub ↗",
+    "readGuide": "Leer la guía"
   },
   "accueil": {
     "kicker": "Código abierto · MIT · en ComfyUI",
@@ -58,7 +60,7 @@
     "showLead": "Un personaje que conserva su cara de un plano a otro, un decorado a partir de un texto o una foto, un lugar real localizado en el mapa. Todo con los modelos de ComfyUI.",
     "g1Tag": "REPARTO",
     "g1": "Un personaje, el mismo en cada plano.",
-    "g1Alt": "Primer plano de Uttu, con capucha y venas doradas",
+    "g1Alt": "Uttu, diosa arácnida de la creación, encapuchada, en un muelle de noche",
     "g2Tag": "DECORADO · TOMA",
     "g2": "Un decorado, una luz, un movimiento.",
     "g2Alt": "Un mensajero con chaqueta amarilla en una estación abandonada, rayos de luz",
@@ -82,7 +84,7 @@
       },
       "montage": {
         "name": "MONTAJE",
-        "body": "Planos, voz, música, exportación MP4 sin créditos."
+        "body": "Planos, voz, música, la exportación MP4 corre en tu navegador — sin render."
       },
       "finaliser": {
         "name": "FINALIZAR",
@@ -138,7 +140,7 @@
       },
       "video": {
         "name": "Vídeo fiel",
-        "body": "Fiel a tus referencias con MiniMax H3 (≈ 4 créditos estimados), FastH3 como segundo modelo para conservar mejor el lugar (≈ 8). Fotogramas clave fieles (≈ 14), transición de estilo (≈ 7)."
+        "body": "Fiel a tus referencias con MiniMax H3 (≈ 4 créditos estimados), FastH3 como segundo modelo para conservar mejor el lugar (≈ 8). Keyframes fieles (≈ 14), transición de estilo (≈ 7)."
       },
       "son": {
         "name": "El sonido de tu vídeo",
@@ -180,7 +182,8 @@
       "2": "Nada se lanza sin tu confirmación"
     },
     "foot": "U*TTU Studio · código abierto (MIT)",
-    "attrib": "Mapa: © colaboradores de OpenStreetMap · OpenFreeMap · Terrain Tiles · © swisstopo"
+    "attrib": "Mapa: © colaboradores de OpenStreetMap · OpenFreeMap · Terrain Tiles · © swisstopo",
+    "partnerBadge": "Partner · API de pago"
   },
   "guide": {
     "look-photos": "Dos fotos, tres como máximo. De frente, luego tres cuartos. Yo tejo el resto.",
@@ -1150,7 +1153,8 @@
       "priseVidu": "Pronto: el precio aún no está comprobado.",
       "montLips": "Pronto: el precio aún no está comprobado.",
       "montUpscale": "En «¿Y ahora?»: abre una imagen o una toma.",
-      "montFrames": "En «¿Y ahora?»: abre una imagen o una toma."
+      "montFrames": "En «¿Y ahora?»: abre una imagen o una toma.",
+      "animeLook": "Se elige con el look del proyecto. El presupuesto va antes."
     },
     "cat": {
       "identite": "Identidad",
@@ -2225,7 +2229,7 @@
         "line": "Mantiene personajes y lugar coherentes."
       },
       "vid-multi": {
-        "title": "Fotogramas clave fieles",
+        "title": "Keyframes fieles",
         "line": "Mantiene el personaje de tu primera imagen y termina en la segunda, con sonido."
       },
       "vid-transition-style": {
@@ -2550,7 +2554,7 @@
     "create": "Crear",
     "make": "Realizar",
     "edit": "Montaje",
-    "creations": "Mis creaciones",
+    "creations": "Mi estudio",
     "menu": "Menú",
     "close": "Cerrar el menú",
     "search": "Buscar",
@@ -2583,7 +2587,7 @@
       }
     },
     "film": "Película",
-    "creationsShort": "Creaciones"
+    "creationsShort": "Estudio"
   },
   "projects": {
     "label": "Proyecto",
@@ -2635,7 +2639,7 @@
   },
   "creations": {
     "all": "Ver todo",
-    "title": "Mis creaciones",
+    "title": "Mi estudio",
     "type": {
       "tout": "Todo",
       "images": "Imágenes",
@@ -3004,12 +3008,12 @@
       "tabs": {
         "q": "¿Cómo está organizado el estudio?",
         "k": "pestañas pasos organización secciones reparto decorado toma montaje",
-        "a": "El estudio sigue cuatro pasos: Reparto (tus personajes), Decorado (tus lugares), Toma (tus planos de vídeo) y Montaje (montas y exportas). «Herramientas» reúne todas las herramientas Comfy por familia."
+        "a": "El estudio sigue cinco pasos: Reparto, Decorado, Toma, Montaje y Finalizar (más nítido y más grande, nada se regenera). Las herramientas reúnen cada herramienta de Comfy por familia."
       },
       "bubble": {
         "q": "Imagen o vídeo: ¿cómo creo?",
         "k": "crear burbuja imagen vídeo foto clip elegir diferencia generar rodar",
-        "a": "En «¿Qué rodamos?», elige Imagen o Vídeo antes de escribir. Imagen: Nano Banana 2.1 (referencias) o Flux Klein. Vídeo usa MiniMax H3 cuando adjuntas referencias y, si no, LTX. El presupuesto «≈ X créditos estimados» aparece antes de enviar nada. Hasta 7 referencias visuales y, en Vídeo, un sonido."
+        "a": "En «¿Qué rodamos?», elige Imagen o Vídeo antes de escribir. El vídeo con referencias corre en MiniMax H3, si no en LTX. El presupuesto «≈ X créditos estimados» aparece bajo la burbuja antes de enviar nada."
       },
       "refs": {
         "q": "¿Cómo uso referencias?",
@@ -3034,7 +3038,7 @@
       "which": {
         "q": "¿Qué herramienta elijo?",
         "k": "qué herramienta herramientas elegir necesito biblioteca familia consejo recomendar ángulo ángulos cámara multicámara luz efecto separar transición fotogramas",
-        "a": "Una imagen: Imagen rápida. Mantener un personaje o lugar: Reparto, Decorado, referencias. Otros puntos de vista: Ocho ángulos del personaje, Ocho ángulos del decorado, Mover la cámara. Un vídeo: la burbuja en Vídeo, o Toma; con referencias: Vídeo fiel a referencias; dos fotogramas clave: Fotogramas clave fieles; un estilo que cambia: Transición de estilo. Multicámara: Ocho ángulos del personaje, luego «Plano, segundo motor» en el ángulo elegido: ≈ 14 créditos, luego ≈ 4 por ángulo más. Retocar: Modificar, Ampliar, Quitar fondo, Más grande y nítida, Cambiar la luz («Luz según tu consigna», o «Retrato de estudio» como segundo modelo). Sonido: Voz, Música, Efecto de sonido, Efectos de sonido para un vídeo, Separar voz y música."
+        "a": "Una imagen: Imagen rápida. Mantener un personaje o lugar: Reparto, Decorado, referencias. Otros puntos de vista: Ocho ángulos del personaje, Ocho ángulos del decorado, Mover la cámara. Un vídeo: la burbuja en Vídeo, o Toma; con referencias: Vídeo fiel a referencias; dos fotogramas clave: Keyframes fieles; un estilo que cambia: Transición de estilo. Multicámara: Ocho ángulos del personaje, luego «Plano, segundo motor» en el ángulo elegido: ≈ 14 créditos, luego ≈ 4 por ángulo más. Retocar: Modificar, Ampliar, Quitar fondo, Más grande y nítida, Cambiar la luz («Luz según tu consigna», o «Retrato de estudio» como segundo modelo). Sonido: Voz, Música, Efecto de sonido, Efectos de sonido para un vídeo, Separar voz y música."
       },
       "projects": {
         "q": "¿Dónde están mis proyectos?",
@@ -3126,7 +3130,8 @@
         "refused": "El modelo no quiso responder a este mensaje. Reformúlalo.",
         "network": "Comfy no responde. Revisa tu conexión y vuelve a intentarlo; el simulador de costes funciona sin conexión.",
         "timeout": "Comfy tardó demasiado en responder. Vuelve a intentarlo en un momento.",
-        "failed": "El agente Comfy no pudo responder. Vuelve a intentarlo en un momento."
+        "failed": "El agente Comfy no pudo responder. Vuelve a intentarlo en un momento.",
+        "ineligible": "Este modelo de conversación no está disponible en el modo de pesos abiertos. No se envió nada ni se usó ningún crédito."
       },
       "welcome": "Soy Uttu, el agente del estudio. Dime qué quieres rodar: te respondo, te propongo la herramienta o el plan y ves el presupuesto antes de cualquier render. Cada mensaje lo paga tu cuenta Comfy."
     },
@@ -3167,7 +3172,9 @@
       "son": "Sonido",
       "sonLine": "Voz, música, efectos",
       "storyboard": "Hacer un guion gráfico",
-      "storyboardLine": "Uttu convierte esta idea en secuencias y planos, cada uno con su presupuesto. Escribir no renderiza nada."
+      "storyboardLine": "Uttu lo convierte en un storyboard que puedes ver. No se filma nada hasta que lo apruebas.",
+      "storyboardSoon": "Pronto",
+      "storyboardSoonLine": "StoryWeave está en camino. Tus storyboards se quedan donde están."
     },
     "settings": "Ajustes",
     "rendu": {
@@ -3676,6 +3683,12 @@
         "calcul": "La imagen se vuelve más nítida…",
         "retour": "Recuperando la película…",
         "mesure": "Leyendo el coste real…"
+      },
+      "touches": {
+        "lecture": "Espacio",
+        "annuler": "Ctrl+Z",
+        "retablir": "Ctrl+Mayús+Z",
+        "supprimer": "Supr"
       }
     },
     "nav": {
@@ -3711,7 +3724,7 @@
       },
       "persoTexte": {
         "titre": "Un personaje a partir de una frase",
-        "texte": "Un anciano, personaje ficticio."
+        "texte": "Viejo pescador bretón, de unos setenta años, gorra plana de lana azul marino, chaquetón marino encerado sobre un jersey de ochos color crema, barba blanca corta, botas de cuero gastadas. Character turnaround: frente, tres cuartos, perfil, espalda. Luz de estudio suave, fondo gris medio."
       }
     }
   },
@@ -3738,24 +3751,52 @@
     },
     "cast-coursiere": {
       "title": "La mensajera",
-      "prompt": "Una mensajera, hoja de vistas, personaje ficticio."
+      "prompt": "Joven mensajera, melena corta rizada oscura, chubasquero amarillo mostaza, bandolera de lona verde oliva, pantalón cargo negro, zapatillas negras. Character turnaround: frente, tres cuartos, perfil, espalda. Luz de estudio suave, fondo gris neutro."
     },
     "cast-vieil-homme": {
       "title": "El anciano",
-      "prompt": "Un anciano, hoja de vistas, personaje ficticio."
+      "prompt": "Anciano, unos 75 años, gorra plana de tweed gris, barba blanca corta, abrigo de lana gris marengo, bufanda de punto negra, botas de cuero marrón gastadas. Character turnaround: close-up, tres cuartos, perfil, cuerpo entero. Luz de estudio suave, fondo gris neutro."
     },
     "cast-dj": {
       "title": "DJ",
-      "prompt": "Un DJ, hoja de vistas, personaje ficticio."
+      "prompt": "DJ, rapado decolorado, aros dorados, cadenas doradas superpuestas, bomber negra, auriculares al cuello, botas militares negras. Character turnaround: close-up, tres cuartos, perfil, cuerpo entero. Luz de estudio suave, fondo gris neutro."
     }
   },
   "demoPrompts": {
-    "demo-coursiere": "Una mensajera, hoja de vistas, personaje ficticio.",
-    "demo-vieil-homme": "Un anciano, hoja de vistas, personaje ficticio.",
-    "demo-dj": "Un DJ, hoja de vistas, personaje ficticio.",
+    "demo-coursiere": "Joven mensajera, melena corta rizada oscura, chubasquero amarillo mostaza, bandolera de lona verde oliva, pantalón cargo negro, zapatillas negras. Character turnaround: frente, tres cuartos, perfil, espalda. Luz de estudio suave, fondo gris neutro.",
+    "demo-vieil-homme": "Anciano, unos 75 años, gorra plana de tweed gris, barba blanca corta, abrigo de lana gris marengo, bufanda de punto negra, botas de cuero marrón gastadas. Character turnaround: close-up, tres cuartos, perfil, cuerpo entero. Luz de estudio suave, fondo gris neutro.",
+    "demo-dj": "DJ, rapado decolorado, aros dorados, cadenas doradas superpuestas, bomber negra, auriculares al cuello, botas militares negras. Character turnaround: close-up, tres cuartos, perfil, cuerpo entero. Luz de estudio suave, fondo gris neutro.",
     "demo-quai": "Un muelle de noche, agua negra, luces lejanas, sin nadie.",
     "demo-gare": "Un vestíbulo de estación, vacío, luz fría, sin nadie.",
     "demo-pluie": "Una calle bajo la lluvia, luces borrosas, sin nadie.",
     "demo-toit": "Tejados de zinc al amanecer, bruma dorada, sin nadie."
+  },
+  "chrome": {
+    "studio": "Studio",
+    "mine": "Mi estudio",
+    "guide": "Guía",
+    "uttu": "Uttu",
+    "soon": "Pronto",
+    "storyweave": "StoryWeave",
+    "look": "Look",
+    "lookStandard": "Estándar",
+    "lookAnime": "Anime 2.5D",
+    "openGuide": "Abrir la guía",
+    "nextFinish": "Siguiente: Finalizar — afinar las tomas guardadas",
+    "finishLead": "Más nítido y más grande. Nada se regenera.",
+    "finishEmpty": "Guarda una toma en Montaje y luego termínala aquí.",
+    "finishEngineSeed": "SeedVR2",
+    "finishEngineAnime": "Real-ESRGAN anime",
+    "finishThis": "Finalizar esta toma",
+    "finishConfirm": "Confirmar el acabado",
+    "finishKept": "Toma guardada",
+    "finishMissing": "El archivo guardado aún no está en este navegador.",
+    "finishDone": "La toma más nítida está en Mi estudio. La original se queda.",
+    "finishQuote": "≈ {n}–{high} créditos estimados",
+    "menuAria": "Menú: Studio, Mi estudio, Guía, idioma, créditos",
+    "places": "Lugares",
+    "trackVoice": "Voz",
+    "trackMusic": "Música",
+    "trackText": "Texto"
   }
 }

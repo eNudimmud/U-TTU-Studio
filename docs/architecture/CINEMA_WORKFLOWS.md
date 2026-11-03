@@ -6,7 +6,7 @@ Revue du 1er novembre 2026. Le catalogue demeure `docs/WORKFLOWS.md` et `workflo
 
 **Qwen3-VL 8B natif → opérations validées → image clé Klein → validation artistique → LTX-2.5 I2V d'une image → montage/export existants.** Qwen Image et FLUX.2 dev restent des alternatives conditionnelles, pas des retries automatiques. Conserver la méthode A de #217 (références propres équilibrées). Le modèle n'est sélectionné qu'après filtrage par capacités, admissibilité, qualification et coût applicable.
 
-Pour la démo, pas de fal, nouveau fournisseur, Nano Banana, Kling, H3 Max ou Seedance. La présence de H3 natif dans le catalogue #220 ne doit pas être confondue avec H3 Max Partner ; elle ne change pas le pipeline LTX retenu ici. Ne pas demander une nouvelle interface de choix de pipeline : c'est une décision interne de l'agent, expliquée à la demande.
+Pour la démo, aucun fournisseur hors Comfy, ni Nano Banana, Kling, H3 Max ou Seedance. La présence de H3 natif dans le catalogue #220 ne doit pas être confondue avec H3 Max Partner ; elle ne change pas le pipeline LTX retenu ici. Ne pas demander une nouvelle interface de choix de pipeline : c'est une décision interne de l'agent, expliquée à la demande.
 
 ## Comparaison utile à la production
 

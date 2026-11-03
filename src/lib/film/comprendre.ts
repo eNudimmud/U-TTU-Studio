@@ -20,6 +20,8 @@ const PREP = /(?:^|[\s,])(sur|dans|devant|derri[eè]re|sous|pr[eè]s d[eu']|au|a
 const ARTICLE = /^(?:l['’]|le |la |les |un |une |des |du |the |a |an |dem |der |die |den |das |einem |einer |el |la |los |las |un |una )/iu;
 const STOP = new Set(["camera", "lentement", "doucement", "vite", "pendant", "et", "qui", "avec", "puis", "alors", "slowly", "while", "and", "with", "then", "langsam", "und", "mit", "lentamente", "y", "con", "mientras", "la", "le", "les", "the", "die", "der", "el", "nuit", "night", "nacht", "noche", "jour", "day"]);
 
+const LIEN = /^(?:of|de|du|des|d['’]|von|vom|del)$/iu;
+
 /** « sur le quai la nuit » → « le quai ». Two meaningful words at most after the article. */
 export function lieuDeLaPhrase(phrase: string): string | null {
   for (const match of phrase.matchAll(PREP)) {
@@ -34,7 +36,12 @@ export function lieuDeLaPhrase(phrase: string): string | null {
       if (STOP.has(folded) || /^\d/.test(word)) break;
       // « de la gare », « du port »: the complement belongs to the place.
       kept.push(word);
-      if (kept.length >= 4 || (kept.length === 1 && !/^(de|du|des|d['’])$/i.test(words[1] ?? ""))) break;
+      // « Blanche of Castille », « Notre-Dame de Paris »: a proper name keeps its capitalised words and the
+      // small linking word between two of them.
+      const next = words[kept.length] ?? "";
+      const nom = /^\p{Lu}/u.test(kept[0]!) && (/^\p{Lu}/u.test(next) || (LIEN.test(next) && /^\p{Lu}/u.test(words[kept.length + 1] ?? "")));
+      if (kept.length >= 4 || (!nom && kept.length === 1 && !/^(de|du|des|d['’])$/i.test(words[1] ?? ""))) break;
+      if (!nom && kept.length > 1 && /^\p{Lu}/u.test(kept[0]!) && !/^(de|du|des|d['’]|la|le|l['’]|les)$/i.test(word)) break;
     }
     if (!kept.length || kept.every(word => /^(de|du|des|d['’])$/i.test(word))) continue;
     if (/^(de|du|des)$/i.test(kept.at(-1)!)) kept.pop();

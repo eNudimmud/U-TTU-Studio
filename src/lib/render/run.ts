@@ -16,10 +16,10 @@ function checkReferences(settings: TakeSettings, count: number): void {
 }
 
 /** The graph for the chosen engine. Same pictures, same text. */
-export function takeGraphFor(settings: TakeSettings, prompt: string, pictures: readonly string[], seed: number, controls?: UploadedControls): ApiGraph {
+export function takeGraphFor(settings: TakeSettings, prompt: string, pictures: readonly string[], seed: number, controls?: UploadedControls, roles?: string): ApiGraph {
   checkReferences(settings, pictures.length);
   if (Boolean(settings.cadrage) !== Boolean(controls) || (controls && takeEngine(settings) !== "ltx")) throw new RenderError("invalid", "Le cadrage gardé demande ses deux contrôles et le moteur LTX.");
-  if (takeEngine(settings) === "ltx") return ltxTakeGraph({ prompt, pictures, seed, seconds: settings.seconds, aspect: settings.aspect, apercu: takeRendu(settings) === "apercu", controls });
+  if (takeEngine(settings) === "ltx") return ltxTakeGraph({ prompt, pictures, seed, seconds: settings.seconds, aspect: settings.aspect, apercu: takeRendu(settings) === "apercu", controls, ...(roles ? { roles } : {}) });
   return takeGraph({ ...settings, prompt, pictures, seed });
 }
 
@@ -30,6 +30,8 @@ export interface TakeRunInput {
   settings: TakeSettings;
   seed: number;
   clientId: string;
+  /** CE1 slot text for an LTX take with two or more characters. Absent: the historical preamble. */
+  roles?: string;
 }
 
 export type TakeRunEvent =
@@ -109,7 +111,7 @@ export async function submitTake(
   } : undefined;
   if (signal?.aborted) throw new RenderError("cancelled", "Envoi interrompu avant la soumission.");
   onEvent({ stage: "submit" });
-  const graph = takeGraphFor(input.settings, input.prompt, names, input.seed, controls);
+  const graph = takeGraphFor(input.settings, input.prompt, names, input.seed, controls, input.roles);
   return client.submit(graph, input.clientId);
 }
 

@@ -1,0 +1,93 @@
+/* Holding page while StoryWeave is on its way. Obsidian Aureate: airy, almost no rules, one gold word. */
+.sw-hold {
+  min-height: 100dvh;
+  display: grid;
+  align-items: center;
+  padding: clamp(28px, 6vh, 80px) clamp(20px, 5vw, 72px);
+  background:
+    radial-gradient(90% 70% at 100% 0%, rgba(201, 167, 91, .10), transparent 46%),
+    var(--bg);
+  color: var(--fg);
+  overflow-x: clip;
+}
+.sw-hold-grid {
+  width: min(1080px, 100%);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(28px, 5vw, 88px);
+  align-items: center;
+}
+.sw-hold-copy { min-width: 0; }
+.sw-hold-eyebrow { margin: 0 0 18px; }
+.sw-hold h1 {
+  margin: 0;
+  max-width: 11em;
+  font-family: var(--font-title);
+  font-weight: 400;
+  font-size: clamp(40px, 5.6vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+.sw-hold h1 em { font-style: italic; color: var(--accent); }
+.sw-hold-coming {
+  margin: 22px 0 0;
+  font-size: clamp(17px, 2vw, 20px);
+  line-height: 1.4;
+  color: var(--fg);
+}
+.sw-hold-body {
+  margin: 12px 0 0;
+  max-width: 46ch;
+  color: var(--fg-2);
+  font-size: 16px;
+  line-height: 1.6;
+}
+.sw-hold-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 18px;
+  margin-top: 32px;
+}
+.sw-hold-actions .button { width: auto; min-height: 48px; min-width: 44px; }
+.sw-hold-home {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 2px;
+  color: var(--fg-2);
+  font-weight: 600;
+  font-size: 15px;
+}
+.sw-hold-home:hover { color: var(--fg); }
+.sw-hold-portrait { margin: 0; }
+.sw-hold-portrait img {
+  width: min(260px, 32vw);
+  height: auto;
+  border-radius: 20px;
+}
+
+@media (max-width: 760px) {
+  .sw-hold-grid { grid-template-columns: minmax(0, 1fr); justify-items: start; gap: 28px; }
+  .sw-hold-portrait { order: -1; }
+  .sw-hold-portrait img { width: min(220px, 58vw); }
+  .sw-hold h1 { font-size: clamp(36px, 11vw, 56px); }
+  .sw-hold-actions { margin-top: 24px; }
+}
+
+/* A phone on its side: the portrait sits beside the words, small enough that nothing scrolls sideways. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .sw-hold { align-items: center; padding-block: 16px; }
+  .sw-hold-grid { grid-template-columns: minmax(0, 1fr) auto; gap: 20px; }
+  .sw-hold-portrait { order: 0; }
+  .sw-hold-portrait img { width: min(112px, 22vw); }
+  .sw-hold-eyebrow { margin-bottom: 8px; }
+  .sw-hold h1 { font-size: clamp(30px, 4.4vw, 40px); max-width: 18em; }
+  .sw-hold-coming { margin-top: 8px; font-size: 16px; }
+  .sw-hold-body { margin-top: 6px; font-size: 14px; line-height: 1.45; }
+  .sw-hold-actions { margin-top: 12px; }
+}

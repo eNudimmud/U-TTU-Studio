@@ -12,6 +12,8 @@
  * `X-Comfy-Error-Type` on every error. There is no cancel here: a sync call cannot be cancelled.
  */
 import { searchFaq, type Knowledge, type UttuLocale, UTTU_LOCALES } from "./uttu.ts";
+import { OPEN_WEIGHTS_MODE } from "../open-weights.ts";
+import { routeAllowed } from "../cinema/workflow-policy.ts";
 
 export const ROUTER_MODEL = "openai/gpt-5-nano";
 export const ROUTER_URL = `https://api.comfy.org/v2/models/${ROUTER_MODEL}`;
@@ -39,7 +41,7 @@ export type ChatRole = "user" | "assistant";
 export interface ChatTurn { role: ChatRole; text: string }
 export type AgentActionKind = "none" | "open_tool" | "plan";
 export interface AgentAction { kind: AgentActionKind; tool: string | null; request: string | null }
-export type AgentErrorCode = "auth" | "credits" | "subscription" | "busy" | "invalid" | "refused" | "network" | "timeout" | "failed";
+export type AgentErrorCode = "auth" | "credits" | "subscription" | "busy" | "invalid" | "refused" | "network" | "timeout" | "failed" | "ineligible";
 
 export interface ChatResult {
   reply: string;
@@ -298,6 +300,8 @@ interface Deps {
   knowledge(): Promise<Knowledge>;
   uuid(): string;
   timeoutMs?: number;
+  /** Contest mode (default: the build's flag): the hosted GPT-5 Nano route is closed, nothing is sent (CE0). */
+  openWeightsMode?: boolean;
 }
 
 const NO_STORE = { "cache-control": "no-store" };
@@ -309,6 +313,8 @@ const fail = (code: AgentErrorCode, status: number) => Response.json({ error: co
  * failure, a timeout or a 5xx. The key is relayed, never logged, never stored, never echoed.
  */
 export async function handleUttuChat(request: Request, deps: Deps): Promise<Response> {
+  // Before reading the credential or the body: a saved « Comfy mode » preference never reaches Router.
+  if (!routeAllowed({ route: "studio-agent.router", model: ROUTER_MODEL }, deps.openWeightsMode ?? OPEN_WEIGHTS_MODE)) return fail("ineligible", 403);
   const credential = credentialHeaders(request.headers);
   if (!credential) return fail("auth", 401);
   let payload: { message?: unknown; history?: unknown; locale?: unknown; project?: unknown };

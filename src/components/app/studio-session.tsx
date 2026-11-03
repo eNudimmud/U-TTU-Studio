@@ -37,6 +37,7 @@ import { type Balance } from "@/lib/credits";
 import { FINAL_MAX_SECONDS, finalFileId, finalGraph, finalQuote, type FinalChoice, type FinalRatio } from "@/lib/montage/finaliser";
 import { priseGate, resolveTakeQuote, type TakeQuote } from "@/lib/render/billed-quote";
 import { audioOutput, imageOutput, videoOutput, meshOutput, jobStage, createRenderClient, RenderError, type JobStage, type RenderClient } from "@/lib/render/client";
+import { grapheFinition } from "@/lib/look/finish-graph";
 import { noeudSortie } from "@/lib/render/sortie";
 import { isVideoGeste, VIDEO_GESTE_TEXT, videoGesteGraph } from "@/lib/render/video-gestes";
 import { importModel, modelExtension } from "@/lib/maquette/files";
@@ -57,7 +58,11 @@ import { readInFlight, readRenderLink, sameRenderLink, saveInFlight, saveRenderL
 import { DEFAULT_TAKE, comfyStorageUrl, takeProfile, takeWorkflow, type TakeSettings } from "@/lib/render/take-graph";
 import { DEFAULT_PREFS, prefsSession, readPrefs, savePrefs, type StudioPrefs } from "@/lib/studio-prefs";
 import { takePrompt } from "@/lib/render/take-prompt";
+import { rolesLtx } from "@/lib/render/take-roles";
 import { castReferences } from "@/lib/render/cast-references";
+import { refusTournageStoryboard } from "@/lib/storyboard/film";
+import { reglerPrise } from "@/lib/storyboard/reglement";
+import { lireRegistre, registreJson, REGISTRE_FILE } from "@/lib/film/registre";
 import { accountFingerprint, bindPendingJob, clearPending, clearTerminalPending, pendingRefusal, pendingState, readPending, reconcilePendingReceipt, recoverableClient, projectVault, type PendingRender } from "@/lib/render/recovery";
 import { failView, type FailKind } from "@/lib/render/fail";
 import { imageVide } from "@/lib/render/blank";
@@ -98,6 +103,11 @@ import { randomSeed } from "@/lib/seed";
 import { connectMessage } from "@/lib/render/connect";
 import { accountScope, discoverLocal, readCatalog, registerRender, updateCatalog, parseCatalog, type MediaAsset, type MediaCatalog } from "@/lib/media/catalog";
 import { createMediaClient } from "@/lib/media/cloud";
+import { saveBoard as saveBoardJournaled, type SavedBoard } from "@/lib/cinema/board-writer";
+import { CAMPAIGN } from "@/lib/cinema/campaign";
+import { browserProjectLock, projectFiles } from "@/lib/cinema/journal";
+import type { CinemaController, ControllerPorts } from "@/lib/cinema/controller";
+import type { Storyboard } from "@/lib/storyboard/storyboard";
 import { syncPage, verifyMedia, cacheMedia, classify } from "@/lib/media/sync";
 
 export interface DecorInput {
@@ -114,6 +124,21 @@ export interface DecorInput {
   credits?: string[];
   /** Called once the décor is filed in DÉCOR. */
   onFiled?(filed: { id: string; name: string; cost: number | null; quote: number; image: Blob }): void;
+}
+
+/** The controller with every method answered asynchronously (its module is fetched on first use). */
+export type LazyCinema = { [K in keyof CinemaController]: CinemaController[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<Awaited<R>> : never };
+
+const CINEMA_METHODS = ["prepareIntent", "submitIntent", "resumeIntent", "collectIntent", "bindIntent", "declareIntentAbsent", "abandonIntent", "resolveConflictedIntent", "applyLocal", "undo", "approveKeyframe", "prepareShot", "submitShot", "resumeResults"] as const satisfies readonly (keyof CinemaController)[];
+
+// A controller method missing from the list fails to compile here.
+const cinemaMethodsComplete: [Exclude<keyof CinemaController, (typeof CINEMA_METHODS)[number]>] extends [never] ? true : false = true;
+void cinemaMethodsComplete;
+
+function lazyCinema(ports: ControllerPorts): LazyCinema {
+  let made: Promise<CinemaController> | null = null;
+  const get = () => (made ??= import("@/lib/cinema/controller").then(module => module.createCinemaController(ports)));
+  return Object.fromEntries(CINEMA_METHODS.map(name => [name, (...args: unknown[]) => get().then(controller => (controller[name] as (...a: unknown[]) => unknown)(...args))])) as LazyCinema;
 }
 
 export interface StudioSession {
@@ -225,6 +250,18 @@ export interface StudioSession {
   saveExport(film: Blob, name: string): Promise<string>;
   readProjectFile(file: string): Promise<string | undefined>;
   writeProjectFile(file: string, text: string): Promise<void>;
+  /** CE5: a storyboard save through the common revision path (three-way, journaled, under the project lock). */
+  saveBoard(base: Storyboard | null, mine: Storyboard): Promise<SavedBoard>;
+  /** CE5: the cinema service of this session (no React inside), loaded on its first call so it stays
+   *  out of the first paint (LCP, method #221). */
+  cinema: LazyCinema;
+  /** CE5: moves when a resume or the agent wrote project files, so open boards re-read them. */
+  cinemaTick: number;
+  /** CE5: the board files changed under the page (agent answer applied): open boards re-read them. */
+  cinemaChanged(): void;
+  /** CE5: the native agent (candidate intent workflow) is offered. Only on a non-production build opened
+   *  with ?cinema=qualification (JD's test preview); hidden everywhere else. */
+  cinemaAgent: boolean;
   saveShot(shot: Shot): Promise<void>;
   /** Removes one plan note (Shots/<id>.md). Its takes stay in the vault, so « Annuler » loses nothing. */
   deleteShot(id: string): Promise<void>;
@@ -264,6 +301,11 @@ export interface PlanShoot {
   /** Missing characters, made first inside the same quote: from the sentence, a description or 1–3 photos. */
   nouveaux: { nom: string; description?: string; files?: File[] }[];
   nouveauLieu: { nom: string; description?: string; file?: File | null } | null;
+  /**
+   * `"storyboard"` refuses a missing card (`REF_MISSING`, no POST). Absent or `"film"` still creates
+   * the character and the place inside the confirmed run.
+   */
+  origine?: "storyboard" | "film";
   settings: TakeSettings;
   /** The sentence sent for the take (the visitor's words plus camera and words said); defaults to phrase. */
   ligne?: string;
@@ -288,6 +330,8 @@ export interface TakeRequest {
   extraRefs?: string[];
   /** Separate from characters and set: this image is a composition reference. */
   framingRef?: string;
+  /** LTX, two or more characters: CE1 slot lines (`<ref_image_i>`). H3 ignores this. */
+  roles?: string;
 }
 
 /** One PRISE video gesture (raccord, caméra, élargir, effacer). Same gate as a take: confirmed quote, balance over the ceiling. */
@@ -356,6 +400,8 @@ export interface OutilRun {
   /** The visitor may use the voice they upload. */
   consent?: boolean;
   from?: string;
+  /** Kept anime take: Real-ESRGAN anime replaces the SeedVR2 graph. Still an enhance, never a redraw. */
+  animeFinish?: boolean;
   onStage(stage: FinaliseStage, seconds?: number): void;
   /** Real cost after the result is already shown (deferred balance read). */
   /** `gpu`: the job's compute-time figure, when the balance cannot show its cost. */
@@ -456,6 +502,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
   const abort = useRef<AbortController | null>(null);
   const paidBusy = useRef(false);
   const following = useRef<string | null>(null);
+  const toMontage = useRef<(input: MontageInput) => Promise<void>>(async () => {});
   const saves = useRef<Promise<unknown>>(Promise.resolve());
   const mediaVersions = useRef<Record<string, number>>({});
   const retiredUrls = useRef<string[]>([]);
@@ -739,6 +786,22 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       take.announcedHigh = learned.announced?.high ?? null;
       const takes = [take, ...current.takes.filter(item => item.id !== id)];
       await settleLandedTake(vault, take, current.sequences, current.shots, takes, current.loras, flight.planId);
+      if (flight.planId) {
+        const envoi = flight.envoi?.planId === flight.planId
+          ? flight.envoi
+          : { planId: flight.planId, phrase: flight.line, castIds: [] as string[], decorId: flight.sceneId };
+        const before = lireRegistre((await vault.get(projectPath(slug, REGISTRE_FILE)))?.text ?? null);
+        // The cut keeps the first take of a plan. Later takes stay in the register only.
+        const firstOnPlan = !before.plans.some(plan => plan.id === flight.planId && plan.prises.length > 0);
+        const filed = reglerPrise(before, { ...envoi, seconds: flight.settings.seconds }, { id, fichier: video });
+        await writeText(vault, projectPath(slug, REGISTRE_FILE), registreJson(filed));
+        if (firstOnPlan) {
+          await toMontage.current({
+            takeId: id, planId: flight.planId, label: (envoi.phrase || flight.line).slice(0, 80), seconds: flight.settings.seconds,
+            aspect: flight.settings.aspect === "vertical" ? "vertical" : "horizontal", still: poster ?? "", video, prompt: flight.prompt, sceneName: flight.sceneName, composeur: "",
+          });
+        }
+      }
       await completePending(renderClient, flight.jobId);
       saveInFlight(localStorage, null);
       if (result.balanceAfter !== null) setBalance({ credits: result.balanceAfter, readAt: Date.now() });
@@ -1369,12 +1432,14 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     if (!outil || !row || !outil.moteur || outil.bientot) return { ok: false, message: t(outil?.bientot ? `outils.why.${outil.bientot}` : "gestes.unwired") };
     if (creation && input.outil !== bubbleTool(creation.mode, input.images.length, Boolean(input.audio))) return { ok: false, message: t("bubble.invalid") };
     if (!gesteVisible(row, creation ? prefs : outilsFiltre)) return { ok: false, message: t("safety.modelBlocked") };
-    if (outil.moteur.kind === "suite" && !creation) {
+    if (outil.moteur.kind === "suite" && !creation && !input.animeFinish) {
       const source = outil.entrees.includes("video") && row.id !== "suite-prolonger" ? input.video : input.images[0];
       if (!source) return { ok: false, message: t("videoGeste.needFiles") };
       return runSuite({ geste: row.id, source, audio: input.audio, prompt: input.prompt, confirmed: input.confirmed, aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, from: input.from, onStage: input.onStage, onCost: input.onCost });
     }
-    const quote = creation ? bubbleQuote(creation.mode, input.images.length, creation.settings, Boolean(input.audio), engine) : outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh, resolution: input.resolution, doublage: input.doublage, source: input.source });
+    const quoted = creation ? bubbleQuote(creation.mode, input.images.length, creation.settings, Boolean(input.audio), engine) : outilQuote(outil, { seconds: input.seconds, fluidifier: input.fluidifier, mesh: input.mesh, resolution: input.resolution, doublage: input.doublage, source: input.source });
+    const animeRow = input.animeFinish ? gesteParId("anime-finish") : null;
+    const quote = animeRow && animeRow.credits !== null && animeRow.high !== null ? { credits: animeRow.credits, high: animeRow.high, kind: "estime" as const } : quoted;
     if (!quote || !spendAllowed(quote.credits, input.confirmed)) return { ok: false, message: t("finaliser.noQuote") };
     if (outil.texte === "requis" && !input.prompt.trim()) return { ok: false, message: t("videoGeste.needText") };
     if (outil.entrees.includes("image") && !input.images[0]?.type.startsWith("image/")) return { ok: false, message: t("videoGeste.needFiles") };
@@ -1413,7 +1478,10 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       for (const [index, file] of input.images.entries()) images.push(await send(file, `image-${index + 1}`));
       const video = input.video ? await send(input.video, "video") : undefined;
       const audio = input.audio ? await send(input.audio, "son") : undefined;
-      const graph = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed(), engine }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution, camera: input.camera, piste: input.piste, doublage: input.doublage });
+      const built = creation ? bubbleGraph({ mode: creation.mode, settings: creation.settings, images, audio, prompt: input.prompt, seed: randomSeed(), engine }) : outilGraph(outil, { files: { images, video, audio }, prompt: input.prompt, seed: randomSeed(), aspect: input.aspect, elargir: input.elargir, fluidifier: input.fluidifier, seconds: input.seconds, mesh: input.mesh, resolution: input.resolution, camera: input.camera, piste: input.piste, doublage: input.doublage });
+      const animeGraph = input.animeFinish && video ? grapheFinition({ video, prefix: "video/uttu-anime-finish" }) : null;
+      if (animeGraph && Object.values(animeGraph).some(node => /KSampler|SamplerCustom|EmptyLatent|WanImageToVideo/.test(node.class_type))) return { ok: false, message: t("finaliser.noQuote") };
+      const graph = animeGraph ?? built;
       const sortie = outil.sortie;
       const kind: PendingRender["kind"] = sortie === "audio" ? "son" : sortie;
       // The final save node by id (registry), never « the first video »: Comfy lists the source clip too.
@@ -1693,10 +1761,13 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       const at = new Date().toISOString();
       // P1-4: the take keeps every reference sent, framing maps included (P0-2).
       const sentRefs = [...paths, ...(pendingTake?.framing ? [pendingTake.framing.color, pendingTake.framing.depth, pendingTake.framing.edges] : [])];
-      const flightData: Omit<InFlight, "jobId"> = { at, project: slug, planId: pendingTake?.planId, refs: sentRefs, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits };
+      const flightData: Omit<InFlight, "jobId"> = {
+        at, project: slug, planId: pendingTake?.planId, refs: sentRefs, sceneId: place?.id ?? null, sceneName: place?.name ?? "", line: pendingTake?.line ?? line, prompt, settings, balanceBefore: fresh.credits,
+        ...(pendingTake?.planId ? { envoi: { planId: pendingTake.planId, phrase: pendingTake.line, castIds: pendingTake.castIds, decorId: pendingTake.decorId } } : {}),
+      };
       const receipt: PendingRender = { version: 1, kind: "take", project: slug, id: takeId(new Date(at), place?.name || "prise"), name: flightData.line, prompt, at, account: await fingerprint(), refs: sentRefs, template: takeProfile(settings), quote: freshQuote.source === "balance" ? freshQuote.credits : freshQuote.source === "billed" ? freshQuote.measure.credits : freshQuote.source === "estimated" ? freshQuote.estimate.credits : 0, balanceBefore: fresh.credits, jobId: null, flight: flightData };
       const jobId = await submitTake(recoverableClient(client, localStorage, receipt), {
-        pictures, controls, prompt, settings, seed: randomSeed(), clientId: crypto.randomUUID(),
+        pictures, controls, prompt, settings, seed: randomSeed(), clientId: crypto.randomUUID(), ...(pendingTake?.roles ? { roles: pendingTake.roles } : {}),
       }, event => setRun({ phase: "running", event }), abort.current.signal);
       const flight: InFlight = { ...flightData, jobId };
       saveInFlight(localStorage, flight);
@@ -1710,6 +1781,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
 
   const tournerPlan = useCallback(async (input: PlanShoot): Promise<boolean> => {
     if (run.phase === "running") return false;
+    if (refusTournageStoryboard(input) === "REF_MISSING") { input.onEchec?.("REF_MISSING"); return false; }
     if (!client || !connected) { setSheet("connect"); return false; }
     const castIds = [...input.castIds];
     let step = 0;
@@ -1748,16 +1820,24 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     const refs = castReferences(who);
     const photos = refs.photos;
     const paths = referencePaths(photos, place, Infinity);
+    const placePictures = Math.max(0, paths.length - photos.length);
     const prompt = takePrompt({
       traits: [],
       lookPictures: Math.min(photos.length, paths.length),
       subject: who.length === 1 ? who[0].name : undefined,
       cast: who.length > 1 ? refs.groups : undefined,
-      place: place ? { name: place.name, note: place.prompt || place.note, pictures: Math.max(0, paths.length - photos.length) } : null,
+      place: place ? { name: place.name, note: place.prompt || place.note, pictures: placePictures } : null,
       line: input.ligne ?? input.phrase,
       tags: input.settings.engine === "h3" ? "picture" : "image",
     });
-    await confirmRun({ planId: input.planId, castIds, decorId, line: input.ligne ?? input.phrase, prompt, settings: input.settings });
+    // H3 already names each character in `prompt`. LTX's first frame does not, unless it receives roles.
+    const roles = input.settings.engine === "ltx" && who.length >= 2
+      ? rolesLtx(
+        refs.groups.map((group, index) => ({ id: who[index]!.id, name: group.name, description: group.description, pictures: group.pictures })),
+        place && placePictures > 0 ? { id: place.id, name: place.name, pictures: placePictures } : null,
+      )
+      : undefined;
+    await confirmRun({ planId: input.planId, castIds, decorId, line: input.ligne ?? input.phrase, prompt, settings: input.settings, ...(roles ? { roles } : {}) });
     return true;
   }, [client, confirmRun, connected, createCast, createDecor, run.phase, t]);
 
@@ -1909,6 +1989,49 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       window.removeEventListener("pageshow", shown);
     };
   }, [ready, client, resumeRun, fingerprint]);
+
+  // CE5 · the cinema controller: one service, React-free, held for the session. Credentials stay in the
+  // client in memory. The campaign limit counts the account's prior spend (lib/cinema/campaign.ts, sourced);
+  // without Web Locks there is no reliable exclusion between tabs, so no paid cinema POST either.
+  const projectLock = useMemo(() => browserProjectLock(typeof navigator === "undefined" ? null : navigator.locks ?? null).lock, []);
+  const [cinemaTick, setCinemaTick] = useState(0);
+  const cinemaChanged = useCallback(() => setCinemaTick(n => n + 1), []);
+  // Read after mount (no hydration gap); kept for the tab so in-app navigation does not drop it.
+  const [cinemaAgent, setCinemaAgent] = useState(false);
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_VERCEL_ENV === "production") return;
+    try {
+      if (new URLSearchParams(window.location.search).get("cinema") === "qualification") sessionStorage.setItem("u-ttu-cinema", "qualification");
+      setCinemaAgent(sessionStorage.getItem("u-ttu-cinema") === "qualification");
+    } catch { /* no storage: stays hidden */ }
+  }, []);
+  const cinema = useMemo(() => {
+    const locks = typeof navigator === "undefined" ? null : navigator.locks ?? null;
+    return lazyCinema({
+      storage: typeof window === "undefined" ? { getItem: () => null, setItem: () => undefined, removeItem: () => undefined } : window.localStorage,
+      // Lazy: the vault opens on first use in the browser, never during the server render.
+      vault: { list: () => store().list(), get: path => store().get(path), put: entry => store().put(entry), remove: path => store().remove(path) },
+      lock: projectLock, paidLocks: locks, sessionId: typeof crypto === "undefined" ? "ssr" : crypto.randomUUID(),
+      client: () => activeClient.current, now: () => new Date(), uuid: () => crypto.randomUUID(), seed: () => randomSeed(),
+      trancheCapCredits: 10, campaign: { capCredits: CAMPAIGN.capCredits, priorCredits: CAMPAIGN.priorCredits }, balance: async () => null,
+      projectAvailable: async slug => Boolean(studioRef.current?.projects.some(project => project.slug === slug)),
+      // The candidate intent workflow runs only under qualification (CE5 §1); the demo refuses it.
+      purpose: cinemaAgent ? "qualification" : "demo",
+    });
+  }, [store, projectLock, cinemaAgent]);
+
+  // CE5 · resume on open, without mounting any storyboard: incomplete journals of every project first,
+  // then the cinema receipts (GET only). Unavailable project or account = the receipt stays.
+  useEffect(() => {
+    if (!ready || !studio) return;
+    let alive = true;
+    void cinema.resumeResults({ projectIds: studio.projects.map(project => project.slug) }).then(answer => {
+      if (alive && (answer.data?.journals || answer.code === "RESULT_SETTLED")) setCinemaTick(n => n + 1);
+      const key = `storyboard.cinema.errors.${answer.code}`;
+      if (alive && !answer.ok && t.has(key)) setNotice(t(key));
+    }).catch(() => undefined);
+    return () => { alive = false; };
+  }, [ready, studio?.projects, cinema]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const connectKey = useCallback(async (raw: string) => {
     const key = cleanApiKey(raw);
@@ -2270,6 +2393,15 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     await next;
   }, [current.project, store]);
 
+  const saveBoard = useCallback(async (base: Storyboard | null, mine: Storyboard) => {
+    const slug = current.project ?? await ensureActiveProject(store());
+    const next = saves.current.catch(() => {}).then(() => saveBoardJournaled(projectFiles(store(), slug), projectLock, {
+      projectId: slug, operationId: `sb-${crypto.randomUUID()}`, base, mine, now: () => new Date().toISOString(),
+    }));
+    saves.current = next;
+    return next;
+  }, [current.project, store, projectLock]);
+
   const saveShot = useCallback(async (shot: Shot) => {
     await writeShot(store(), shot, current.takes, "");
   }, [current.takes, store]);
@@ -2422,6 +2554,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     }
     await reload();
   }, [demoOn, prepareMontageClip, reload, store]);
+  toMontage.current = sendToMontage;
 
   const sendSequence = useCallback(async (inputs: MontageInput[]) => {
     await saves.current;
@@ -2466,7 +2599,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
     linkFolder, allowLinkedFolder, selectProject, createProject, outgoing,
-    saveModel, savePrevis, saveFraming, saveExport, readProjectFile, writeProjectFile, saveShot, deleteShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
+    saveModel, savePrevis, saveFraming, saveExport, readProjectFile, writeProjectFile, saveBoard, cinema, cinemaTick, cinemaChanged, cinemaAgent, saveShot, deleteShot, saveLieu, saveLieuPhoto, saveLieuCapture, sendToMontage, sendSequence,
     tournerPlan: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.prise" }, () => paid(() => tournerPlan(input), false), ok => ({ ok })),
   };
 

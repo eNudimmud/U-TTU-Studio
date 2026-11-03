@@ -8,8 +8,10 @@ export type ActionId = "lecture" | "annuler" | "retablir" | "couper" | "enleverA
 
 export interface ActionMontage {
   id: ActionId;
-  /** Shown next to the name on desktop, and given to aria-keyshortcuts. */
+  /** English label shown next to the name on desktop. Keys with a localised name (Space, Delete, Shift)
+   *  also carry `toucheCle`, the message key under film2.montage.touches, so FR/DE/ES read their own keyboard. */
   touche: string;
+  toucheCle?: string;
   aria: string;
   match(key: { key: string; ctrl: boolean; shift: boolean }): boolean;
   /** In the tool bar (lecture lives on the player). */
@@ -17,14 +19,14 @@ export interface ActionMontage {
 }
 
 export const ACTIONS: readonly ActionMontage[] = [
-  { id: "lecture", touche: "Espace", aria: "Space", barre: false, match: key => key.key === " " && !key.ctrl },
-  { id: "annuler", touche: "Ctrl+Z", aria: "Control+Z", barre: true, match: key => key.ctrl && !key.shift && key.key.toLowerCase() === "z" },
-  { id: "retablir", touche: "Ctrl+Maj+Z", aria: "Control+Shift+Z", barre: true, match: key => key.ctrl && ((key.shift && key.key.toLowerCase() === "z") || key.key.toLowerCase() === "y") },
+  { id: "lecture", touche: "Space", toucheCle: "film2.montage.touches.lecture", aria: "Space", barre: false, match: key => key.key === " " && !key.ctrl },
+  { id: "annuler", touche: "Ctrl+Z", toucheCle: "film2.montage.touches.annuler", aria: "Control+Z", barre: true, match: key => key.ctrl && !key.shift && key.key.toLowerCase() === "z" },
+  { id: "retablir", touche: "Ctrl+Shift+Z", toucheCle: "film2.montage.touches.retablir", aria: "Control+Shift+Z", barre: true, match: key => key.ctrl && ((key.shift && key.key.toLowerCase() === "z") || key.key.toLowerCase() === "y") },
   { id: "couper", touche: "S", aria: "S", barre: true, match: key => !key.ctrl && key.key.toLowerCase() === "s" },
   { id: "enleverAvant", touche: "Q", aria: "Q", barre: true, match: key => !key.ctrl && key.key.toLowerCase() === "q" },
   { id: "enleverApres", touche: "W", aria: "W", barre: true, match: key => !key.ctrl && key.key.toLowerCase() === "w" },
   { id: "dupliquer", touche: "D", aria: "D", barre: true, match: key => !key.ctrl && key.key.toLowerCase() === "d" },
-  { id: "supprimer", touche: "Suppr", aria: "Delete", barre: true, match: key => key.key === "Delete" || key.key === "Backspace" },
+  { id: "supprimer", touche: "Del", toucheCle: "film2.montage.touches.supprimer", aria: "Delete", barre: true, match: key => key.key === "Delete" || key.key === "Backspace" },
 ];
 
 export function actionPourTouche(key: { key: string; ctrl: boolean; shift: boolean }): ActionId | null {

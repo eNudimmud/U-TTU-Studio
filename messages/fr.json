@@ -14,17 +14,18 @@
     "scene": "DÉCOR",
     "take": "PRISE",
     "edit": "MONTAGE",
-    "chain": "CAST, DÉCOR, PRISE, MONTAGE",
+    "chain": "CAST, DÉCOR, PRISE, MONTAGE, FINALISER",
     "sphere": "Sphère",
     "sheets": "Fiches",
-    "studio": "Mes créations",
+    "studio": "Mon studio",
     "connect": "Relier",
     "credits": "crédits",
     "opening": "Ouverture de mon studio…",
     "takeRunning": "prise en cours",
     "sceneRunning": "scène en cours",
     "renderCredits": "Crédits du compte de rendu",
-    "rail": "Outils du studio"
+    "rail": "Outils du studio",
+    "finish": "FINALISER"
   },
   "project": {
     "lead": "Le nom est déjà écrit : {name}. Un geste crée le projet. Tu peux le changer."
@@ -37,7 +38,8 @@
     "kicker": "Studio de cinéma IA open source sur ComfyUI",
     "contact": "Contacter le studio ↗",
     "tryFree": "Découvrir avec Uttu",
-    "code": "Code source sur GitHub ↗"
+    "code": "Code source sur GitHub ↗",
+    "readGuide": "Lire le guide"
   },
   "accueil": {
     "kicker": "Open source · MIT · sur ComfyUI",
@@ -58,7 +60,7 @@
     "showLead": "Un personnage qui garde son visage d’un plan à l’autre, un décor tiré d’un texte ou d’une photo, un vrai lieu repéré sur la carte. Le tout avec les modèles de ComfyUI.",
     "g1Tag": "CAST",
     "g1": "Un personnage, le même d’un plan à l’autre.",
-    "g1Alt": "Gros plan d’Uttu, capuche et veines dorées",
+    "g1Alt": "Uttu, déesse arachnéenne de la création, encapuchonnée, sur un quai la nuit",
     "g2Tag": "DÉCOR · PRISE",
     "g2": "Un décor, une lumière, un mouvement.",
     "g2Alt": "Un coursier en veste jaune dans une gare abandonnée, rayons de lumière",
@@ -82,7 +84,7 @@
       },
       "montage": {
         "name": "MONTAGE",
-        "body": "Plans, voix, musique, export MP4 sans crédit."
+        "body": "Plans, voix, musique, l’export MP4 tourne dans ton navigateur — aucun rendu."
       },
       "finaliser": {
         "name": "FINALISER",
@@ -138,7 +140,7 @@
       },
       "video": {
         "name": "Vidéo fidèle",
-        "body": "Fidèle aux références avec MiniMax H3 (≈ 4 crédits estimés), FastH3 en second modèle pour mieux garder le lieu (≈ 8). Images clés fidèles (≈ 14), transition de style (≈ 7)."
+        "body": "Fidèle aux références avec MiniMax H3 (≈ 4 crédits estimés), FastH3 en second modèle pour mieux garder le lieu (≈ 8). Keyframes fidèles (≈ 14), transition de style (≈ 7)."
       },
       "son": {
         "name": "Le son de ta vidéo",
@@ -180,7 +182,8 @@
       "2": "Rien ne part sans ta confirmation"
     },
     "foot": "U*TTU Studio · open source (MIT)",
-    "attrib": "Carte : © contributeurs OpenStreetMap · OpenFreeMap · Terrain Tiles · © swisstopo"
+    "attrib": "Carte : © contributeurs OpenStreetMap · OpenFreeMap · Terrain Tiles · © swisstopo",
+    "partnerBadge": "Partenaire · API payante"
   },
   "guide": {
     "look-photos": "Deux photos, trois au plus. Face, puis trois-quarts. Je tisse le reste.",
@@ -1150,7 +1153,8 @@
       "priseVidu": "Bientôt : prix pas encore vérifié.",
       "montLips": "Bientôt : prix pas encore vérifié.",
       "montUpscale": "Dans « Et ensuite ? » : ouvre une image ou une prise.",
-      "montFrames": "Dans « Et ensuite ? » : ouvre une image ou une prise."
+      "montFrames": "Dans « Et ensuite ? » : ouvre une image ou une prise.",
+      "animeLook": "Activé par le look du projet. Le devis s'affiche avant."
     },
     "cat": {
       "identite": "Identité",
@@ -2225,7 +2229,7 @@
         "line": "Garde personnages et lieu d’une image à l’autre."
       },
       "vid-multi": {
-        "title": "Images clés fidèles",
+        "title": "Keyframes fidèles",
         "line": "Garde le personnage de ta première image et finit sur la deuxième, avec le son."
       },
       "vid-transition-style": {
@@ -2550,7 +2554,7 @@
     "create": "Créer",
     "make": "Réaliser",
     "edit": "Montage",
-    "creations": "Mes créations",
+    "creations": "Mon studio",
     "menu": "Menu",
     "close": "Fermer le menu",
     "search": "Rechercher",
@@ -2583,7 +2587,7 @@
       }
     },
     "film": "Film",
-    "creationsShort": "Créations"
+    "creationsShort": "Studio"
   },
   "projects": {
     "label": "Projet",
@@ -2635,7 +2639,7 @@
   },
   "creations": {
     "all": "Tout voir",
-    "title": "Mes créations",
+    "title": "Mon studio",
     "type": {
       "tout": "Tout",
       "images": "Images",
@@ -3004,12 +3008,12 @@
       "tabs": {
         "q": "Comment est organisé le studio ?",
         "k": "onglets étapes organisation sections cast décor prise montage",
-        "a": "Le studio suit quatre étapes : CAST (tes personnages), DÉCOR (tes lieux), PRISE (tes plans vidéo) et MONTAGE (tu assembles et exportes). « Outils » regroupe tous les outils Comfy par famille."
+        "a": "Le studio suit cinq étapes : CAST (tes personnages), DÉCOR (tes lieux), PRISE (tes plans), MONTAGE (tu assembles) et FINALISER (plus net et plus grand, rien n’est régénéré). Les outils rassemblent chaque outil Comfy par famille."
       },
       "bubble": {
         "q": "Image ou vidéo : comment créer ?",
         "k": "créer bulle image vidéo photo clip choisir différence générer tourne",
-        "a": "Dans « Qu’est-ce qu’on tourne ? », choisis Image ou Vidéo avant d’écrire. Image : Nano Banana 2.1 (références) ou Flux Klein. Vidéo passe par MiniMax H3 quand tu joins des références, sinon par LTX. Le devis « ≈ X crédits estimés » s’affiche avant tout envoi. Jusqu’à 7 références visuelles et, en Vidéo, un son."
+        "a": "Dans « Qu’est-ce qu’on tourne ? », choisis Image ou Vidéo avant d’écrire. La vidéo avec références tourne sur MiniMax H3, sinon sur LTX. Le devis « ≈ X crédits estimés » s’affiche sous la bulle avant tout envoi."
       },
       "refs": {
         "q": "Comment utiliser des références ?",
@@ -3034,7 +3038,7 @@
       "which": {
         "q": "Quel outil choisir ?",
         "k": "quel outil outils choisir besoin bibliothèque famille conseil lequel recommander angle angles caméra multi-caméra lumière bruitage séparer transition clés",
-        "a": "Une image : Image rapide. Garder un personnage ou un lieu : CAST, DÉCOR, références. D’autres points de vue : Huit angles du personnage, Huit angles du décor, Déplacer la caméra. Une vidéo : la bulle en Vidéo, ou PRISE ; avec références : Vidéo fidèle aux références ; deux images clés : Images clés fidèles ; un style qui change : Transition de style. Multi-caméra : Huit angles du personnage, puis « Plan, second moteur » sur l’angle choisi : ≈ 14 crédits, puis ≈ 4 par angle de plus. Retoucher : Modifier, Élargir, Détourer, Agrandir et rendre net, Changer la lumière (« Lumière par consigne », ou « Portrait studio » en second modèle). Son : Voix, Musique, Bruitage, Bruitage d’une vidéo, Séparer voix et musique."
+        "a": "Une image : Image rapide. Garder un personnage ou un lieu : CAST, DÉCOR, références. D’autres points de vue : Huit angles du personnage, Huit angles du décor, Déplacer la caméra. Une vidéo : la bulle en Vidéo, ou PRISE ; avec références : Vidéo fidèle aux références ; deux images clés : Keyframes fidèles ; un style qui change : Transition de style. Multi-caméra : Huit angles du personnage, puis « Plan, second moteur » sur l’angle choisi : ≈ 14 crédits, puis ≈ 4 par angle de plus. Retoucher : Modifier, Élargir, Détourer, Agrandir et rendre net, Changer la lumière (« Lumière par consigne », ou « Portrait studio » en second modèle). Son : Voix, Musique, Bruitage, Bruitage d’une vidéo, Séparer voix et musique."
       },
       "projects": {
         "q": "Où sont mes projets ?",
@@ -3126,7 +3130,8 @@
         "refused": "Le modèle a refusé de répondre à ce message. Reformule-le.",
         "network": "Comfy ne répond pas. Vérifie ta connexion et réessaie ; le simulateur de coûts fonctionne hors ligne.",
         "timeout": "Comfy a mis trop de temps à répondre. Réessaie dans un instant.",
-        "failed": "L’agent Comfy n’a pas pu répondre. Réessaie dans un instant."
+        "failed": "L’agent Comfy n’a pas pu répondre. Réessaie dans un instant.",
+        "ineligible": "Ce modèle de conversation n’est pas disponible en mode poids ouverts. Rien n’a été envoyé, aucun crédit utilisé."
       },
       "welcome": "Je suis Uttu, l’agent du studio. Dis-moi ce que tu veux tourner : je te réponds, je te propose l’outil ou le plan, et tu vois le devis avant tout rendu. Chaque message est payé par ton compte Comfy."
     },
@@ -3167,7 +3172,9 @@
       "son": "Son",
       "sonLine": "Voix, musique, bruitages",
       "storyboard": "Faire un storyboard",
-      "storyboardLine": "Uttu fait de cette idée des séquences et des plans, chacun avec son devis. Écrire ne rend rien."
+      "storyboardLine": "Uttu en fait un storyboard que tu peux regarder. Rien n'est filmé tant que tu n'as pas approuvé.",
+      "storyboardSoon": "Bientôt",
+      "storyboardSoonLine": "StoryWeave arrive. Tes storyboards restent où ils sont."
     },
     "settings": "Réglages",
     "rendu": {
@@ -3676,6 +3683,12 @@
         "calcul": "L’image devient plus nette…",
         "retour": "Récupération du film…",
         "mesure": "Lecture du coût réel…"
+      },
+      "touches": {
+        "lecture": "Espace",
+        "annuler": "Ctrl+Z",
+        "retablir": "Ctrl+Maj+Z",
+        "supprimer": "Suppr"
       }
     },
     "nav": {
@@ -3711,7 +3724,7 @@
       },
       "persoTexte": {
         "titre": "Un personnage depuis une phrase",
-        "texte": "Un vieil homme, personnage fictif."
+        "texte": "Vieux pêcheur breton, la soixantaine passée, casquette plate en laine marine, caban marine huilé sur un pull irlandais crème, barbe blanche de trois jours, bottes de cuir usées. Character turnaround : face, trois-quarts, profil, dos. Lumière de studio douce, fond gris moyen."
       }
     }
   },
@@ -3738,24 +3751,52 @@
     },
     "cast-coursiere": {
       "title": "La coursière",
-      "prompt": "Une coursière, planche de vues, personnage fictif."
+      "prompt": "Jeune coursière, carré bouclé brun, veste de pluie jaune moutarde, besace en toile olive, pantalon cargo noir, baskets noires. Character turnaround : face, trois-quarts, profil, dos. Lumière studio douce, fond gris neutre."
     },
     "cast-vieil-homme": {
       "title": "Le vieil homme",
-      "prompt": "Un vieil homme, planche de vues, personnage fictif."
+      "prompt": "Vieil homme, environ 75 ans, casquette plate en tweed gris, barbe blanche courte, manteau de laine anthracite, écharpe tricotée noire, bottines en cuir brun usées. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre."
     },
     "cast-dj": {
       "title": "DJ",
-      "prompt": "Un DJ, planche de vues, personnage fictif."
+      "prompt": "DJ, cheveux ras décolorés, créoles dorées, chaînes dorées superposées, bomber noir, casque autour du cou, rangers noires. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre."
     }
   },
   "demoPrompts": {
-    "demo-coursiere": "Une coursière, planche de vues, personnage fictif.",
-    "demo-vieil-homme": "Un vieil homme, planche de vues, personnage fictif.",
-    "demo-dj": "Un DJ, planche de vues, personnage fictif.",
+    "demo-coursiere": "Jeune coursière, carré bouclé brun, veste de pluie jaune moutarde, besace en toile olive, pantalon cargo noir, baskets noires. Character turnaround : face, trois-quarts, profil, dos. Lumière studio douce, fond gris neutre.",
+    "demo-vieil-homme": "Vieil homme, environ 75 ans, casquette plate en tweed gris, barbe blanche courte, manteau de laine anthracite, écharpe tricotée noire, bottines en cuir brun usées. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre.",
+    "demo-dj": "DJ, cheveux ras décolorés, créoles dorées, chaînes dorées superposées, bomber noir, casque autour du cou, rangers noires. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre.",
     "demo-quai": "Un quai la nuit, eau noire, lumières lointaines, sans personne.",
     "demo-gare": "Un hall de gare, vide, lumière froide, sans personne.",
     "demo-pluie": "Une rue sous la pluie, lumières floues, sans personne.",
     "demo-toit": "Des toits de zinc à l’aube, brume dorée, sans personne."
+  },
+  "chrome": {
+    "studio": "Studio",
+    "mine": "Mon studio",
+    "guide": "Guide",
+    "uttu": "Uttu",
+    "soon": "Bientôt",
+    "storyweave": "StoryWeave",
+    "look": "Look",
+    "lookStandard": "Standard",
+    "lookAnime": "Anime 2.5D",
+    "openGuide": "Ouvrir le guide",
+    "nextFinish": "Ensuite : Finaliser — rendre les prises gardées plus nettes",
+    "finishLead": "Plus net et plus grand. Rien n’est régénéré.",
+    "finishEmpty": "Garde une prise dans Montage, puis finalise-la ici.",
+    "finishEngineSeed": "SeedVR2",
+    "finishEngineAnime": "Real-ESRGAN anime",
+    "finishThis": "Finaliser cette prise",
+    "finishConfirm": "Confirmer la finition",
+    "finishKept": "Prise gardée",
+    "finishMissing": "Le fichier gardé n’est pas encore dans ce navigateur.",
+    "finishDone": "La prise plus nette est dans Mon studio. L’originale reste.",
+    "finishQuote": "≈ {n}–{high} crédits estimés",
+    "menuAria": "Menu : Studio, Mon studio, Guide, langue, crédits",
+    "places": "Lieux",
+    "trackVoice": "Voix",
+    "trackMusic": "Musique",
+    "trackText": "Texte"
   }
 }

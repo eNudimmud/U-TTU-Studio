@@ -55,6 +55,10 @@ describe("lancement gardé dans une page Comfy", () => {
     assert.ok(text.indexOf("gateRun(input, init).then") < text.indexOf("const pending = orig.apply(this, arguments)"));
     assert.ok(text.indexOf("if (!ok) return gateRefusal();") < text.indexOf("const sent = orig.apply(self, args)"));
     assert.match(text, /launch\.disabled = !decision\.allow/);
+    // CE5 · an XHR POST to /api/prompt (or /api/prompt/) waits behind the same gate; send only after yes.
+    assert.match(text, /this\.__uttuMethod === "POST" && promptUrl\(this\.__uttuUrl\)/);
+    assert.ok(text.indexOf("gateRun(this.__uttuUrl") < text.indexOf("if (ok) return send.apply(xhr, args);"));
+    assert.match(text, /pathname\.replace\(\/\\\/\+\$\/, ""\) === "\/api\/prompt"/);
     assert.doesNotMatch(text, /window\.WebSocket\s*=/);
     const dir = mkdtempSync(join(tmpdir(), "uttu-boot-"));
     const file = join(dir, "boot.mjs");

@@ -61,42 +61,31 @@ test.describe("toutes les tailles d'écran", () => {
         const result = await overflow(page);
         expect(result.scroll, `${target.id} déborde de ${result.scroll} px (${result.wide.join(", ")})`).toBeLessThanOrEqual(0);
         if (target.id === "accueil" || target.id === "compte") continue;
-        // Rail from 768 px, bottom bar below; both keep 44 px targets.
-        const rail = page.locator("[data-rail]");
         const tabs = page.locator("[data-tabs]");
-        if (["film", "prise", "montage"].includes(target.id)) {
-          // The film keeps its whole width: its own bar CAST · DÉCOR · PRISE · MONTAGE replaces rail and tabs.
-          await expect(rail).toBeHidden();
+        const chain = page.locator("[data-film-nav-to]");
+        const portraitPhone = size.width < 768 && size.height >= size.width;
+        const shortLandscape = size.height <= 500 && size.width > size.height;
+        if (["film", "prise", "montage", "barre", "entree", "outil", "creations"].includes(target.id)) {
+          await expect(chain).toHaveCount(5);
+        }
+        const filmStage = ["film", "prise", "montage"].includes(target.id);
+        if (portraitPhone && filmStage) {
+          // The chain is the film navigation; the bottom tabs would exceed 12 actions on the plan.
           await expect(tabs).toBeHidden();
-          const film = page.locator("[data-film-nav-to]");
-          await expect(film).toHaveCount(4);
-          for (const item of await film.all()) {
-            // Short landscape MONTAGE gives the whole height to the player and the timeline.
-            if (!(await item.isVisible())) continue;
-            const box = (await item.boundingBox())!;
-            expect(box.height, `${target.id} film`).toBeGreaterThanOrEqual(44);
-            expect(box.width, `${target.id} film`).toBeGreaterThanOrEqual(44);
-            expect(box.x + box.width, `${target.id} film`).toBeLessThanOrEqual(size.width + 1);
-          }
-        } else if (size.width >= 768) {
-          await expect(rail).toBeVisible();
-          await expect(tabs).toBeHidden();
-          for (const item of await rail.locator("a, button").all()) {
-            if (!(await item.isVisible())) continue;
-            const box = await item.boundingBox();
-            expect(box!.height, `${target.id} rail`).toBeGreaterThanOrEqual(44);
-            expect(box!.width, `${target.id} rail`).toBeGreaterThanOrEqual(44);
-          }
-          const names = rail.locator(".u-rail-name").first();
-          // Film stages keep icons until 1440 px so the work surface has room.
-          if (size.width >= 1280) await expect(names).toBeVisible(); else await expect(names).toBeHidden();
-        } else {
-          await expect(rail).toBeHidden();
+        } else if (portraitPhone) {
           await expect(tabs).toBeVisible();
           for (const item of await tabs.locator("a").all()) {
             const box = await item.boundingBox();
             expect(box!.height).toBeGreaterThanOrEqual(44);
           }
+        } else if (!shortLandscape) {
+          await expect(tabs).toBeHidden();
+          // PRISE keeps the chain and the plan on the first screen (≤ 12 actions); the global links return on the other steps.
+          if (target.id === "prise") continue;
+          const studio = page.locator("[data-top-studio]");
+          await expect(studio).toBeVisible();
+          const box = await studio.boundingBox();
+          expect(box!.height).toBeGreaterThanOrEqual(44);
         }
       }
     });

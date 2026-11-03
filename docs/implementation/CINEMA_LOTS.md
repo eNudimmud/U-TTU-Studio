@@ -17,7 +17,7 @@ Les corrections #209/#211/#217/#218/#220/#221 sont fusionnées : ce sont des acq
 
 Chaque branche part du main à jour, SHA inscrit dans la PR ; une dépendance peut être empilée sur un commit publié sans fusionner main. Un seul propriétaire modifie `types.ts` (CE0), un seul intègre `studio-session.tsx` (CE5), un seul touche messages/styles (CE4). Les lots produisent des adapters et patchs de raccord à intégrer séquentiellement. Ne pas écraser les changements d'un autre exécutant.
 
-Interdictions communes : aucun merge sans accord JD, force-push, PR #112, destruction de données, secret sérialisé, Vercel/Google login, nouveau fournisseur/fal, job payant lancé par l'agent, cancel automatique ou retry POST incertain. Lire `AGENTS.md` et les docs locales de Next avant code applicatif. Pas de modification manuelle du kernel vendored ni de mise à jour de dépendances opportuniste.
+Interdictions communes : aucun merge sans accord JD, force-push, PR #112, destruction de données, secret sérialisé, Vercel/Google login, fournisseur hors Comfy, job payant lancé par l'agent, cancel automatique ou retry POST incertain. Lire `AGENTS.md` et les docs locales de Next avant code applicatif. Pas de modification manuelle du kernel vendored ni de mise à jour de dépendances opportuniste.
 
 ## CE0 — Agent natif et garde de soumission
 

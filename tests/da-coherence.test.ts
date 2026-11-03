@@ -79,6 +79,13 @@ describe("DA et logo partout", () => {
 
   it("a une page 404 et une page d'erreur à la DA, logo entier", () => {
     assert.match(read("src/app/not-found.tsx"), /StatusPage kind="introuvable"/);
+    assert.match(read("src/app/not-found.tsx"), /generateMetadata/);
+    assert.doesNotMatch(read("src/app/not-found.tsx"), /Page introuvable/);
+    const sitemap = read("src/app/sitemap.ts");
+    assert.match(sitemap, /\/look\/bible/);
+    assert.match(sitemap, /path: "\/look"/);
+    assert.doesNotMatch(sitemap, /envoi-direct\/essai/);
+    assert.match(read("src/app/envoi-direct/essai/page.tsx"), /index:\s*false/);
     assert.match(read("src/app/error.tsx"), /StatusPage kind="erreur"/);
     const page = read("src/components/status-page.tsx");
     assert.match(page, /BrandLockup/);

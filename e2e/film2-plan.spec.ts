@@ -116,7 +116,7 @@ test('carte du plan : de l’accueil au POST en ≤ 3 taps et 1 champ, puis la p
   await page.locator('[data-film-montage]').click();
   await expect(page.locator('.u-chain [aria-current="page"]')).toContainText('MONTAGE');
   // PR 9: two views; MONTAGE shows the length of the film once a shot is in it.
-  await expect(page.locator('[data-film-nav-to="montage"] small')).toHaveText(/\d+:\d\d/, { timeout: 20_000 });
+  await expect(page.locator('[data-fm-duree]')).toContainText(/\d+:\d\d/, { timeout: 20_000 });
 });
 
 for (const size of [{ width: 390, height: 844 }, { width: 844, height: 390 }, { width: 1024, height: 600 }, { width: 1280, height: 800 }]) {
@@ -131,8 +131,10 @@ for (const size of [{ width: 390, height: 844 }, { width: 844, height: 390 }, { 
     await expect(page.locator('[data-film-plans] .u-film-gold:visible')).toHaveCount(1);
     const actions = await page.locator('[data-film-plans] button:visible, [data-film-plans] textarea:visible').count();
     expect(actions).toBeLessThanOrEqual(10);
-    // Off by default: the classic PRISE without the flag.
+    // The old ?film2=0 link no longer switches FILM off: it lands on the same PRISE with exactly one plan composer.
     await page.goto('/studio?film2=0#prise');
-    await expect(page.locator('[data-film-plans]')).toHaveCount(0);
+    const legacy = page.locator('[data-film-phrase]');
+    await expect(legacy).toHaveCount(1, { timeout: 30_000 });
+    await expect(legacy).toBeVisible();
   });
 }

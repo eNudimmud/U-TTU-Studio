@@ -7,6 +7,7 @@
 import { comprendrePlan, lieuDeLaPhrase } from "../film/comprendre.ts";
 import { mentionedReferences } from "../creation/mentions.ts";
 import type { KnownName } from "../intention/resolve.ts";
+import { foldName } from "./identites.ts";
 import {
   nouvelId, refsPropres, storyboardVide, type Cadrage, type Camera, type DureeCible, type DureePlan, type Format,
   type PlanSB, type RefPlan, type Sequence, type Storyboard, planVide, REPLIQUE_MAX,
@@ -30,6 +31,8 @@ export interface ContexteEcriture {
   decor: readonly KnownName[];
   /** Place references the visitor named (Références box, category DÉCOR) that have no DÉCOR card yet. */
   lieuxNommes?: readonly string[];
+  /** CE5-L: folded names held by two identities (homonyms). Never linked, never created: clarification. */
+  ambigus?: readonly string[];
 }
 
 export interface OptionsEcriture {
@@ -118,6 +121,15 @@ export function lieuCommun(phrase: string): string | null {
 export function lieuMentionne(phrase: string, decor: readonly KnownName[]): KnownName | null {
   return mentionedReferences(phrase, decor)[0] ?? null;
 }
+/** A DÉCOR card or named place written in the sentence without « @ », whole words, any case; the longest wins. */
+export function lieuEcrit(phrase: string, lieux: readonly KnownName[]): KnownName | null {
+  const folded = phrase.toLowerCase();
+  return [...lieux].filter(item => item.name.trim().length >= 3).sort((a, b) => b.name.trim().length - a.name.trim().length).find(item => {
+    const name = item.name.trim().toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+    return new RegExp(`(?<![\\p{L}\\p{N}])${name}(?![\\p{L}\\p{N}])`, "u").test(folded);
+  }) ?? null;
+}
+const motsDuLieu = (nom: string) => nom.toLowerCase().split(/\s+/).filter(Boolean);
 const sansArobase = (text: string) => text.replace(/(^|[^\p{L}\p{N}_])@(?=[\p{L}\p{N}])/gu, "$1");
 
 /** The first place named in the sentence that is not weather or a time of day. */
@@ -146,12 +158,28 @@ function majuscule(text: string): string {
   return text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
 }
 
-/** « A DJ crosses the city in the rain… » → « A DJ crosses the city ». At most five words, no quote. */
+const PETIT_MOT = /^(?:in|on|at|to|of|under|with|by|for|from|into|over|sous|avec|par|pour|vers|entre|unter|mit|von|nach|bajo|con|por|para|sobre|the|a|an|and|dans|sur|à|au|de|du|des|la|le|les|un|une|et|im|am|auf|zu|der|die|das|und|en|a|al|del|el|los|las|y)$/iu;
+const PAROLE = "(?:dit|dit-elle|dit-il|says|said|sagt|dice|diciendo)";
+
+/**
+ * « A DJ crosses the city in the rain… » → « A DJ crosses the city ». At most five words of the action
+ * really written (CE5-L): the first sentence only, commas, « while » and « then » are not cut blindly (names
+ * in a list stay together). A line alone (« « Bonjour » dit Uttu ») gives the speaker and their words.
+ */
 export function titreDeLIdee(idee: string): string {
-  const sans = idee.replace(GUILLEMETS, " ").split(/[,.;:!?\n—–(]/)[0] ?? "";
-  const words = sans.trim().split(/\s+/).filter(Boolean).slice(0, 5);
+  const phrase = idee.replace(/\s+/g, " ").trim().split(/(?<=[.!?…])\s+(?=\p{Lu}|[«"“„])/u)[0] ?? "";
+  const quote = GUILLEMETS.exec(phrase);
+  const tidy = (text: string) => text.replace(/[«»"“”„()[\]]/g, " ").replace(/\s+/g, " ").trim().replace(/[\s.!?…;:,—–-]+$/u, "").trim();
+  const bare = tidy(phrase.replace(new RegExp(GUILLEMETS.source, "gu"), " "));
+  const speaker = new RegExp(`^${PAROLE}\\s+(.+)$|^(.+?)\\s+${PAROLE}$`, "iu").exec(bare);
+  if (quote && speaker) {
+    const qui = (speaker[1] ?? speaker[2] ?? "").trim();
+    return majuscule(`${qui} ${quote[0].trim()}`).slice(0, 60);
+  }
+  const words = tidy(sansReplique(phrase)).split(/\s+/).filter(Boolean).slice(0, 5);
+  if (words.length) words[words.length - 1] = words.at(-1)!.replace(/[,;:]+$/u, "");
   // Never end on a small word: « crosses the city in » → « crosses the city ».
-  while (words.length > 2 && /^(?:in|on|at|to|of|the|a|an|and|dans|sur|à|au|de|du|des|la|le|les|un|une|et|im|am|auf|zu|der|die|das|und|en|a|al|del|el|los|las|y)$/iu.test(words.at(-1)!)) words.pop();
+  while (words.length > 2 && PETIT_MOT.test(words.at(-1)!)) words.pop();
   return majuscule(words.join(" ")).slice(0, 60) || "Storyboard";
 }
 
@@ -172,15 +200,22 @@ export function varier(plans: PlanSB[]): PlanSB[] {
 
 export function ecrireStoryboard(ideeBrute: string, ctx: ContexteEcriture, options: OptionsEcriture): Ecrit {
   const brut = ideeBrute.replace(/\s+/g, " ").trim().slice(0, 600);
-  const mention = lieuMentionne(brut.replace(GUILLEMETS, " "), [
+  const lieux: KnownName[] = [
     ...ctx.decor,
     ...(ctx.lieuxNommes ?? []).filter(nom => !ctx.decor.some(item => item.name.trim().toLowerCase() === nom.trim().toLowerCase())).map(name => ({ id: "", name })),
-  ]);
+  ];
+  // « @Quai Nord », or a DÉCOR card / named place written as is (« in Blanche of Castille »): a place.
+  const mention = lieuMentionne(brut.replace(GUILLEMETS, " "), lieux) ?? lieuEcrit(brut.replace(GUILLEMETS, " "), lieux);
   const idee = sansArobase(brut);
   const compris = comprendrePlan(idee.replace(GUILLEMETS, " "), ctx);
+  // CE5-L: a name held by two identities is neither linked nor created again (clarification).
+  const ambigus = new Set((ctx.ambigus ?? []).map(foldName));
+  const ambigu = (nom: string) => ambigus.has(foldName(nom));
+  const ambiguite = compris.qui.some(item => item.nouveau && ambigu(item.nom));
   // A mentioned place is never read as a new character.
   const qui: RefPlan[] = compris.qui
-    .filter(item => !mention || !item.nouveau || !mention.name.toLowerCase().split(/\s+/).includes(item.nom.trim().toLowerCase()))
+    .filter(item => !item.nouveau || !ambigu(item.nom))
+    .filter(item => !item.nouveau || !motsDuLieu(mention?.name ?? compris.ou?.nom ?? lieuDeLIdee(idee) ?? "").includes(item.nom.trim().toLowerCase()))
     .map(item => ({ role: "qui", nom: item.nom, id: item.nouveau ? null : item.id }));
   // A known place (DÉCOR card) is linked; a new one is read from the sentence, never from the weather.
   // Order: an @mentioned DÉCOR card, a DÉCOR card named in the sentence, a place after a preposition,
@@ -192,7 +227,7 @@ export function ecrireStoryboard(ideeBrute: string, ctx: ContexteEcriture, optio
     : (() => {
       const phrase = idee.replace(GUILLEMETS, " ");
       const nom = lieuDeLIdee(phrase) ?? lieuCommun(phrase);
-      if (!nom) return null;
+      if (!nom || ambigu(nom)) return null;
       const known = ctx.decor.find(item => item.name.trim().toLowerCase() === nom.toLowerCase());
       return { role: "ou", nom: known?.name ?? nom, id: known?.id ?? null };
     })();
@@ -221,7 +256,8 @@ export function ecrireStoryboard(ideeBrute: string, ctx: ContexteEcriture, optio
       const duree: DureePlan = parle && huitOk ? 8 : type === "action" && options.dureeCible === 60 && dixOk ? 10 : 5;
       const plan: PlanSB = {
         ...base,
-        titre: g.plans[type].titre,
+        // CE5-L: the shot carrying the idea is titled from its action; the others keep the draft's words.
+        titre: type === "action" && action ? titreDeLIdee(action) : g.plans[type].titre,
         action: remplir((!ou && g.sansLieu?.[type]) || g.plans[type].action, values).slice(0, 240),
         refs,
         cadrage: forme.cadrage,
@@ -247,7 +283,7 @@ export function ecrireStoryboard(ideeBrute: string, ctx: ContexteEcriture, optio
     logline: idee.slice(0, 240),
     sequences: finales,
   };
-  const question: Question = qui.length === 0 && ctx.cast.length === 0 ? { type: "qui" } : !options.formatChoisi ? { type: "format" } : null;
+  const question: Question = (qui.length === 0 && (ctx.cast.length === 0 || ambiguite)) ? { type: "qui" } : !options.formatChoisi ? { type: "format" } : null;
   const tous = [...qui, ...(ou ? [ou] : [])];
   return { storyboard: sb, question, repris: tous.filter(ref => ref.id).map(ref => ref.nom), nouveaux: tous.filter(ref => !ref.id).map(ref => ref.nom) };
 }
@@ -256,6 +292,8 @@ export function ecrireStoryboard(ideeBrute: string, ctx: ContexteEcriture, optio
 export function definirPersonnage(sb: Storyboard, nom: string, ctx: ContexteEcriture, quelquun: string, now?: string): Storyboard {
   const clean = nom.replace(/\s+/g, " ").trim().slice(0, 80);
   if (!clean) return sb;
+  // CE5-L: a homonym is never linked to one of the two identities nor made a third time.
+  if ((ctx.ambigus ?? []).map(foldName).includes(foldName(clean))) return sb;
   const known = ctx.cast.find(item => item.name.trim().toLowerCase() === clean.toLowerCase());
   const ref: RefPlan = { role: "qui", nom: known?.name ?? clean, id: known?.id ?? null };
   return {

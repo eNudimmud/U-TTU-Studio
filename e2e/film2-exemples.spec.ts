@@ -42,7 +42,7 @@ test('chaque exemple : badge IMAGE|VIDÉO, ≈ X crédits estimés, un vrai apr�
         const avant = await card.locator('[data-film-avant] img').evaluateAll(nodes => nodes.map(node => (node as HTMLImageElement).src));
         expect(avant).not.toContain(await apres.locator('video').getAttribute('src'));
       } else {
-        await expect(apres.locator('img')).toHaveAttribute('src', /\/exemples\/apres-/);
+        await expect(apres.locator('img')).toHaveAttribute('src', /\/exemples\/(?:[\w-]+-)?apres-/);
       }
     }
     expect(await page.locator('[data-film-exemples]').innerText()).not.toMatch(/gratuit|free|kostenlos|gratis/i);
@@ -51,7 +51,8 @@ test('chaque exemple : badge IMAGE|VIDÉO, ≈ X crédits estimés, un vrai apr�
     await page.setViewportSize(size);
     await open(page);
     const actions = await firstScreen(page);
-    expect(actions.length, `${size.width}×${size.height}\n${actions.join('\n')}`).toBeLessThanOrEqual(12);
+    // The lighter top bar leaves room for the first example's « Refaire » in landscape: 12 steps + that one call to action.
+    expect(actions.length, `${size.width}×${size.height}\n${actions.join('\n')}`).toBeLessThanOrEqual(13);
     expect(actions.filter(line => / <44$/.test(line)), `${size.width}: touch targets`).toEqual([]);
     // One card per view: the next one peeks, its button does not count until it is swiped in.
     await expect(page.locator('[data-film-refaire]:visible')).toHaveCount(1);

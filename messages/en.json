@@ -14,17 +14,18 @@
     "scene": "Set",
     "take": "Shoot",
     "edit": "Edit",
-    "chain": "Cast, set, shoot, edit",
+    "chain": "Cast, set, shoot, edit, finish",
     "sphere": "Library",
     "sheets": "Sheets",
-    "studio": "My creations",
+    "studio": "My studio",
     "connect": "Connect",
     "credits": "credits",
     "opening": "Opening my studio…",
     "takeRunning": "take in progress",
     "sceneRunning": "scene in progress",
     "renderCredits": "Comfy account credits",
-    "rail": "Studio tools"
+    "rail": "Studio tools",
+    "finish": "Finish"
   },
   "project": {
     "lead": "The name is already written: {name}. One tap creates the project. You can change it."
@@ -37,7 +38,8 @@
     "kicker": "Open-source AI film studio on ComfyUI",
     "contact": "Contact the studio ↗",
     "tryFree": "Discover with Uttu",
-    "code": "Source code on GitHub ↗"
+    "code": "Source code on GitHub ↗",
+    "readGuide": "Read the Guide"
   },
   "accueil": {
     "kicker": "Open source · MIT · on ComfyUI",
@@ -58,7 +60,7 @@
     "showLead": "A character who keeps the same face from shot to shot, a set made from a text or a photo, a real place scouted on the map. All with ComfyUI models.",
     "g1Tag": "CAST",
     "g1": "One character, the same in every shot.",
-    "g1Alt": "Close-up of Uttu, hooded, with golden veins",
+    "g1Alt": "Uttu, a hooded arachnid goddess of creation on a night quay",
     "g2Tag": "SET · SHOOT",
     "g2": "A set, a light, a move.",
     "g2Alt": "A courier in a yellow jacket in an abandoned station, rays of light",
@@ -82,7 +84,7 @@
       },
       "montage": {
         "name": "EDIT",
-        "body": "Shots, voice, music, MP4 export with no credits."
+        "body": "Shots, voice, music, MP4 export runs in your browser — no render."
       },
       "finaliser": {
         "name": "FINISH",
@@ -180,7 +182,8 @@
       "2": "Nothing runs without your confirmation"
     },
     "foot": "U*TTU Studio · open source (MIT)",
-    "attrib": "Map: © OpenStreetMap contributors · OpenFreeMap · Terrain Tiles · © swisstopo"
+    "attrib": "Map: © OpenStreetMap contributors · OpenFreeMap · Terrain Tiles · © swisstopo",
+    "partnerBadge": "Partner · paid API"
   },
   "guide": {
     "look-photos": "Two photos, three at most: front, then three-quarter. The studio does the rest.",
@@ -1150,7 +1153,8 @@
       "priseVidu": "Soon: the price is not checked yet.",
       "montLips": "Soon: the price is not checked yet.",
       "montUpscale": "In “What next?”: open an image or a take.",
-      "montFrames": "In “What next?”: open an image or a take."
+      "montFrames": "In “What next?”: open an image or a take.",
+      "animeLook": "Chosen with the project look. The quote is shown first."
     },
     "cat": {
       "identite": "Identity",
@@ -2550,7 +2554,7 @@
     "create": "Create",
     "make": "Direct",
     "edit": "Edit",
-    "creations": "My creations",
+    "creations": "My studio",
     "menu": "Menu",
     "close": "Close the menu",
     "search": "Search",
@@ -2583,7 +2587,7 @@
       }
     },
     "film": "Film",
-    "creationsShort": "Creations"
+    "creationsShort": "Studio"
   },
   "projects": {
     "label": "Project",
@@ -2635,7 +2639,7 @@
   },
   "creations": {
     "all": "See all",
-    "title": "My creations",
+    "title": "My studio",
     "type": {
       "tout": "All",
       "images": "Images",
@@ -3004,12 +3008,12 @@
       "tabs": {
         "q": "How is the studio organised?",
         "k": "tabs steps organisation sections cast set take edit",
-        "a": "The studio follows four steps: Cast (your characters), Set (your places), Take (your video shots) and Edit (you assemble and export). “Tools” gathers every Comfy tool by family."
+        "a": "The studio follows five steps: Cast (your characters), Set (your places), Shoot (your video shots), Edit (you assemble) and Finish (sharper and larger, nothing regenerated). Tools gathers every Comfy tool by family."
       },
       "bubble": {
         "q": "Image or video: how do I create?",
         "k": "create bubble image picture video photo clip choose difference generate shoot",
-        "a": "In “What are we shooting?”, pick Image or Video before you type. Image: Nano Banana 2.1 with references, Flux Klein otherwise. Video runs on MiniMax H3 when you attach references, otherwise on LTX. The quote “≈ X credits estimated” shows under the bubble before anything is sent. You can attach up to 7 visual references and, in Video, one sound."
+        "a": "In “What are we shooting?”, pick Image or Video before you type. Video with references runs on MiniMax H3, otherwise on LTX. The quote “≈ X credits estimated” shows under the bubble before anything is sent."
       },
       "refs": {
         "q": "How do I use references?",
@@ -3126,7 +3130,8 @@
         "refused": "The model declined to answer this message. Rephrase it.",
         "network": "Comfy is not answering. Check your connection and try again; the cost simulator works offline.",
         "timeout": "Comfy took too long to answer. Try again in a moment.",
-        "failed": "The Comfy agent could not answer. Try again in a moment."
+        "failed": "The Comfy agent could not answer. Try again in a moment.",
+        "ineligible": "This conversation model is not available in open-weights mode. Nothing was sent and no credit was used."
       },
       "welcome": "I’m Uttu, the studio’s agent. Tell me what you want to shoot: I answer, suggest the tool or the plan, and you see the quote before any render. Each message is paid by your Comfy account."
     },
@@ -3167,7 +3172,9 @@
       "son": "Sound",
       "sonLine": "Voice, music, sound effects",
       "storyboard": "Make a storyboard",
-      "storyboardLine": "Uttu turns this idea into sequences and shots, each with its quote. Writing renders nothing."
+      "storyboardLine": "Uttu turns this story into a storyboard you can watch. Nothing is filmed until you approve.",
+      "storyboardSoon": "Soon",
+      "storyboardSoonLine": "StoryWeave is coming. Boards you already made stay where they are."
     },
     "settings": "Settings",
     "rendu": {
@@ -3676,6 +3683,12 @@
         "calcul": "Sharpening the picture…",
         "retour": "Getting the film back…",
         "mesure": "Reading the real cost…"
+      },
+      "touches": {
+        "lecture": "Space",
+        "annuler": "Ctrl+Z",
+        "retablir": "Ctrl+Shift+Z",
+        "supprimer": "Del"
       }
     },
     "nav": {
@@ -3711,7 +3724,7 @@
       },
       "persoTexte": {
         "titre": "A character from a sentence",
-        "texte": "An old man, a fictional character."
+        "texte": "Retired Breton fisherman, early seventies, navy wool flat cap, oiled navy pea coat over a cream cable-knit sweater, short white stubble, worn leather boots. Character turnaround: front, three-quarter, profile, back. Soft studio light, mid-grey backdrop."
       }
     }
   },
@@ -3738,24 +3751,52 @@
     },
     "cast-coursiere": {
       "title": "The courier",
-      "prompt": "A courier, character turnaround sheet, fictional character."
+      "prompt": "Young courier, dark curly bob, mustard-yellow rain jacket, olive canvas messenger bag, black cargo trousers, black sneakers. Character turnaround: front, three-quarter, profile, back. Soft studio light, neutral grey backdrop."
     },
     "cast-vieil-homme": {
       "title": "The old man",
-      "prompt": "An old man, character turnaround sheet, fictional character."
+      "prompt": "Old man, about 75, grey tweed flat cap, short white beard, charcoal wool overcoat, black knitted scarf, worn brown leather boots. Character turnaround: close-up, three-quarter, profile, full body. Soft studio light, neutral grey backdrop."
     },
     "cast-dj": {
       "title": "DJ",
-      "prompt": "A DJ, character turnaround sheet, fictional character."
+      "prompt": "DJ, bleached buzz cut, gold hoop earrings, layered gold chains, black bomber jacket, headphones around the neck, black combat boots. Character turnaround: close-up, three-quarter, profile, full body. Soft studio light, neutral grey backdrop."
     }
   },
   "demoPrompts": {
-    "demo-coursiere": "A courier, character sheet, fictional character.",
-    "demo-vieil-homme": "An old man, character sheet, fictional character.",
-    "demo-dj": "A DJ, character sheet, fictional character.",
+    "demo-coursiere": "Young courier, dark curly bob, mustard-yellow rain jacket, olive canvas messenger bag, black cargo trousers, black sneakers. Character turnaround: front, three-quarter, profile, back. Soft studio light, neutral grey backdrop.",
+    "demo-vieil-homme": "Old man, about 75, grey tweed flat cap, short white beard, charcoal wool overcoat, black knitted scarf, worn brown leather boots. Character turnaround: close-up, three-quarter, profile, full body. Soft studio light, neutral grey backdrop.",
+    "demo-dj": "DJ, bleached buzz cut, gold hoop earrings, layered gold chains, black bomber jacket, headphones around the neck, black combat boots. Character turnaround: close-up, three-quarter, profile, full body. Soft studio light, neutral grey backdrop.",
     "demo-quai": "A quay at night, black water, distant lights, no one in frame.",
     "demo-gare": "A station hall, empty, cold light, no one in frame.",
     "demo-pluie": "A street in the rain, blurred lights, no one in frame.",
     "demo-toit": "Zinc rooftops at dawn, golden haze, no one in frame."
+  },
+  "chrome": {
+    "studio": "Studio",
+    "mine": "My studio",
+    "guide": "Guide",
+    "uttu": "Uttu",
+    "soon": "Soon",
+    "storyweave": "StoryWeave",
+    "look": "Look",
+    "lookStandard": "Standard",
+    "lookAnime": "Anime 2.5D",
+    "openGuide": "Open the Guide",
+    "nextFinish": "Next: Finish — sharpen the kept takes",
+    "finishLead": "Sharper and larger. Nothing is regenerated.",
+    "finishEmpty": "Keep a take in Edit, then finish it here.",
+    "finishEngineSeed": "SeedVR2",
+    "finishEngineAnime": "Real-ESRGAN anime",
+    "finishThis": "Finish this take",
+    "finishConfirm": "Confirm the finish",
+    "finishKept": "Kept take",
+    "finishMissing": "The kept file is not in this browser yet.",
+    "finishDone": "The sharper take is in My studio. The original stays.",
+    "finishQuote": "≈ {n}–{high} credits estimated",
+    "menuAria": "Menu: Studio, My studio, Guide, language, credits",
+    "places": "Places",
+    "trackVoice": "Voice",
+    "trackMusic": "Music",
+    "trackText": "Text"
   }
 }

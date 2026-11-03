@@ -1,0 +1,81 @@
+.ln { background: var(--bg); color: var(--fg); }
+.ln-top { position: absolute; top: 16px; left: 0; right: 0; z-index: 5; display: flex; align-items: center; gap: 8px; min-height: 64px; padding: 0 max(16px, 4vw); }
+.ln-sp { flex: 1; }
+.ln-hero { position: relative; min-height: min(100vh, 860px); display: flex; align-items: flex-end; overflow: hidden; }
+.ln-hero-pic { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ln-hero-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 68% 0%; }
+.ln-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,15,17,.92) 0%, rgba(15,15,17,.45) 48%, rgba(15,15,17,.12) 78%), linear-gradient(0deg, var(--bg) 0%, transparent 32%); }
+.ln-hero-in { position: relative; z-index: 1; padding: 0 max(20px, 4vw) 12vh; max-width: 760px; }
+.ln h1, .ln h2, .ln h3 { font-family: var(--font-title), Georgia, serif; font-weight: 400; letter-spacing: -.02em; }
+.ln h1 { font-size: clamp(44px, 6vw, 80px); line-height: 1; margin: 12px 0 16px; }
+.ln h1 em, .ln h2 em { color: var(--accent); font-style: italic; }
+.ln-lead { color: var(--fg-2); font-size: 18px; max-width: 58ch; }
+.ln-ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 22px; }
+.ln-fine { font: 12px var(--font-mono); color: var(--fg-3); }
+.ln-wrap { max-width: 1160px; margin: 0 auto; padding: 0 max(20px, 4vw) 80px; }
+.ln-wrap > section { padding-top: 96px; }
+.ln h2 { font-size: clamp(34px, 4vw, 52px); line-height: 1.05; margin: 8px 0 12px; }
+.ln-steps { list-style: none; padding: 0; margin: 36px 0 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; }
+.ln-steps a { color: inherit; text-decoration: none; display: block; }
+.ln-im, .ln-ph { aspect-ratio: 4/3; border-radius: 12px; overflow: hidden; background: var(--surface); display: grid; place-items: center; }
+.ln-im img, .ln-strip img, .ln-duo img, .ln-split img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ln-n { display: block; margin-top: 14px; font: 11px var(--font-mono); letter-spacing: .14em; color: var(--accent); }
+.ln-steps b, .ln h3 { font-family: var(--font-title), Georgia, serif; font-weight: 400; font-size: 26px; }
+.ln-steps p, .ln-duo p { color: var(--fg-2); font-size: 14px; }
+.ln-go { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); }
+.ln-ph { padding: 16px; color: var(--fg-3); font: 12px var(--font-mono); text-align: center; }
+.ln-split, .ln-duo, .ln-models { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; }
+.ln-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+.ln-strip img, .ln-strip .ln-ph { aspect-ratio: 16/9; border-radius: 10px; }
+.ln-feat { list-style: none; padding: 0; margin: 18px 0 0; }
+.ln-feat a, .ln-feat div { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; min-height: 56px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); color: inherit; text-decoration: none; }
+.ln-feat span { grid-column: 1; color: var(--fg-2); font-size: 13px; }
+.ln-feat small { font: 12px var(--font-mono); color: var(--fg-3); }
+.ln-soon { font: 10px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); border-radius: 999px; padding: 2px 6px; }
+.ln-band { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 28px 0 !important; }
+.ln-band p { flex: 1; min-width: 220px; color: var(--fg-2); margin: 0; }
+.ln-models { align-items: start; }
+.ln-models dl { margin: 0; }
+.ln-models dt { font: 11px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-3); margin-top: 10px; }
+.ln-models dd { margin: 0; color: var(--fg-2); }
+.ln-lic { font: 10px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: #9fd6b5; }
+.ln-lic-p { color: #d9b98a; }
+.ln-price { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.ln-price span:last-child { font: 13px var(--font-mono); color: var(--fg-2); }
+.ln-end { text-align: center; }
+.ln-end .ln-ctas, .ln-trust { justify-content: center; }
+.ln-trust { display: flex; flex-wrap: wrap; gap: 18px; list-style: none; padding: 0; color: var(--fg-3); font-size: 13px; }
+.ln-foot { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding: 28px max(20px, 4vw) 40px; border-top: 1px solid var(--line); color: var(--fg-3); font-size: 13px; }
+.ln-foot a { min-height: 44px; display: inline-flex; align-items: center; color: inherit; }
+.ln-duo > img, .ln-duo > picture > img { border-radius: 12px; aspect-ratio: 16 / 9; }
+.ln-duo > picture { display: block; }
+.ln-licence { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--fg-2); font-size: 14px; max-width: 80ch; }
+@media (max-width: 900px) {
+  .ln-hide { display: none; }
+  .ln-steps, .ln-split, .ln-duo, .ln-models { grid-template-columns: 1fr; }
+  .ln-hero { min-height: 100svh; }
+}
+/* Phone portrait: Uttu sits in a sharp 4:5 band above the title instead of a blown-up landscape cover. */
+@media (max-width: 700px) and (min-height: 521px) {
+  .ln-hero { display: block; min-height: 0; }
+  .ln-hero-pic { position: relative; inset: auto; aspect-ratio: 4 / 5; height: auto; max-height: 78svh; }
+  .ln-hero-pic img { object-position: 60% 18%; }
+  .ln-hero::after { display: none; }
+  .ln-hero-pic::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, var(--bg) 0%, transparent 38%); }
+  .ln-hero-in { margin-top: -96px; padding: 0 max(20px, 4vw) 40px; }
+}
+/* The header gold repeats the hero button. On a narrow phone it is the piece that sticks out past the screen. */
+@media (max-width: 480px) {
+  .ln-top .hv-gold { display: none; }
+}
+/* A short landscape screen (844×390): the title and both doors stay on the first screen. */
+@media (max-height: 520px) {
+  .ln-hero { min-height: 100svh; align-items: center; }
+  .ln-hero-in { padding: 56px max(16px, 4vw) 12px; }
+  .ln h1 { font-size: clamp(28px, 5vw, 40px); margin: 4px 0; }
+  .ln-lead, .ln-fine { display: none; }
+  .ln-ctas { margin-top: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ln img { scroll-behavior: auto; }
+}

@@ -43,6 +43,7 @@ export function FilmExemples({ exemples, cout, busy, onRefaire }: { exemples: re
               {exemple.avant.map((item, index) => item.kind === "texte"
                 ? <p key={index} className="u-film-ex-texte">« {t(item.texte)} »</p>
                 : <img key={index} src={assetPath(item.thumb)} alt={item.nom} width={80} height={80} loading="lazy" decoding="async" />)}
+              {exemple.avant.map((item, index) => item.kind !== "texte" && item.credit ? <small key={`c${index}`} className="u-film-ex-credit" data-film-credit="">{item.credit}</small> : null)}
             </div>
             <span className="u-film-ex-fleche" aria-hidden="true">→</span>
             <figure className="u-film-ex-apres" data-film-apres={mediaApres(exemple)}>
