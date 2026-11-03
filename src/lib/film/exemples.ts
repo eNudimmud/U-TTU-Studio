@@ -45,18 +45,12 @@ export const EXEMPLES_FILM: readonly Exemple[] = [
     // The house clip was shot with LTX: redoing it takes the same fast rendu.
     refaire: { vers: "plan", rendu: "rapide" },
   },
-  {
-    id: "lieuPhoto", type: "image",
-    titre: "film2.exemples.lieuPhoto.titre",
-    avant: [{ kind: "decor", nom: "Le quai, la nuit", image: "/exemples/decor-quai-nuit.webp", thumb: "/exemples/decor-quai-nuit-640.webp" }],
-    apres: { image: "/exemples/apres-decor-photo-640.webp" },
-    refaire: { vers: "decor", geste: "decor-photo" },
-  },
+  // « Un lieu à partir d’une photo » is hidden: its before and after were the same quay. It comes back with a real after.
   {
     id: "persoTexte", type: "image",
     titre: "film2.exemples.persoTexte.titre",
     avant: [{ kind: "texte", texte: "film2.exemples.persoTexte.texte" }],
-    apres: { image: "/exemples/apres-cast-texte-640.webp" },
+    apres: { image: "/exemples/cast-vieil-homme-640.webp" },
     refaire: { vers: "cast", geste: "cast-texte" },
   },
 ];

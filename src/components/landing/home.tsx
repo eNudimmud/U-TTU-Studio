@@ -32,7 +32,14 @@ export function HomeLanding() {
     </header>
     <main id="contenu" tabIndex={-1}>
       <section className="ln-hero" data-hero="" aria-labelledby="landing-title">
-        <img src={assetPath("/images/accueil/uttu-quai-1920.webp")} alt={t("accueil.g1Alt")} fetchPriority="high" />
+        {/* One master, three widths. Under 700 px a 4:5 crop of the same 2560 master, so a DPR 3 phone never upscales. */}
+        <picture className="ln-hero-pic">
+          <source media="(max-width: 700px)" type="image/webp" sizes="100vw"
+            srcSet={`${assetPath("/images/accueil/uttu-quai-4x5-768.webp")} 768w, ${assetPath("/images/accueil/uttu-quai-4x5-1152.webp")} 1152w`} />
+          <img src={assetPath("/images/accueil/uttu-quai-1920.webp")} sizes="100vw"
+            srcSet={`${assetPath("/images/accueil/uttu-quai-1280.webp")} 1280w, ${assetPath("/images/accueil/uttu-quai-1920.webp")} 1920w, ${assetPath("/images/accueil/uttu-quai-2560.webp")} 2560w`}
+            alt={t("accueil.g1Alt")} fetchPriority="high" decoding="async" />
+        </picture>
         <div className="ln-hero-in">
           <BrandLockup className="hv-lockup" alt="U*TTU Studio" />
           <p className="eyebrow" data-landing-kicker="">{t("accueil.kicker")}</p>
@@ -92,7 +99,7 @@ export function HomeLanding() {
             <img src={assetPath("/exemples/vignettes/vid-h3-refs@2x.webp")} alt="" />
             <div className="ln-strip">
               <img src={assetPath("/exemples/vignettes/vid-multi@2x.webp")} alt="" />
-              <span className="ln-ph">{copy.swapPlaceholder}</span>
+              <img src={assetPath("/exemples/vignettes/vid-prolonger@2x.webp")} alt="" />
             </div>
           </div>
           <div>
@@ -100,10 +107,10 @@ export function HomeLanding() {
             <h2>{copy.h3Title}</h2>
             <p className="ln-lead">{copy.h3Body}</p>
             <ul className="ln-feat">
-              {copy.h3.map(item => <li key={item.name} data-soon={item.soon ? "" : undefined}>
-                {item.href && !item.soon
+              {copy.h3.map(item => <li key={item.name} data-soon={item.soon ? "" : undefined} data-partner={item.partner ? "" : undefined}>
+                {item.href && !item.soon && !(item.partner && OPEN_WEIGHTS_MODE)
                   ? <a href={assetPath(item.href)}><b>{item.name}</b><span>{item.body}</span><small>{item.cost}</small></a>
-                  : <div><b>{item.name} {item.soon && <span className="ln-soon">{copy.soonWord}</span>}</b><span>{item.body}</span><small>{item.cost}</small></div>}
+                  : <div><b>{item.name} {item.soon && <span className="ln-soon">{copy.soonWord}</span>}</b><span>{item.body}{item.partner && OPEN_WEIGHTS_MODE ? ` ${copy.partnerSwapHidden}` : ""}</span><small>{item.cost}</small></div>}
               </li>)}
             </ul>
           </div>
@@ -112,24 +119,21 @@ export function HomeLanding() {
         <section id="only">
           <h2>{copy.onlyTitle}</h2>
           <p className="ln-lead">{copy.onlyLead}</p>
+          {/* The touch-staging card is gone: that feature was removed on 31 Oct. One real capture, the red roofs. */}
           <div className="ln-duo">
+            <img src={assetPath("/media/accueil/loop-map-poster.webp")} alt="" loading="lazy" />
             <div>
-              <img src={assetPath("/media/accueil/loop-map-poster.webp")} alt="" />
               <h3>{copy.scoutTitle}</h3>
               <p>{copy.scoutBody}</p>
               <a className="ln-go" href={assetPath("/studio#outils/reperage")}>{copy.scoutLink}</a>
-            </div>
-            <div>
-              <span className="ln-ph ln-stage">{copy.stagePlaceholder}</span>
-              <h3>{copy.stageTitle}</h3>
-              <p>{copy.stageBody}</p>
-              <a className="ln-go" href={assetPath("/studio#prise")}>{copy.stageLink}</a>
             </div>
           </div>
         </section>
 
         <section id="uttu" className="ln-split">
-          <img src={assetPath("/images/uttu-portrait-1280.webp")} alt={t("accueil.g1Alt")} />
+          <img src={assetPath("/images/accueil/uttu-portrait-1280.webp")} sizes="(max-width: 900px) 100vw, 560px"
+            srcSet={`${assetPath("/images/accueil/uttu-portrait-960.webp")} 960w, ${assetPath("/images/accueil/uttu-portrait-1280.webp")} 1280w, ${assetPath("/images/accueil/uttu-portrait-1920.webp")} 1920w`}
+            alt={t("accueil.g1Alt")} loading="lazy" />
           <div>
             <h2>{copy.uttuTitle}</h2>
             <p className="ln-lead">{copy.uttuBody}</p>
@@ -162,6 +166,7 @@ export function HomeLanding() {
               <p className="ln-fine">{copy.partnerMore}</p>
             </div>
           </div>
+          <p className="ln-licence" data-licence-note="">{copy.licenceNote}</p>
         </section>
 
         <section id="costs">

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useLocaleSwitch } from "@/components/i18n/provider";
 import { assetPath } from "@/lib/site";
 import { guideHome } from "@/lib/guide/home-copy";
@@ -9,6 +10,16 @@ import "./guide.css";
 export function GuideHome() {
   const { locale } = useLocaleSwitch();
   const copy = guideHome(locale);
+  const active = useActiveSection(copy.toc.map(item => item.id));
+  const toc = useRef<HTMLElement>(null);
+  // Keep the current tab in view inside the scrolling row.
+  useEffect(() => {
+    const row = toc.current;
+    const pill = row?.querySelector<HTMLElement>(`a[href="#${active}"]`);
+    if (!row || !pill) return;
+    const left = pill.offsetLeft - (row.clientWidth - pill.offsetWidth) / 2;
+    row.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+  }, [active]);
   return <>
     <GuideBar />
     <div className="g-wrap">
@@ -17,8 +28,8 @@ export function GuideHome() {
         <h1>{copy.title} <em>{copy.titleEm}</em></h1>
         <p className="g-lede">{copy.lede}</p>
       </div>
-      <nav className="g-toc" aria-label={copy.kicker}>
-        {copy.toc.map(item => <a key={item.id} href={`#${item.id}`}>{item.label}</a>)}
+      <nav className="g-toc" aria-label={copy.kicker} ref={toc}>
+        {copy.toc.map(item => <a key={item.id} href={`#${item.id}`} aria-current={active === item.id ? "true" : undefined}>{item.label}</a>)}
         <a href={assetPath("/guide/tools")}>{copy.toolsLink}</a>
       </nav>
       <section className="g-sec" id="start">
@@ -61,4 +72,25 @@ export function GuideHome() {
       </section>
     </div>
   </>;
+}
+
+/** The section whose top last crossed the sticky bars: drives the highlighted tab. */
+function useActiveSection(ids: string[]): string {
+  const [active, setActive] = useState(ids[0] ?? "");
+  const key = ids.join(",");
+  useEffect(() => {
+    const list = key.split(",").filter(Boolean);
+    const pick = () => {
+      let current = list[0] ?? "";
+      for (const id of list) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= 160) current = id;
+      }
+      setActive(current);
+    };
+    pick();
+    window.addEventListener("scroll", pick, { passive: true });
+    return () => window.removeEventListener("scroll", pick);
+  }, [key]);
+  return active;
 }

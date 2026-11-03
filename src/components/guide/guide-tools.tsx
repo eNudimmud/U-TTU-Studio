@@ -30,7 +30,7 @@ export function GuideTools() {
     });
   }, [q, fam, locale]);
   return <>
-    <GuideBar crumb="Guide / Tools" />
+    <GuideBar page="tools" />
     <div className="g-wrap">
       <div className="g-hero">
         <div className="eyebrow">Guide</div>
@@ -40,7 +40,7 @@ export function GuideTools() {
       <label className="g-search">
         <span className="sr-only">Search</span>
         <input value={q} onChange={event => setQ(event.target.value)} placeholder="faces, rain, talking, music…" />
-        <span>{shown.length}</span>
+        <span className="g-count" aria-live="polite">{shown.length} / {cards.length}</span>
       </label>
       <div className="g-fams" role="toolbar">
         {FAMS.map(id => <button key={id} type="button" aria-pressed={fam === id} onClick={() => setFam(id)}>{labels[id]}</button>)}

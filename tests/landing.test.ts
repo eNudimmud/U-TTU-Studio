@@ -25,7 +25,8 @@ describe("accueil", () => {
     assert.match(home, /assetPath\("\/studio"\)/);
     assert.doesNotMatch(home, /uttu=1/);
     assert.doesNotMatch(home, /accueil\.also|loop-stage|Discover with Uttu/);
-    assert.match(home, /#personnage|#scene|#prise|#montage|#finaliser/);
+    // The step links live in the copy since the 3 Nov pass, home.tsx only renders them.
+    assert.match(readFileSync("src/lib/landing/page-copy.ts", "utf8"), /#personnage[\s\S]*#scene[\s\S]*#prise[\s\S]*#montage[\s\S]*#finaliser/);
     assert.match(home, /vid-h3-refs|vid-multi|vid-fasth3|vid-animer/);
     assert.match(home, /OPEN_WEIGHTS_MODE \? copy\.partnerHidden : copy\.partnerOn/);
     assert.match(home, /<PoweredBy className="hv-badge" \/>/);
@@ -48,10 +49,16 @@ describe("accueil", () => {
       assert.doesNotMatch(landing.readGuide, /gratuit|free|kostenlos|gratis|0 cr/i, lang);
       assert.equal(copy.steps.length, 5, lang);
       assert.equal(copy.trust.length, 3, lang);
-      assert.match(copy.stageBody, /≈ 15–30 cr[ée]dit/i, lang);
       assert.match(copy.steps[3]!.body, /browser|navigateur|Browser|navegador/i, lang);
       assert.match(copy.steps[3]!.body, /no render|aucun rendu|kein Rendering|sin render/, lang);
-      assert.equal(copy.h3.some(item => item.soon && !item.href), true, lang);
+      // Character swap is the Higgsfield partner node: named, priced, never « Soon ».
+      const swap = copy.h3.find(item => item.partner);
+      assert.ok(swap && !swap.soon && /Higgsfield Genjutsu/.test(swap.name) && /480/.test(swap.cost), lang);
+      assert.equal(copy.h3.some(item => item.soon), false, lang);
+      assert.match(copy.h3Title, /lui-même|the same|dieselbe|sí mismo/, lang);
+      assert.doesNotMatch(JSON.stringify(copy.openList), /TripoSplat|Nano Banana/, lang);
+      assert.match(JSON.stringify(copy.partnerList), /FLUX\.3 \[pro\]/, lang);
+      assert.match(copy.licenceNote, /MiniMax[ -]H3/, lang);
       for (const step of copy.steps) {
         assert.ok(step.image && existsSync(`public${step.image}`), `${lang} ${step.id} has a real capture`);
         assert.ok(step.alt.trim() && !step.placeholder, `${lang} ${step.id} alt, no placeholder`);

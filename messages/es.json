@@ -140,7 +140,7 @@
       },
       "video": {
         "name": "Vídeo fiel",
-        "body": "Fiel a tus referencias con MiniMax H3 (≈ 4 créditos estimados), FastH3 como segundo modelo para conservar mejor el lugar (≈ 8). Fotogramas clave fieles (≈ 14), transición de estilo (≈ 7)."
+        "body": "Fiel a tus referencias con MiniMax H3 (≈ 4 créditos estimados), FastH3 como segundo modelo para conservar mejor el lugar (≈ 8). Keyframes fieles (≈ 14), transición de estilo (≈ 7)."
       },
       "son": {
         "name": "El sonido de tu vídeo",
@@ -2229,7 +2229,7 @@
         "line": "Mantiene personajes y lugar coherentes."
       },
       "vid-multi": {
-        "title": "Fotogramas clave fieles",
+        "title": "Keyframes fieles",
         "line": "Mantiene el personaje de tu primera imagen y termina en la segunda, con sonido."
       },
       "vid-transition-style": {
@@ -3038,7 +3038,7 @@
       "which": {
         "q": "¿Qué herramienta elijo?",
         "k": "qué herramienta herramientas elegir necesito biblioteca familia consejo recomendar ángulo ángulos cámara multicámara luz efecto separar transición fotogramas",
-        "a": "Una imagen: Imagen rápida. Mantener un personaje o lugar: Reparto, Decorado, referencias. Otros puntos de vista: Ocho ángulos del personaje, Ocho ángulos del decorado, Mover la cámara. Un vídeo: la burbuja en Vídeo, o Toma; con referencias: Vídeo fiel a referencias; dos fotogramas clave: Fotogramas clave fieles; un estilo que cambia: Transición de estilo. Multicámara: Ocho ángulos del personaje, luego «Plano, segundo motor» en el ángulo elegido: ≈ 14 créditos, luego ≈ 4 por ángulo más. Retocar: Modificar, Ampliar, Quitar fondo, Más grande y nítida, Cambiar la luz («Luz según tu consigna», o «Retrato de estudio» como segundo modelo). Sonido: Voz, Música, Efecto de sonido, Efectos de sonido para un vídeo, Separar voz y música."
+        "a": "Una imagen: Imagen rápida. Mantener un personaje o lugar: Reparto, Decorado, referencias. Otros puntos de vista: Ocho ángulos del personaje, Ocho ángulos del decorado, Mover la cámara. Un vídeo: la burbuja en Vídeo, o Toma; con referencias: Vídeo fiel a referencias; dos fotogramas clave: Keyframes fieles; un estilo que cambia: Transición de estilo. Multicámara: Ocho ángulos del personaje, luego «Plano, segundo motor» en el ángulo elegido: ≈ 14 créditos, luego ≈ 4 por ángulo más. Retocar: Modificar, Ampliar, Quitar fondo, Más grande y nítida, Cambiar la luz («Luz según tu consigna», o «Retrato de estudio» como segundo modelo). Sonido: Voz, Música, Efecto de sonido, Efectos de sonido para un vídeo, Separar voz y música."
       },
       "projects": {
         "q": "¿Dónde están mis proyectos?",
@@ -3724,7 +3724,7 @@
       },
       "persoTexte": {
         "titre": "Un personaje a partir de una frase",
-        "texte": "Un anciano, personaje ficticio."
+        "texte": "Anciano, unos 75 años, gorra plana de tweed gris, barba blanca corta, abrigo de lana gris marengo, bufanda de punto negra, botas de cuero marrón gastadas. Character turnaround: close-up, tres cuartos, perfil, cuerpo entero. Luz de estudio suave, fondo gris neutro."
       }
     }
   },
@@ -3751,21 +3751,21 @@
     },
     "cast-coursiere": {
       "title": "La mensajera",
-      "prompt": "Una mensajera, hoja de vistas, personaje ficticio."
+      "prompt": "Joven mensajera, melena corta rizada oscura, chubasquero amarillo mostaza, bandolera de lona verde oliva, pantalón cargo negro, zapatillas negras. Character turnaround: frente, tres cuartos, perfil, espalda. Luz de estudio suave, fondo gris neutro."
     },
     "cast-vieil-homme": {
       "title": "El anciano",
-      "prompt": "Un anciano, hoja de vistas, personaje ficticio."
+      "prompt": "Anciano, unos 75 años, gorra plana de tweed gris, barba blanca corta, abrigo de lana gris marengo, bufanda de punto negra, botas de cuero marrón gastadas. Character turnaround: close-up, tres cuartos, perfil, cuerpo entero. Luz de estudio suave, fondo gris neutro."
     },
     "cast-dj": {
       "title": "DJ",
-      "prompt": "Un DJ, hoja de vistas, personaje ficticio."
+      "prompt": "DJ, rapado decolorado, aros dorados, cadenas doradas superpuestas, bomber negra, auriculares al cuello, botas militares negras. Character turnaround: close-up, tres cuartos, perfil, cuerpo entero. Luz de estudio suave, fondo gris neutro."
     }
   },
   "demoPrompts": {
-    "demo-coursiere": "Una mensajera, hoja de vistas, personaje ficticio.",
-    "demo-vieil-homme": "Un anciano, hoja de vistas, personaje ficticio.",
-    "demo-dj": "Un DJ, hoja de vistas, personaje ficticio.",
+    "demo-coursiere": "Joven mensajera, melena corta rizada oscura, chubasquero amarillo mostaza, bandolera de lona verde oliva, pantalón cargo negro, zapatillas negras. Character turnaround: frente, tres cuartos, perfil, espalda. Luz de estudio suave, fondo gris neutro.",
+    "demo-vieil-homme": "Anciano, unos 75 años, gorra plana de tweed gris, barba blanca corta, abrigo de lana gris marengo, bufanda de punto negra, botas de cuero marrón gastadas. Character turnaround: close-up, tres cuartos, perfil, cuerpo entero. Luz de estudio suave, fondo gris neutro.",
+    "demo-dj": "DJ, rapado decolorado, aros dorados, cadenas doradas superpuestas, bomber negra, auriculares al cuello, botas militares negras. Character turnaround: close-up, tres cuartos, perfil, cuerpo entero. Luz de estudio suave, fondo gris neutro.",
     "demo-quai": "Un muelle de noche, agua negra, luces lejanas, sin nadie.",
     "demo-gare": "Un vestíbulo de estación, vacío, luz fría, sin nadie.",
     "demo-pluie": "Una calle bajo la lluvia, luces borrosas, sin nadie.",

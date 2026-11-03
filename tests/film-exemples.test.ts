@@ -27,7 +27,7 @@ test("every example: a type, real before and after files, a video result is a cl
 
 test("the price to redo it comes from the studio quotes; no price, no number", () => {
   const prix = { prise: (rendu: string) => rendu === "rapide" ? 6 : 4, cast: (source: string) => source === "texte" ? 5 : 7, decor: (source: string) => source === "photo" ? 3 : 8 };
-  assert.deepEqual(EXEMPLES_FILM.map(item => coutExemple(item, prix)), [6, 3, 5]);
+  assert.deepEqual(EXEMPLES_FILM.map(item => coutExemple(item, prix)), [6, 5]); // the place-from-photo example is hidden: its before and after were the same picture
   assert.equal(coutExemple(EXEMPLES_FILM[0]!, { ...prix, prise: () => null }), null);
 });
 

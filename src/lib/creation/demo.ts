@@ -12,9 +12,9 @@ function demoCast(id: string, name: string, prompt: string, preview: string, at:
 }
 
 export const DEMO_CAST: CastCard[] = [
-  demoCast("demo-coursiere", "La coursière", "Une coursière, planche de vues, personnage fictif.", "/exemples/cast-coursiere.webp", "2026-10-08T12:05:00.000Z"),
-  demoCast("demo-vieil-homme", "Le vieil homme", "Un vieil homme, planche de vues, personnage fictif.", "/exemples/cast-vieil-homme.webp", "2026-10-08T12:06:00.000Z"),
-  demoCast("demo-dj", "DJ", "Un DJ, planche de vues, personnage fictif.", "/exemples/cast-dj.webp", "2026-10-08T12:07:00.000Z"),
+  demoCast("demo-coursiere", "La coursière", "Jeune coursière, carré bouclé brun, veste de pluie jaune moutarde, besace en toile olive, pantalon cargo noir, baskets noires. Character turnaround : face, trois-quarts, profil, dos. Lumière studio douce, fond gris neutre.", "/exemples/cast-coursiere.webp", "2026-10-08T12:05:00.000Z"),
+  demoCast("demo-vieil-homme", "Le vieil homme", "Vieil homme, environ 75 ans, casquette plate en tweed gris, barbe blanche courte, manteau de laine anthracite, écharpe tricotée noire, bottines en cuir brun usées. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre.", "/exemples/cast-vieil-homme.webp", "2026-10-08T12:06:00.000Z"),
+  demoCast("demo-dj", "DJ", "DJ, cheveux ras décolorés, créoles dorées, chaînes dorées superposées, bomber noir, casque autour du cou, rangers noires. Character turnaround : close-up, trois-quarts, profil, en pied. Lumière studio douce, fond gris neutre.", "/exemples/cast-dj.webp", "2026-10-08T12:07:00.000Z"),
 ];
 
 // Four house renders, FLUX 3 Image Klein via Comfy Cloud (R10b). The flat room and

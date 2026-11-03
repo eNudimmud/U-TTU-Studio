@@ -157,6 +157,21 @@ export function ProjectSwitcher({ inDrawer = false }: { inDrawer?: boolean }) {
   const panelId = useId();
   const close = useMemo(() => () => setOpen(false), []);
   useDismiss(open, close, root);
+  // In the steps row the panel is fixed to the viewport: the row scrolls sideways (overflow:auto) and would clip it.
+  const [place, setPlace] = useState<{ top: number; left: number } | null>(null);
+  useEffect(() => {
+    if (!open || inDrawer) { setPlace(null); return; }
+    const toggle = root.current?.querySelector("button");
+    if (!toggle) return;
+    const measure = () => {
+      const rect = toggle.getBoundingClientRect();
+      setPlace({ top: Math.round(rect.bottom + 6), left: Math.round(Math.max(8, Math.min(rect.left, window.innerWidth - 308))) });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    return () => { window.removeEventListener("resize", measure); window.removeEventListener("scroll", measure, true); };
+  }, [open, inDrawer]);
   const label = studio.projectName || t("projects.none");
   return <div className={inDrawer ? "u-proj u-proj-drawer" : "u-proj"} ref={root} data-project-switcher="">
     <button type="button" className="u-proj-toggle" aria-expanded={open} aria-controls={panelId} aria-busy={!ready || undefined} onClick={() => setOpen(value => !value)} aria-label={t("projects.switchAria", { name: label })}>
@@ -164,7 +179,7 @@ export function ProjectSwitcher({ inDrawer = false }: { inDrawer?: boolean }) {
       <span className="u-project-name">{label}</span>
       <span aria-hidden="true" className="u-dd-caret">▾</span>
     </button>
-    <div id={panelId} className="u-proj-panel" hidden={!open}>
+    <div id={panelId} className="u-proj-panel" hidden={!open} data-floating={place ? "" : undefined} style={place ? { position: "fixed", top: place.top, left: place.left } : undefined}>
       {studio.projects.length > 0 && <ul role="list" className="u-dd-list">
         {studio.projects.map(project => <li key={project.slug}><button type="button" aria-current={studio.project === project.slug ? "true" : undefined} data-project={project.slug} onClick={() => { setOpen(false); void selectProject(project.slug); }}>{project.name}</button></li>)}
       </ul>}
