@@ -8,8 +8,6 @@ html:has(.g-top) { scroll-behavior: smooth; }
 .g-studio:hover { border-color: var(--accent); }
 .g-count { font: 12px var(--font-mono); color: var(--fg-3); white-space: nowrap; }
 .g-sp { flex: 1; }
-.g-crumb { color: var(--fg-2); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 480px) { .g-crumb { display: none; } }
 .g-wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px 96px; }
 .g-hero { padding: 48px 0 0; max-width: 720px; }
 .g-hero h1 { font: 400 clamp(42px, 6vw, 68px)/1.02 var(--font-title), Georgia, serif; margin: 14px 0 16px; letter-spacing: -.015em; }

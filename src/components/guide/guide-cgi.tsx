@@ -14,7 +14,7 @@ export function GuideCgi() {
   const { locale } = useLocaleSwitch();
   const copy = cgiGuide(locale);
   return <>
-    <GuideBar crumb="Cinema" />
+    <GuideBar />
     <div className="g-wrap">
       <div className="g-hero">
         <div className="eyebrow">{copy.kicker}</div>

@@ -11,7 +11,7 @@ export function GuideAnime() {
   const { locale } = useLocaleSwitch();
   const copy = animeGuide(locale);
   return <>
-    <GuideBar crumb="Guide / ANIME Studio" />
+    <GuideBar />
     <div className="g-wrap">
       <div className="g-hero">
         <div className="eyebrow">{copy.kicker}</div>
