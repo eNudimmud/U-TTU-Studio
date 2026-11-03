@@ -3,7 +3,7 @@
 .ln-sp { flex: 1; }
 .ln-hero { position: relative; min-height: min(100vh, 860px); display: flex; align-items: flex-end; overflow: hidden; }
 .ln-hero-pic { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.ln-hero-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 62% 40%; }
+.ln-hero-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 68% 0%; }
 .ln-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,15,17,.92) 0%, rgba(15,15,17,.45) 48%, rgba(15,15,17,.12) 78%), linear-gradient(0deg, var(--bg) 0%, transparent 32%); }
 .ln-hero-in { position: relative; z-index: 1; padding: 0 max(20px, 4vw) 12vh; max-width: 760px; }
 .ln h1, .ln h2, .ln h3 { font-family: var(--font-title), Georgia, serif; font-weight: 400; letter-spacing: -.02em; }
@@ -59,7 +59,7 @@
 @media (max-width: 700px) and (min-height: 521px) {
   .ln-hero { display: block; min-height: 0; }
   .ln-hero-pic { position: relative; inset: auto; aspect-ratio: 4 / 5; height: auto; max-height: 78svh; }
-  .ln-hero-pic img { object-position: 50% 30%; }
+  .ln-hero-pic img { object-position: 60% 18%; }
   .ln-hero::after { display: none; }
   .ln-hero-pic::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, var(--bg) 0%, transparent 38%); }
   .ln-hero-in { margin-top: -96px; padding: 0 max(20px, 4vw) 40px; }

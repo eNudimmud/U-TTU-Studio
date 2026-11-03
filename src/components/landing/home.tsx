@@ -36,13 +36,13 @@ export function HomeLanding() {
     </header>
     <main id="contenu" tabIndex={-1}>
       <section className="ln-hero" data-hero="" aria-labelledby="landing-title">
-        {/* Hero B (AAA pass, 3 Nov): AVIF first, WebP fallback. Under 700 px a 4:5 crop of the same master.
+        {/* Hero from the official Uttu sheet (3 Nov): AVIF first, WebP fallback. Under 700 px a 4:5 crop of the same master.
             To swap the art, replace the files and keep the names and widths. */}
         <picture className="ln-hero-pic">
-          <source media="(max-width: 700px)" type="image/avif" sizes="100vw" srcSet={heroSet("uttu-quai-B-4x5", [640, 1280, 2048], "avif")} />
-          <source media="(max-width: 700px)" type="image/webp" sizes="100vw" srcSet={heroSet("uttu-quai-B-4x5", [640, 1280, 2048], "webp")} />
-          <source type="image/avif" sizes="100vw" srcSet={heroSet("uttu-quai-B", [640, 1280, 1920, 2560], "avif")} />
-          <img src={assetPath("/images/accueil/uttu-quai-B-1920.webp")} sizes="100vw" srcSet={heroSet("uttu-quai-B", [640, 1280, 1920, 2560], "webp")}
+          <source media="(max-width: 700px)" type="image/avif" sizes="100vw" srcSet={heroSet("uttu-fiche-4x5", [640, 1280, 2048], "avif")} />
+          <source media="(max-width: 700px)" type="image/webp" sizes="100vw" srcSet={heroSet("uttu-fiche-4x5", [640, 1280, 2048], "webp")} />
+          <source type="image/avif" sizes="100vw" srcSet={heroSet("uttu-fiche", [640, 1280, 1920, 2560], "avif")} />
+          <img src={assetPath("/images/accueil/uttu-fiche-1920.webp")} sizes="100vw" srcSet={heroSet("uttu-fiche", [640, 1280, 1920, 2560], "webp")}
             alt={t("accueil.g1Alt")} fetchPriority="high" decoding="async" />
         </picture>
         <div className="ln-hero-in">
