@@ -51,7 +51,8 @@ test('chaque exemple : badge IMAGE|VIDÉO, ≈ X crédits estimés, un vrai apr�
     await page.setViewportSize(size);
     await open(page);
     const actions = await firstScreen(page);
-    expect(actions.length, `${size.width}×${size.height}\n${actions.join('\n')}`).toBeLessThanOrEqual(12);
+    // The lighter top bar leaves room for the first example's « Refaire » in landscape: 12 steps + that one call to action.
+    expect(actions.length, `${size.width}×${size.height}\n${actions.join('\n')}`).toBeLessThanOrEqual(13);
     expect(actions.filter(line => / <44$/.test(line)), `${size.width}: touch targets`).toEqual([]);
     // One card per view: the next one peeks, its button does not count until it is swiped in.
     await expect(page.locator('[data-film-refaire]:visible')).toHaveCount(1);
@@ -99,7 +100,7 @@ test('« Refaire cet exemple » (image) : le formulaire DÉCOR se remplit, surli
   await expect(page.locator('[data-film-refaire="lieuPhoto"]')).toBeVisible();
   await page.locator('[data-film-refaire="lieuPhoto"]').click();
   await expect(page.locator('[data-decor-form]')).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator('[data-decor-form] input')).toHaveValue('Place Saint-François, Lausanne');
+  await expect(page.locator('[data-decor-form] input')).toHaveValue('Le quai, la nuit');
   await expect(page.locator('[data-decor-form][data-rempli]')).toBeVisible();
   await expect(page.locator('[role="dialog"][aria-labelledby="u-create-title"]')).toBeVisible({ timeout: 5_000 });
   await snap(page, '20-exemple-image-confirmer');
