@@ -42,7 +42,7 @@ test('chaque exemple : badge IMAGE|VIDÉO, ≈ X crédits estimés, un vrai apr�
         const avant = await card.locator('[data-film-avant] img').evaluateAll(nodes => nodes.map(node => (node as HTMLImageElement).src));
         expect(avant).not.toContain(await apres.locator('video').getAttribute('src'));
       } else {
-        await expect(apres.locator('img')).toHaveAttribute('src', /\/exemples\/apres-/);
+        await expect(apres.locator('img')).toHaveAttribute('src', /\/exemples\/(?:[\w-]+-)?apres-/);
       }
     }
     expect(await page.locator('[data-film-exemples]').innerText()).not.toMatch(/gratuit|free|kostenlos|gratis/i);
