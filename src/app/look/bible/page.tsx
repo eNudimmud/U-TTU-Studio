@@ -1,11 +1,6 @@
-import type { Metadata } from "next";
-import { BiblePage } from "@/components/look/bible-page";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Anime bible · U*TTU Studio",
-  description: "Locks for the Anime 2.5D look. Changing one shows the estimate before anything is remade.",
-};
-
+// Renamed to ANIME Studio. Old links (bookmarks, other PRs) still land, now on the clear name.
 export default function Page() {
-  return <BiblePage />;
+  redirect("/anime/bible");
 }

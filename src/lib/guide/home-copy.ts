@@ -12,8 +12,12 @@ export interface GuideHome {
   start: { n: string; title: string; body: string; href?: string; link?: string }[];
   stepsTitle: string;
   steps: { title: string; body: string }[];
+  cgiTitle: string;
+  cgiBody: string;
+  cgiLink: string;
   lookTitle: string;
   lookBody: string;
+  animeGuideLink: string;
   costsTitle: string;
   costs: { label: string; price: string }[];
   costsNote: string;
@@ -33,6 +37,7 @@ const en: GuideHome = {
   toc: [
     { id: "start", label: "Start" },
     { id: "steps", label: "The 5 steps" },
+    { id: "cgi", label: "Cinema" },
     { id: "look", label: "Anime 2.5D" },
     { id: "costs", label: "Costs" },
     { id: "faq", label: "FAQ" },
@@ -51,8 +56,12 @@ const en: GuideHome = {
     { title: "Edit", body: "Four tracks — video, voice, music, text. MP4 export runs in your browser, no render." },
     { title: "Finish", body: "Makes the kept takes sharper and larger. Nothing is regenerated." },
   ],
+  cgiTitle: "Cinema",
+  cgiBody: "The photoreal pipeline on its own: one open-weight model per step, and a prompting guide with precise terms \u2014 anamorphic, rack focus, golden hour \u2014 instead of \u201ccinematic, 8k\u201d.",
+  cgiLink: "Open Cinema",
   lookTitle: "Anime 2.5D",
-  lookBody: "A setting of the whole project, chosen once. Wide shots and camera moves go to LTX-2.5; acting shots to Wan 2.2 with AniSora; Finish uses a Real-ESRGAN anime pass. Choosing the look starts no render.",
+  lookBody: "A setting of the whole project, chosen once in ANIME Studio. Wide shots and camera moves go to LTX-2.5; acting shots to Wan 2.2 with AniSora; Finish uses a Real-ESRGAN anime pass. Choosing the look starts no render.",
+  animeGuideLink: "ANIME Studio prompting guide — terms, style vocabulary, good vs bad prompts",
   costsTitle: "A quote before every credit.",
   costs: [
     { label: "A character picture · FLUX.3 Klein", price: "≈ 4–6 credits estimated" },
@@ -88,6 +97,7 @@ const fr: GuideHome = {
   toc: [
     { id: "start", label: "Commencer" },
     { id: "steps", label: "Les 5 étapes" },
+    { id: "cgi", label: "Cinéma" },
     { id: "look", label: "Anime 2.5D" },
     { id: "costs", label: "Coûts" },
     { id: "faq", label: "FAQ" },
@@ -106,7 +116,11 @@ const fr: GuideHome = {
     { title: "MONTAGE", body: "Quatre pistes — vidéo, voix, musique, texte. L’export MP4 tourne dans ton navigateur, aucun rendu." },
     { title: "FINALISER", body: "Rend les prises gardées plus nettes et plus grandes. Rien n’est régénéré." },
   ],
-  lookBody: "Un réglage de tout le projet, choisi une fois. Les plans larges et les mouvements de caméra vont vers LTX-2.5 ; le jeu vers Wan 2.2 avec AniSora ; Finaliser utilise une passe Real-ESRGAN anime. Choisir le look ne lance aucun rendu.",
+  cgiTitle: "Cinéma",
+  cgiBody: "Le chemin photoréaliste à part : un modèle open weights par étape, et un guide de prompting avec des termes précis — anamorphic, rack focus, golden hour — plutôt que « cinématique, 8k ».",
+  cgiLink: "Ouvrir Cinéma",
+  lookBody: "Un réglage de tout le projet, choisi une fois dans ANIME Studio. Les plans larges et les mouvements de caméra vont vers LTX-2.5 ; le jeu vers Wan 2.2 avec AniSora ; Finaliser utilise une passe Real-ESRGAN anime. Choisir le look ne lance aucun rendu.",
+  animeGuideLink: "Guide de prompting ANIME Studio — termes, vocabulaire de style, bons et mauvais prompts",
   costsTitle: "Un devis avant chaque crédit.",
   costs: [
     { label: "Une image de personnage · FLUX.3 Klein", price: "≈ 4–6 crédits estimés" },
@@ -142,6 +156,7 @@ const de: GuideHome = {
   toc: [
     { id: "start", label: "Start" },
     { id: "steps", label: "Die 5 Schritte" },
+    { id: "cgi", label: "Kino" },
     { id: "look", label: "Anime 2.5D" },
     { id: "costs", label: "Kosten" },
     { id: "faq", label: "FAQ" },
@@ -160,7 +175,11 @@ const de: GuideHome = {
     { title: "Schnitt", body: "Vier Spuren — Video, Stimme, Musik, Text. Der MP4-Export läuft im Browser, kein Rendering." },
     { title: "Finalisieren", body: "Macht die behaltenen Takes schärfer und größer. Nichts wird neu erzeugt." },
   ],
-  lookBody: "Eine Einstellung für das ganze Projekt, einmal gewählt. Weite Einstellungen und Kamerafahrten gehen an LTX-2.5; Spiel an Wan 2.2 mit AniSora; Finalisieren nutzt Real-ESRGAN anime. Die Wahl startet kein Rendering.",
+  cgiTitle: "Kino",
+  cgiBody: "Der fotorealistische Weg für sich: ein offenes Modell pro Schritt, und ein Prompting-Guide mit präzisen Begriffen \u2014 anamorphic, rack focus, golden hour \u2014 statt \u201ecinematic, 8k\u201c.",
+  cgiLink: "Kino öffnen",
+  lookBody: "Eine Einstellung für das ganze Projekt, einmal in ANIME Studio gewählt. Weite Einstellungen und Kamerafahrten gehen an LTX-2.5; Spiel an Wan 2.2 mit AniSora; Finalisieren nutzt Real-ESRGAN anime. Die Wahl startet kein Rendering.",
+  animeGuideLink: "ANIME-Studio-Prompting-Guide — Begriffe, Stilvokabular, gute und schlechte Prompts",
   costsTitle: "Ein Angebot vor jedem Credit.",
   costs: en.costs.map((row, i) => ({ ...row, price: row.price.replace("credits estimated", "Credits geschätzt").replace("no render", "kein Rendering").replace("at most", "höchstens") })),
   costsNote: "Das genaue Angebot steht noch einmal im Werkzeug, bevor du bestätigst. Von dieser Seite wird nichts gesendet.",
@@ -188,6 +207,7 @@ const es: GuideHome = {
   toc: [
     { id: "start", label: "Empezar" },
     { id: "steps", label: "Los 5 pasos" },
+    { id: "cgi", label: "Cine" },
     { id: "look", label: "Anime 2.5D" },
     { id: "costs", label: "Costes" },
     { id: "faq", label: "FAQ" },
@@ -206,7 +226,11 @@ const es: GuideHome = {
     { title: "Montaje", body: "Cuatro pistas — vídeo, voz, música, texto. La exportación MP4 corre en tu navegador, sin render." },
     { title: "Finalizar", body: "Hace las tomas guardadas más nítidas y más grandes. Nada se regenera." },
   ],
-  lookBody: "Un ajuste de todo el proyecto, elegido una vez. Los planos abiertos y los movimientos de cámara van a LTX-2.5; la interpretación a Wan 2.2 con AniSora; Finalizar usa un pase Real-ESRGAN anime. Elegir el look no lanza ningún render.",
+  cgiTitle: "Cine",
+  cgiBody: "El camino fotorrealista aparte: un modelo de pesos abiertos por paso, y una guía de prompting con términos precisos \u2014 anamorphic, rack focus, golden hour \u2014 en lugar de «cinematic, 8k».",
+  cgiLink: "Abrir Cine",
+  lookBody: "Un ajuste de todo el proyecto, elegido una vez en ANIME Studio. Los planos abiertos y los movimientos de cámara van a LTX-2.5; la interpretación a Wan 2.2 con AniSora; Finalizar usa un pase Real-ESRGAN anime. Elegir el look no lanza ningún render.",
+  animeGuideLink: "Guía de prompting de ANIME Studio — términos, vocabulario de estilo, prompts buenos y malos",
   costsTitle: "Un presupuesto antes de cada crédito.",
   costs: en.costs.map(row => ({ ...row, price: row.price.replace("credits estimated", "créditos estimados").replace("no render", "sin render").replace("at most", "como máximo") })),
   costsNote: "El presupuesto exacto vuelve a mostrarse en la herramienta antes de confirmar. Desde esta página no se envía nada.",

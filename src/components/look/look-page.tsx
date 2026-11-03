@@ -37,6 +37,10 @@ function scrollToId(id: string) {
 }
 
 export function LookPage() {
+  return <StudioProvider><LookChrome><LookPageInner /></LookChrome></StudioProvider>;
+}
+
+function LookPageInner() {
   const { locale } = useLocaleSwitch();
   const copy = lookCopy(locale);
   const router = useRouter();
@@ -70,10 +74,10 @@ export function LookPage() {
     });
     await confirm(next);
     setNotice(copy.saved);
-    router.push("/look/bible");
+    router.push("/anime/bible");
   }
 
-  return <StudioProvider><LookChrome>
+  return <>
     <div className="look-root" data-look-page="">
     <div className="look-hero">
       <div className="look-hero-media">
@@ -173,7 +177,7 @@ export function LookPage() {
       </section>
     </main>
     </div>
-  </LookChrome></StudioProvider>;
+  </>;
 }
 
 function LookChrome({ children }: { children: React.ReactNode }) {

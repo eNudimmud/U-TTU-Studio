@@ -49,10 +49,16 @@ export function GuideHome() {
           {copy.steps.map(item => <div className="g-col" key={item.title}><b>{item.title}</b><span>{item.body}</span></div>)}
         </div>
       </section>
+      <section className="g-sec" id="cgi">
+        <h2>{copy.cgiTitle}</h2>
+        <p className="g-muted">{copy.cgiBody}</p>
+        <p><a className="g-link" href={assetPath("/studio/cgi")}>{copy.cgiLink} ›</a> · <a className="g-link" href={assetPath("/guide/cgi")}>/guide/cgi</a></p>
+      </section>
       <section className="g-sec" id="look">
         <h2>{copy.lookTitle}</h2>
         <p className="g-muted">{copy.lookBody}</p>
-        <p><a className="g-link" href={assetPath("/look")}>/look</a> · <a className="g-link" href={assetPath("/look/bible")}>/look/bible</a></p>
+        <p><a className="g-link" href={assetPath("/anime")}>/anime</a> · <a className="g-link" href={assetPath("/anime/bible")}>/anime/bible</a></p>
+        <p><a className="g-link" href={assetPath("/guide/anime")}>{copy.animeGuideLink} ›</a></p>
       </section>
       <section className="g-sec" id="costs">
         <h2>{copy.costsTitle}</h2>

@@ -16,6 +16,7 @@ import { FamilyIcon, scrollToFamily } from "./studio-nav";
 import { useStudio } from "./studio-session";
 import { CreationBar } from "./creation-bar";
 import { BarreFil, useFil } from "./barre-fil";
+import { SectionSwitch } from "./section-switch";
 
 
 const noSubscribe = () => () => {};
@@ -134,6 +135,7 @@ export function BarreHome({ tous = false, family = null, early = false }: { tous
       <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>
     </p>}
     <h1 id="u-title" className="u-display u-barre-title" tabIndex={-1}><KeyTitle text={t("barre.title")} word={t("barre.titleKey")} /></h1>
+    <SectionSwitch />
     <BarreFil runner={runner} />
     <CreationBar onSend={input => runner.send(input)} preview={runner.preview} />
     <CreationTools />

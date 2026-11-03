@@ -8,6 +8,7 @@ import { useProjectLook } from "@/components/look/use-look";
 import { assetPath } from "@/lib/site";
 import { TAB_HASH, type Tab } from "@/lib/studio-route";
 import { BrandMark } from "@/components/brand";
+import { SectionPill, type StudioSectionId } from "./section-pill";
 import type { ReactNode } from "react";
 
 export const CHAIN: { id: "lora" | "scene" | "prise" | "montage" | "finaliser"; key: "nav.character" | "nav.scene" | "nav.take" | "nav.edit" | "nav.finish" }[] = [
@@ -43,6 +44,7 @@ export function ProjectChain({
   const { t } = useI18n();
   const { doc } = useProjectLook();
   const anime = doc.look?.kind === "anime25d";
+  const section: StudioSectionId = anime ? "anime" : "cinema";
   const go = (id: (typeof CHAIN)[number]["id"]) => {
     if (onStep) { onStep(id); return; }
     window.location.assign(assetPath(`/studio#${TAB_HASH[id]}`));
@@ -58,10 +60,10 @@ export function ProjectChain({
       </button>
     </span>)}
     <span className="u-step-div" aria-hidden="true" />
-    <a className="u-step u-step-look" href={assetPath("/look")} data-chain-look="" aria-current={step === "look" ? "page" : undefined}>
-      <span className="u-step-look-label">{t("chrome.look")}</span>
-      <b>{anime ? t("chrome.lookAnime") : t("chrome.lookStandard")}</b>
-    </a>
+    <SectionPill active={section} sections={{
+      cinema: { href: "/studio/cgi", label: t("chrome.lookStandard") },
+      anime: { href: "/anime", label: t("chrome.look") },
+    }} />
     {/* A closed StoryWeave is not a step: the landing announces it, the bar stays for working. */}
     {!STORYBOARD_CLOSED && <a className="u-step-soon" href={assetPath("/storyboard?storyboard=sw")} data-chain-weave="open">{t("chrome.storyweave")}</a>}
     <span className="u-step-tail">

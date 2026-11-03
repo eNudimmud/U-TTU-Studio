@@ -93,8 +93,8 @@ export function HomeLanding() {
             <ul>{copy.animePoints.map(point => <li key={point}>{point}</li>)}</ul>
             <p className="ln-fine">{copy.animeCost}</p>
             <div className="ln-ctas">
-              <a className="hv-btn hv-glass" href={assetPath("/look")}>{copy.animeLook}</a>
-              <a className="ln-go" href={assetPath("/look/bible")}>{copy.animeBible}</a>
+              <a className="hv-btn hv-glass" href={assetPath("/anime")}>{copy.animeLook}</a>
+              <a className="ln-go" href={assetPath("/anime/bible")}>{copy.animeBible}</a>
             </div>
           </div>
         </section>

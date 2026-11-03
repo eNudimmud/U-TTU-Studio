@@ -12,5 +12,5 @@ export function AnimeLookPill() {
   const { doc } = useProjectLook();
   if (!doc.look) return null;
   const copy = lookCopy(locale);
-  return <a className="anime-pill" href={assetPath("/look")} data-look-pill="">◆ {copy.tabs.look} · {copy.badge}</a>;
+  return <a className="anime-pill" href={assetPath("/anime")} data-look-pill="">◆ {copy.tabs.look} · {copy.badge}</a>;
 }

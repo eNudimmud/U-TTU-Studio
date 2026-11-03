@@ -3778,8 +3778,8 @@
     "uttu": "Uttu",
     "soon": "Bald",
     "storyweave": "StoryWeave",
-    "look": "Look",
-    "lookStandard": "Standard",
+    "look": "ANIME Studio",
+    "lookStandard": "Cinéma",
     "lookAnime": "Anime 2.5D",
     "openGuide": "Guide öffnen",
     "nextFinish": "Weiter: Finalisieren — die behaltenen Takes schärfen",
@@ -3798,5 +3798,16 @@
     "trackVoice": "Stimme",
     "trackMusic": "Musik",
     "trackText": "Text"
+  },
+  "doors": {
+    "label": "Bereich wählen",
+    "cinema": {
+      "name": "Kino",
+      "line": "Fotorealistisches CGI, in fünf Schritten."
+    },
+    "anime": {
+      "name": "ANIME Studio",
+      "line": "Stilisierter Look, dieselben fünf Schritte."
+    }
   }
 }

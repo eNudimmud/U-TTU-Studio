@@ -9,7 +9,12 @@ import {
   grapheFinition, type ApiGraph,
 } from "./graphs.ts";
 import type { AnimePreset, ProjectLook } from "./model.ts";
+import { animeLookPromptSuffix } from "./prompt-suffix.ts";
 import { COUT_CADRE, COUT_CAMERA, COUT_DECOR, COUT_FINITION, COUT_JEU, COUT_PLANCHE, COUT_PREMIERE, devisPlan } from "./quote.ts";
+
+// Re-exported for existing callers/tests; the implementation lives in prompt-suffix.ts so the
+// client studio can import it without pulling graphs.ts (partner-engine names) into its bundle.
+export { animeLookPromptSuffix };
 
 export type EtapeLook = "style" | "sheet" | "decor" | "first" | "acting" | "camera" | "finish";
 export type RoutePlan = "acting" | "camera";
@@ -67,24 +72,6 @@ export function routePlan(shot: ShotCue): RoutePlan {
   return "acting";
 }
 
-function suffix(look: ProjectLook): string {
-  const preset: Record<AnimePreset, string> = {
-    theatrical: "theatrical anime, gouache skies, sunbeams, cel shading",
-    neon: "neon-night anime, rain, reflections, electric rim light, cel shading",
-    daylight: "summer-daylight anime, soft clouds, quiet light, cel shading",
-    darkfantasy: "dark-fantasy anime, moonlight, embers, epic scale, cel shading",
-    retro: "1990s cel anime, flat shadows, film grain",
-    own: "match the style reference exactly",
-  };
-  const locks = [
-    look.locks.line ? "fine ink line, darker on the outline" : "",
-    look.locks.shading ? "two-tone cel shading and warm rim light" : "",
-    look.locks.palette ? "keep the style-frame palette" : "",
-    look.locks.depth ? "painted depth layers for a real 3D camera" : "",
-  ].filter(Boolean);
-  return [preset[look.preset], ...locks, "No text."].join(". ");
-}
-
 function etape(partial: Omit<ReglageEtape, "regenerates" | "post"> & { post?: ReglageEtape["post"] }, look: ProjectLook): ReglageEtape {
   return {
     ...partial,
@@ -96,7 +83,7 @@ function etape(partial: Omit<ReglageEtape, "regenerates" | "post"> & { post?: Re
 /** Null when the project has no look: every stage keeps the template it already uses. */
 export function resolveLook(look: ProjectLook | null): LookProfile | null {
   if (!look || look.kind !== "anime25d") return null;
-  const promptSuffix = suffix(look);
+  const promptSuffix = animeLookPromptSuffix(look);
   const loras = look.preset === "retro" ? [LORA_STYLE, LORA_RETRO] : [LORA_STYLE];
   const style = etape({
     etape: "style", gesteId: "anime-style-frame", template: KREA_STYLE_TEMPLATE, repli: null, loras,

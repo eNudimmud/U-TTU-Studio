@@ -3778,8 +3778,8 @@
     "uttu": "Uttu",
     "soon": "Pronto",
     "storyweave": "StoryWeave",
-    "look": "Look",
-    "lookStandard": "Estándar",
+    "look": "ANIME Studio",
+    "lookStandard": "Cinéma",
     "lookAnime": "Anime 2.5D",
     "openGuide": "Abrir la guía",
     "nextFinish": "Siguiente: Finalizar — afinar las tomas guardadas",
@@ -3798,5 +3798,16 @@
     "trackVoice": "Voz",
     "trackMusic": "Música",
     "trackText": "Texto"
+  },
+  "doors": {
+    "label": "Elige una sección",
+    "cinema": {
+      "name": "Cine",
+      "line": "CGI fotorrealista, en cinco pasos."
+    },
+    "anime": {
+      "name": "ANIME Studio",
+      "line": "Estilo ilustrado, los mismos cinco pasos."
+    }
   }
 }
