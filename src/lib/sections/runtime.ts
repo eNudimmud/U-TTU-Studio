@@ -9,10 +9,11 @@ import { BILLED_CREDITS_PER_GPU_SECOND } from "../credits.ts";
 import { animeImageGraph, ANIME_TEMPLATE } from "./anime-graph.ts";
 import { fileResult, readProduction, writeProduction, nextTakeNumber, type ProductionAsset, type Production, type AssetKind } from "./model.ts";
 import type { Section } from "./registry.ts";
+import { videoSeconds } from "./media.ts";
 
 export interface CreationRequest {
   id: string; project: string; section: Section; kind: AssetKind; name: string; prompt: string;
-  refs: string[]; structure?: string; seed: number; quote: number; shotId?: string;
+  refs: string[]; structure?: string; seed: number; quote: number; shotId?: string; operation?: "image" | "video";
 }
 export const vault = () => idbVault();
 export function browserClient(): RenderClient | null {
@@ -74,14 +75,16 @@ export async function collectResult(store: VaultStore, client: RenderClient, rec
   }
   status("Vérification et sauvegarde du résultat…");
   const detail = await client.job(job);
-  const output = pickOutput(detail.outputs, "image", receipt.outputNode);
+  const media = request.operation === "video" ? "video" : "image";
+  const output = pickOutput(detail.outputs, media, receipt.outputNode);
   if (!output || output.type !== "output") throw new Error("Aucune sortie finale valide. Le reçu est conservé.");
   const blob = await client.file(output);
   const current = await readProduction(store, request.project);
-  const ext = /\.(png|jpe?g|webp)$/i.exec(output.filename)?.[1] || "png";
-  const asset: ProductionAsset = { id: request.id, section: request.section, kind: request.kind, name: request.name, path: `Projets/${request.project}/Assets/${request.id}.${ext}`, media: "image", prompt: request.prompt, refs: request.refs, at: receipt.at, source: "comfy", jobId: job, output, template: receipt.template, seed: request.seed, quote: request.quote, credits: null,
+  const seconds = media === "video" ? await videoSeconds(blob) : undefined;
+  const ext = /\.(png|jpe?g|webp|mp4|webm|mov)$/i.exec(output.filename)?.[1] || (media === "image" ? "png" : "mp4");
+  const asset: ProductionAsset = { id: request.id, section: request.section, kind: request.kind, name: request.name, path: `Projets/${request.project}/Assets/${request.id}.${ext}`, media, seconds, prompt: request.prompt, refs: request.refs, at: receipt.at, source: "comfy", jobId: job, output, template: receipt.template, seed: request.seed, quote: request.quote, credits: null,
     ...(request.shotId ? { shotId: request.shotId, number: nextTakeNumber(current, request.section, request.shotId), kept: false } : {}) };
-  await fileResult(store, request.project, asset, blob, imageVide);
+  await fileResult(store, request.project, asset, blob, media === "image" ? imageVide : async () => false);
   // Only the job's billed events count. Never infer a debit from other work on the account.
   const charge = await client.jobCharge(job, BILLED_CREDITS_PER_GPU_SECOND).catch(() => null);
   const saved = await readProduction(store, request.project);
@@ -101,9 +104,10 @@ export async function createImage(request: CreationRequest, status: (text: strin
     const images: string[] = [];
     for (const path of request.refs) images.push(await uploaded(store, client, path));
     const structure = request.structure ? await uploaded(store, client, request.structure) : undefined;
-    const graph = request.section === "anime" ? animeImageGraph({ prompt: request.prompt, images, structure, seed: request.seed, portrait: request.kind === "cast" }) : qwenImageGraph({ prompt: request.prompt, images, seed: request.seed, edit: images.length > 0 });
-    const template = request.section === "anime" ? ANIME_TEMPLATE : images.length ? QWEN_EDIT : QWEN_TEXT;
-    const receipt: PendingRender = { version: 1, kind: "image", project: request.project, id: request.id, name: request.name, prompt: request.prompt, at: new Date().toISOString(), account, refs: request.refs, template, quote: request.quote, balanceBefore: balance, jobId: null, outputNode: request.section === "anime" ? "21" : "461" };
+    if (request.operation === "video" && images.length !== 1) throw new Error("L’animation demande une image de départ.");
+    const graph = request.operation === "video" ? (await import("./video-graph.ts")).sectionVideoGraph({ section: request.section, image: images[0], prompt: request.prompt, seed: request.seed }) : request.section === "anime" ? animeImageGraph({ prompt: request.prompt, images, structure, seed: request.seed, portrait: request.kind === "cast" }) : qwenImageGraph({ prompt: request.prompt, images, seed: request.seed, edit: images.length > 0 });
+    const template = request.operation === "video" ? `video_wan2_2_14B_i2v${request.section === "anime" ? "_anisora32" : ""}` : request.section === "anime" ? ANIME_TEMPLATE : images.length ? QWEN_EDIT : QWEN_TEXT;
+    const receipt: PendingRender = { version: 1, kind: request.operation === "video" ? "video" : "image", project: request.project, id: request.id, name: request.name, prompt: request.prompt, at: new Date().toISOString(), account, refs: request.refs, template, quote: request.quote, balanceBefore: balance, jobId: null, outputNode: request.operation === "video" ? "108" : request.section === "anime" ? "21" : "461" };
     await store.put({ path: requestPath(request.project), text: JSON.stringify(request), updatedAt: Date.now() });
     const safe = recoverableClient(client, localStorage, receipt);
     status("Envoi du rendu…");
