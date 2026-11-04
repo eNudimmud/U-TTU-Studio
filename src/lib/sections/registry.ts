@@ -18,3 +18,5 @@ export const CAST_TOOLS: { id: ToolId; title: string; note: string; mark: string
 export const sectionPath = (section: Section, step: Step | "prompts" | "bible") => `/studio/${section}/${step}`;
 export const isSection = (value: string): value is Section => (SECTIONS as readonly string[]).includes(value);
 export const isStep = (value: string): value is Step => (STEPS as readonly string[]).includes(value);
+
+export const SET_TOOLS = CAST_TOOLS.map(tool => ({ ...tool, note: tool.id === "text" ? "Décris un lieu, son architecture et sa lumière." : tool.id === "references" ? "Pars de tes repérages et de tes images du lieu." : "Ajoute un décor existant à ton projet." }));
