@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { CAST_TOOLS, SET_TOOLS, SHOOT_TOOLS, SECTIONS, STEPS, STEP_COPY, sectionPath, type Section, type Step, type ToolId } from "@/lib/sections/registry";
 import { emptyProduction, keepTake, readProduction, writeProduction, fileResult, stepState, type Production, type ProductionAsset, type AssetKind } from "@/lib/sections/model";
@@ -9,6 +10,8 @@ import { imageVide } from "@/lib/render/blank";
 import { randomSeed } from "@/lib/seed";
 import type { CreationRequest } from "@/lib/sections/runtime";
 import "./studio.css";
+
+const CutEditor = dynamic(() => import("./cut-editor"), { ssr: false, loading: () => <p>Ouverture du montage…</p> });
 
 type DialogName = "connect" | "guide" | "bible" | "project" | "tool" | "asset" | null;
 export function Modal({ title, children, close }: { title: string; children: ReactNode; close: () => void }) {
@@ -87,7 +90,8 @@ export function ProductionStudio({ section, step }: { section: Section; step: St
       <div className="ps-section-title"><h2>{items.length ? `Tes ${copy.object}` : "À toi de créer"}</h2><span>{items.length ? `${items.length} dans le projet` : "Du premier trait au dernier plan"}</span></div>
       {items.length > 0 && <div className="ps-assets">{items.map(a => <article className="ps-asset" key={a.id}><AssetPreview asset={a} final={step === "finish"} /><div><small>{a.kind === "take" ? `PRISE ${String(a.number || 1).padStart(2,"0")} · ${a.kept ? "GARDÉE" : "ESSAI"}` : a.source === "comfy" ? "CRÉATION DU PROJET" : "IMAGE IMPORTÉE"}</small><h3>{a.name}</h3><button onClick={() => { setActive(a); setDialog("asset"); }}>Ouvrir <span>→</span></button></div></article>)}</div>}
       {(step === "cast" || step === "set" || step === "shoot") && <div className="ps-tools">{(step === "shoot" ? SHOOT_TOOLS : step === "set" ? SET_TOOLS : CAST_TOOLS).map(t => <button className="ps-tool" key={t.id} onClick={() => t.id === "import" ? fileInput.current?.click() : openTool(t.id)} disabled={!ready || busy}><div className="ps-card-art"><Etching kind={t.id} /><span>{t.mark}</span></div><div className="ps-card-copy"><h3>{t.title}<span>→</span></h3><p>{t.note}</p><small>{t.id === "import" ? "Gratuit · depuis ton appareil" : `≈ ${t.id === "animate" ? section === "anime" ? 48 : 8 : 4} crédits estimés`}</small></div></button>)}</div>}
-      {step !== "cast" && step !== "set" && step !== "shoot" && <p className="ps-note">Les créations de ce projet restent disponibles à chaque étape.</p>}
+      {step === "edit" && ready && <CutEditor project={project} section={section} assets={production.assets} refresh={reload} />}
+      {step === "finish" && <p className="ps-note">Les créations de ce projet restent disponibles à chaque étape.</p>}
       <input ref={fileInput} type="file" accept={step === "shoot" && dialog !== "tool" ? "image/png,image/jpeg,image/webp,video/mp4,video/webm" : "image/png,image/jpeg,image/webp"} multiple hidden onChange={e => void upload(e.target.files)} />
       <aside className="ps-footnote"><span>✳</span><p>{section === "anime" ? "La même histoire, un autre trait." : "Le cadre change. Ton univers reste."}<small>Les références de tes personnages et de tes décors restent dans ce projet.</small></p><button onClick={() => setDialog("guide")}>Comment commencer <span>→</span></button></aside>
     </main>
