@@ -249,7 +249,7 @@ async function fakeComfy(page: Page) {
     return route.fulfill({ json: { prompt_id: `cadre-job-${graphs.length}`, node_errors: {} } });
   });
   await page.route(/\/api\/job\/[^/]+\/status$/, route => route.fulfill({ json: { status: "success" } }));
-  await page.route(/\/api\/jobs\/[^/?]+$/, route => route.fulfill({ json: { status: "success", outputs: { save: { images: [{ filename: "cadre.webp", subfolder: "", type: "output" }] } } } }));
+  await page.route(/\/api\/jobs\/[^/?]+$/, route => route.fulfill({ json: { status: "success", outputs: { r0_save: { images: [{ filename: "cadre.webp", subfolder: "", type: "output" }] } } } }));
   await page.route(/\/api\/view\?/, route => route.fulfill({ contentType: "image/webp", body: readFileSync("public/exemples/reperage/sf-exemple.webp") }));
   return { graphs, uploads };
 }
