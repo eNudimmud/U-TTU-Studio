@@ -7,6 +7,7 @@ import { graphVerdict } from "../src/lib/cinema/workflow-policy.ts";
 import { sectionVideoGraph } from "../src/lib/sections/video-graph.ts";
 import { keptClip, validateCut } from "../src/lib/sections/edit.ts";
 import { emptyEdit } from "../src/lib/montage/edit.ts";
+import { finishSource, animeFinishGraph, sectionFinishGraph } from "../src/lib/sections/finish.ts";
 const asset = (id: string): ProductionAsset => ({ id, section:"anime", kind:"take", name:id, path:`Projets/test/Assets/${id}.png`, media:"image", prompt:"Portrait", at:"", refs:[], source:"comfy", credits:4, shotId:"shot-one", number:1 });
 test("invalid results never enter the project or its costs", async () => {
   const store=memoryVault();
@@ -58,4 +59,20 @@ test("export refuses discarded takes, wrong section and invalid trim",()=>{
   assert.throws(()=>validateCut(cut,[{...a,kept:false}],"anime"),/plus gardée/);
   assert.throws(()=>validateCut(cut,[a],"cinema"),/plus gardée/);
   assert.throws(()=>validateCut({...cut,video:[{...cut.video[0],end:6}]},[a],"anime"),/dépasse/);
+});
+test("Finish requires a kept take in the requested section",()=>{
+  const a=asset("f");assert.throws(()=>finishSource([a],a.id,"anime"),/gardée/);
+  assert.throws(()=>finishSource([{...a,kept:true}],a.id,"cinema"),/gardée/);
+  assert.equal(finishSource([{...a,kept:true}],a.id,"anime").id,a.id);
+});
+test("anime Finish never samples and preserves audio and frame rate",()=>{
+  const g=animeFinishGraph("take.mp4","video");
+  assert.deepEqual(g.video.inputs.audio,["frames",1]);assert.deepEqual(g.video.inputs.fps,["frames",2]);
+  assert.equal(Object.values(g).some(n=>/Sampler|Latent|CLIP|UNET/.test(n.class_type)),false);
+  assert.equal(graphVerdict(g,true).allowed,true);
+});
+test("cinema Finish uses SeedVR2 on existing frames with original audio and cadence",async()=>{
+  const result=await sectionFinishGraph({...asset("seed"),section:"cinema",media:"video",kept:true,seconds:5},"take.mp4",3);
+  assert.match(result.template,/seedvr2/);assert.deepEqual(result.graph["66:75"].inputs.audio,["66:74",1]);assert.deepEqual(result.graph["66:75"].inputs.fps,["66:74",2]);
+  assert.equal(graphVerdict(result.graph,true).allowed,true);
 });
