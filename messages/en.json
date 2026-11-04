@@ -2017,7 +2017,7 @@
     "needVoice": "Add a voice (audio file).",
     "noFrame": "The take’s last frame could not be read on this device. Nothing was sent.",
     "emptyResult": "The render came back empty. The original is untouched.",
-    "blankResult": "The render came back completely black (or one flat colour): that is not a result, nothing was filed. Credits may have been charged; they show in your Comfy history. Try again, or shorten the instruction.",
+    "blankResult": "The render is empty, unreadable or corrupt. It was not added to the project.",
     "toPrise": "Open in a shot",
     "fluide": "Make the motion smoother",
     "voice": "Voice (first 5 seconds)",

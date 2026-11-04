@@ -11,14 +11,14 @@ export interface CreationQuote {
 }
 
 /**
- * One FLUX 3 Image Klein still (open weights, GPU time only).
- * Klein runs measured 2.6 to 4 credits on 2026-10-15 (0.27 credit a GPU-second).
+ * Qwen Image 2.1, 1920×1088. Estimate from the supplied edit runs (~4.2 credits).
+ * Text-to-image at this size has not been measured; this is never a billed amount.
  */
 export const CAST_TEXT_QUOTE: CreationQuote = {
   credits: 4,
   high: 6,
-  template: "image_flux3_klein_t2i",
-  kind: "mesure",
+  template: "image_qwen_image_2_1_t2i",
+  kind: "hypothese",
 };
 
 /** One FLUX 3 Klein reference edit from face photos. Same files as text-to-image. */

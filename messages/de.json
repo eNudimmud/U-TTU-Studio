@@ -2017,7 +2017,7 @@
     "needVoice": "Füge eine Stimme hinzu (Audiodatei).",
     "noFrame": "Das letzte Bild der Aufnahme ließ sich auf diesem Gerät nicht lesen. Nichts wurde gesendet.",
     "emptyResult": "Der Render kam leer zurück. Das Original bleibt unverändert.",
-    "blankResult": "Der Render kam komplett schwarz (oder einfarbig) zurück: Das ist kein Ergebnis, nichts wurde abgelegt. Es können Credits abgebucht worden sein; sie stehen in deinem Comfy-Verlauf. Versuch es noch einmal oder kürze die Anweisung.",
+    "blankResult": "Das Ergebnis ist leer, unlesbar oder beschädigt. Es wurde nicht zum Projekt hinzugefügt.",
     "toPrise": "In einer Einstellung öffnen",
     "fluide": "Die Bewegung weicher machen",
     "voice": "Stimme (erste 5 Sekunden)",

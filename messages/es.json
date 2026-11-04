@@ -2017,7 +2017,7 @@
     "needVoice": "Añade una voz (archivo de audio).",
     "noFrame": "No se pudo leer el último fotograma de la toma en este dispositivo. No se envió nada.",
     "emptyResult": "El render volvió vacío. El original queda intacto.",
-    "blankResult": "El render salió completamente negro (o de un solo color): no es un resultado, no se ha guardado nada. Puede que se hayan cobrado créditos; aparecen en tu historial de Comfy. Vuelve a intentarlo o acorta la instrucción.",
+    "blankResult": "El resultado está vacío, es ilegible o está dañado. No se ha añadido al proyecto.",
     "toPrise": "Abrir en un plano",
     "fluide": "Hacer el movimiento más suave",
     "voice": "Voz (primeros 5 segundos)",

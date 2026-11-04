@@ -2017,7 +2017,7 @@
     "needVoice": "Ajoute une voix (fichier audio).",
     "noFrame": "La dernière image de la prise n’a pas pu être lue sur cet appareil. Rien n’est parti.",
     "emptyResult": "Le rendu est revenu vide. L’original reste intact.",
-    "blankResult": "Le rendu est sorti entièrement noir (ou d’une seule couleur) : ce n’est pas un résultat, rien n’a été rangé. Des crédits ont pu être débités, ils restent visibles dans ton historique Comfy. Réessaie, ou raccourcis la consigne.",
+    "blankResult": "Le rendu est vide, illisible ou corrompu. Il n’a pas été ajouté au projet.",
     "toPrise": "Ouvrir dans un plan",
     "fluide": "Rendre le mouvement plus doux",
     "voice": "Voix (5 premières secondes)",

@@ -185,7 +185,7 @@ export const REGISTRE: readonly Geste[] = [
   geste({
     id: "cast-texte", onglet: "cast", categorie: "identite", clef: "castText",
     fournit: ["texte"], slots: [],
-    template: KLEIN_T2I, credits: 4, high: 6, nature: "mesure",
+    template: "image_qwen_image_2_1_t2i", credits: 4, high: 6, nature: "hypothese",
     premier: true, still: "texte-cast", minRefs: 0,
     consigne: "Une personne fictive. Face, trois-quarts, profil, en pied. Fond neutre. Pas de texte.",
   }),
