@@ -216,6 +216,27 @@ describe("une prise sans quitter le studio", () => {
     assert.ok(costs.length >= 1);
   });
 
+  it("holds cost attribution until the caller has saved the result, once only", async () => {
+    const { client } = scriptedCloud(["success"], [2370, 2275]);
+    let reads = 0;
+    const held = { ...client, jobCharge: async () => {
+      reads++;
+      return { credits: 4, gpuSeconds: 10 };
+    } };
+    const costs: Array<number | null> = [];
+    const result = await followTake(held, "job-0123456789", 5001, () => {}, {
+      sleep: async () => {}, holdMeasureUntilSaved: true, deferMeasure: true,
+      onCost: info => costs.push(info.costCredits),
+    });
+    assert.ok(result.video.size > 0);
+    assert.equal(reads, 0);
+    assert.deepEqual(costs, []);
+    assert.ok(result.measureAfterSave);
+    await Promise.all([result.measureAfterSave(), result.measureAfterSave()]);
+    assert.equal(reads, 1);
+    assert.deepEqual(costs, [4]);
+  });
+
   it("rides out a few unreachable reads while the phone changes networks", async () => {
     const { client } = scriptedCloud(["executing", "success"], [2370, 2275]);
     let drops = 2;
