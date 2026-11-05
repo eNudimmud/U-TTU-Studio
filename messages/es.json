@@ -3118,6 +3118,8 @@
       "spent": "{cost, select, 1 {≈ 1 crédito estimado para este mensaje} other {≈ {cost} créditos estimados para este mensaje}}",
       "spentMax": "{cost, select, 1 {como mucho ≈ 1 crédito estimado para este mensaje} other {como mucho ≈ {cost} créditos estimados para este mensaje}}",
       "local": "Calculado por el estudio, sin llamada de pago.",
+      "nativeNote": "Modo de pesos abiertos: Uttu responde desde el estudio. El motor es Qwen3-VL 8B; esta conversación no llama a GPT-5 Nano ni envía ningún trabajo. Aquí no se usa ningún crédito.",
+      "nativeGuide": "Respondo aquí sin un modelo alojado. Qwen3-VL 8B es el motor nativo y sigue siendo candidato: este panel no inicia una lectura en la nube. Describe una acción (personaje, decorado, toma) y la paso al plan de producción. No se envió nada.",
       "openTool": "Abrir la herramienta {name}",
       "toolCost": "≈ {low}–{high} créditos estimados por lanzamiento",
       "counter": "{n}/{max} caracteres",

@@ -7,8 +7,9 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { legacyStudioHref } from "@/lib/legacy-studio";
 import { assetPath } from "@/lib/site";
 import { OPEN_WEIGHTS_MODE } from "@/lib/open-weights";
+import { routerChatAllowed } from "@/lib/agent/conversation-route";
 import { useI18n } from "@/components/i18n/provider";
-import { asksCost, formatCr, simulateText, toolHref, type FaqHit, type Knowledge, type SimItem, type SimResult, type UttuLocale } from "@/lib/agent/uttu";
+import { asksCost, formatCr, searchFaq, simulateText, toolHref, type FaqHit, type Knowledge, type SimItem, type SimResult, type UttuLocale } from "@/lib/agent/uttu";
 import { HISTORY, MAX_MESSAGE, perMessageCeiling, type AgentAction, type AgentErrorCode, type ChatResult, type ProjectContext } from "@/lib/agent/uttu-comfy";
 import { useStudio } from "./studio-session";
 
@@ -56,6 +57,8 @@ export function UttuFree({ locale, isAction, onPlan, refs = [], project, more, m
   const [pending, setPending] = useState(false);
   const busy = useRef(false);
   const comfy = connected;
+  // Open-weights mode: agentEngine is Qwen3-VL. Do not POST /studio-agent/chat (403 ineligible).
+  const native = !routerChatAllowed(OPEN_WEIGHTS_MODE);
   const ceiling = useMemo(() => perMessageCeiling(knowledge), [knowledge]);
   const cost = formatCr(locale, ceiling);
 
@@ -75,12 +78,17 @@ export function UttuFree({ locale, isAction, onPlan, refs = [], project, more, m
     if (!knowledge) return { role: "assistant", text: t(failed ? "uttu.loadError" : "uttu.loading"), at };
     const sim = simulateText(knowledge, locale, value);
     if (sim) return { role: "assistant", text: t("uttu.sim.reply"), at, sim, local: true };
-    if (isAction(value)) return { role: "assistant", text: t("uttu.planHint"), at, acts: ["plan", "connect"], plan: value };
+    if (isAction(value)) return { role: "assistant", text: t("uttu.planHint"), at, acts: native ? ["plan"] : ["plan", "connect"], plan: value, local: native };
+    if (native) {
+      const hit = searchFaq(knowledge, locale, value, 1)[0];
+      if (hit) return { role: "assistant", text: hit.text, at, hits: [hit], local: true };
+      return { role: "assistant", text: t("uttu.comfy.nativeGuide"), at, local: true };
+    }
     return { role: "assistant", text: t("uttu.comfy.invite", { cost }), at, acts: ["connect"] };
   }
   function send(value = text) {
     const clean = value.trim().slice(0, MAX_MESSAGE); if (!clean) return;
-    if (comfy) { void sendComfy(clean); return; }
+    if (comfy && routerChatAllowed(OPEN_WEIGHTS_MODE)) { void sendComfy(clean); return; }
     setLog(current => [...current, { role: "user" as const, text: clean, at: Date.now() }, answer(clean)].slice(-30));
     setText("");
   }
@@ -129,7 +137,7 @@ export function UttuFree({ locale, isAction, onPlan, refs = [], project, more, m
 
   const perMessage = t("uttu.perMessage", { n: Number(ceiling.toFixed(1)) });
   const asked = log.some(turn => turn.role === "user");
-  return <section className="u-uttu-free" data-uttu="" aria-labelledby="u-uttu-log-title">
+  return <section className="u-uttu-free" data-uttu="" data-uttu-engine={native ? "native-qwen3vl" : "router-gpt5-nano"} aria-labelledby="u-uttu-log-title">
     <h3 id="u-uttu-log-title" className="sr-only">{t("uttu.log")}</h3>
     <a className="u-link" data-open-guide="" href={assetPath("/guide")}>{t("chrome.openGuide")}</a>
     <div className="u-uttu-log" data-uttu-log="" role="log" aria-live="polite" aria-label={t("uttu.log")} ref={logRef}>
@@ -170,15 +178,15 @@ export function UttuFree({ locale, isAction, onPlan, refs = [], project, more, m
       <button type="submit" className="u-primary u-uttu-send" data-uttu-send="" aria-busy={pending || undefined} aria-label={comfy ? t("uttu.comfy.send") : t("uttu.send")} title={comfy ? t("uttu.comfy.send") : t("uttu.send")}><span aria-hidden="true">↑</span></button>
     </form>
     {text.length > MAX_MESSAGE - 100 && <p className="u-small u-uttu-count" data-uttu-count="">{t("uttu.comfy.counter", { n: text.length, max: MAX_MESSAGE })}</p>}
-    {connected ? <p className="u-small u-uttu-price" data-uttu-mode="comfy" data-uttu-price="">{perMessage}</p> : <p className="u-small u-uttu-price" data-uttu-invite="">
-      <span data-uttu-price="">{perMessage}</span>
-      <button type="button" className="u-link u-uttu-connect" data-uttu-invite-connect="" onClick={() => setSheet("connect")}>{t("uttu.connectShort")}</button>
+    {connected && !native ? <p className="u-small u-uttu-price" data-uttu-mode="comfy" data-uttu-price="">{perMessage}</p> : <p className="u-small u-uttu-price" data-uttu-invite="">
+      <span data-uttu-price="">{native ? t("uttu.comfy.local") : perMessage}</span>
+      {!connected && <button type="button" className="u-link u-uttu-connect" data-uttu-invite-connect="" onClick={() => setSheet("connect")}>{t("uttu.connectShort")}</button>}
     </p>}
     <details className="u-uttu-more" data-uttu-more="" open={moreOpen} onToggle={e => onMore?.((e.currentTarget as HTMLDetailsElement).open)}>
       <summary>{t("uttu.more")}</summary>
       <div className="u-uttu-more-body">
         <p className="u-small">{t("uttu.comfy.welcome")}</p>
-        {comfy ? <p className="u-small" data-uttu-paid-note="">{t(linkMode === "session" ? "uttu.comfy.paidNoteSession" : "uttu.comfy.paidNote")}</p>
+        {comfy ? <p className="u-small" data-uttu-paid-note="">{t(native ? "uttu.comfy.nativeNote" : linkMode === "session" ? "uttu.comfy.paidNoteSession" : "uttu.comfy.paidNote")}</p>
           : <div className="u-uttu-invite"><p className="u-small">{t("uttu.comfy.invite", { cost })}</p><button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("uttu.comfy.inviteButton")}</button></div>}
         {knowledge && <p className="u-small u-uttu-version" data-uttu-version={knowledge.version.short}>{t("uttu.version", { version: knowledge.version.short })}</p>}
         {more}

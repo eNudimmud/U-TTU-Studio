@@ -2,15 +2,14 @@ import { test, expect, type Page, type Request } from "@playwright/test";
 import { simulateComfy } from "./helpers/simulate-comfy";
 import { showPlan } from "./helpers/top-bar";
 
-// U*TTU, Agent Comfy mode: paid by the visitor's own Comfy account, opt-in, accepted once per
-// session. The route /studio-agent/chat is mocked: no Router call, no credit spent by the tests.
+// Open-weights mode (the public build): the panel uses agentEngine → Qwen3-VL and does not POST
+// /studio-agent/chat. That route is mocked only to prove it stays silent. No Router call, no credit.
 const VIEWPORTS = [
   { width: 390, height: 844 },
   { width: 844, height: 390 },
   { width: 1024, height: 600 },
   { width: 1280, height: 800 },
 ];
-const FAKE_KEY = "audit-fake-key-0123456789";
 
 type Reply = { status?: number; json: object };
 async function mockChat(page: Page, replies: Reply[]) {
@@ -20,13 +19,16 @@ async function mockChat(page: Page, replies: Reply[]) {
     const next = replies.shift() ?? { status: 500, json: { error: "failed" } };
     return route.fulfill({ status: next.status ?? 200, json: next.json });
   });
-  // Belt and braces: nothing may reach Comfy Router from the browser.
   await page.route(/api\.comfy\.org\/v2\/models/, route => { calls.push(route.request()); return route.abort(); });
   return calls;
 }
 async function openPanel(page: Page) {
   await page.goto("/studio/legacy");
-  await page.locator("[data-top-uttu], [data-chain-uttu]").filter({ visible: true }).first().click();
+  // The control can sit under the dev overlay on a narrow window. Click the node itself.
+  await page.evaluate(() => {
+    const button = document.querySelector<HTMLElement>("[data-top-uttu], [data-chain-uttu]");
+    button?.click();
+  });
   const panel = page.locator("[data-assistant-panel]");
   await expect(panel).toBeVisible();
   return panel;
@@ -34,145 +36,111 @@ async function openPanel(page: Page) {
 const lastReply = (panel: ReturnType<Page["locator"]>) => panel.locator("[data-uttu-log] [data-role=assistant]").last();
 
 for (const viewport of VIEWPORTS) {
-  test(`Agent Comfy à ${viewport.width}×${viewport.height} : accord, réponse, plan de production, outil`, async ({ page }, testInfo) => {
+  test(`Agent natif à ${viewport.width}×${viewport.height} : plan, puis la frappe reste dans la conversation`, async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop", "Viewports are set by the test");
     await page.setViewportSize(viewport);
     await simulateComfy(page);
-    const calls = await mockChat(page, [
-      { json: { reply: "Je te prépare trois prises dans le plan de production. Tu verras le devis avant de lancer.", action: { kind: "plan", tool: null, request: "Prépare trois prises de la scène du quai" }, credits: 0.05, measured: true } },
-      { json: { reply: "L’outil d’image Qwen convient pour ça.", action: { kind: "open_tool", tool: "img-qwen", request: null }, credits: 0.04, measured: true } },
-    ]);
+    const calls = await mockChat(page, []);
     const panel = await openPanel(page);
 
-    // One agent: no free/paid switch, the price per message is always shown.
+    await expect(panel.locator("[data-uttu-engine]")).toHaveAttribute("data-uttu-engine", "native-qwen3vl");
     await expect(panel.locator("[data-uttu-mode-pick]")).toHaveCount(0);
-    await expect(panel.locator("[data-uttu-price]")).toHaveText("≈ 0,2 crédit estimé par message");
-    // Minimal panel: the explanations wait behind « Plus d’options ».
-    await expect(panel.locator("[data-uttu-paid-note]")).toBeHidden();
-    await expect(panel.locator("[data-uttu-suggest]")).toHaveCount(3);
+    await expect(panel.locator("[data-uttu-price]")).toHaveText("Calculé par le studio, sans appel payant.");
     await showPlan(page);
-    await expect(panel.locator("[data-uttu-paid-note]")).toBeVisible();
-    await expect(panel.locator("[data-uttu-paid-note]")).toContainText("ne garde pas ta clé");
+    await expect(panel.locator("[data-uttu-paid-note]")).toContainText("Qwen3-VL 8B");
+    await expect(panel.locator("[data-uttu-paid-note]")).toContainText("n’envoie aucun job");
 
     const input = panel.locator("[data-uttu-input]");
-    await input.fill("Je veux trois prises de la scène du quai");
+    await input.fill("Prépare trois prises de la scène du quai");
     await panel.locator("[data-uttu-send]").click();
-    const gate = panel.locator("[data-uttu-gate]");
-    await expect(gate).toBeVisible();
-    await expect(gate).toContainText("≈ 0,2 crédits estimés");
+    await expect(panel.locator("[data-uttu-gate]")).toHaveCount(0);
+    const planButton = lastReply(panel).locator("[data-uttu-act=plan]");
+    await expect(planButton).toBeVisible();
     expect(calls.length).toBe(0);
-    const accept = gate.locator("[data-uttu-accept]");
-    expect((await accept.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-    await accept.click();
 
-    await expect(lastReply(panel)).toContainText("trois prises dans le plan");
-    await expect(lastReply(panel).locator("[data-uttu-spent]")).toHaveText("≈ 0,05 crédits estimés pour ce message");
-    expect(calls.length).toBe(1);
-    expect(calls[0].headers()["x-api-key"]).toBe(FAKE_KEY);
-    const body = calls[0].postDataJSON();
-    expect(body.message).toBe("Je veux trois prises de la scène du quai");
-    expect(body.locale).toBe("fr");
-
-    await lastReply(panel).locator("[data-uttu-act=plan]").click();
+    // Click, then type in the conversation before the deferred focus frame runs.
+    await page.evaluate(() => {
+      const button = document.querySelector<HTMLButtonElement>("[data-uttu-act=plan]");
+      const chat = document.querySelector<HTMLTextAreaElement>("[data-uttu-input]");
+      button?.click();
+      chat?.focus();
+      if (!chat) return;
+      const set = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+      set?.call(chat, "encore");
+      chat.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await page.evaluate(() => new Promise<void>(resolve => {
+      requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    }));
+    await expect(input).toBeFocused();
+    await expect(input).toHaveValue("encore");
+    await page.keyboard.type("!");
+    await expect(input).toHaveValue("encore!");
     await expect(panel.locator("[data-assistant-input]")).toHaveValue("Prépare trois prises de la scène du quai");
-    await expect(panel.locator("[data-assistant-input]")).toBeVisible();
-    expect(calls.length).toBe(1);
-
-    // Accepted once for the session: the next message goes without asking again.
-    await input.fill("Quel outil pour une image de quai ?");
-    await input.press("Enter");
-    await expect(lastReply(panel)).toContainText("Qwen");
-    await expect(gate).toHaveCount(0);
-    expect(calls.length).toBe(2);
-    expect(calls[1].postDataJSON().history.length).toBeGreaterThan(0);
-    const tool = lastReply(panel).locator("[data-uttu-tool=img-qwen]");
-    await expect(tool).toHaveAttribute("href", /\/studio\/legacy#outils\/img-qwen$/);
-    await expect(lastReply(panel).locator("[data-uttu-tool-cost]")).toContainText("crédits estimés par lancement");
-    // Nothing was launched: no Comfy prompt left the studio.
-    expect(calls.every(call => /\/studio-agent\/chat$/.test(call.url()))).toBe(true);
+    expect(calls.length).toBe(0);
   });
 }
 
-test("Agent Uttu : sans accord, aucun appel payant ; un devis est calculé par le studio", async ({ page }, testInfo) => {
+test("Agent Uttu : une question de coût reste locale, et un 402 du routeur n’est jamais affiché", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "Desktop only");
   await simulateComfy(page);
-  const calls = await mockChat(page, []);
+  const calls = await mockChat(page, [{ status: 402, json: { error: "credits" } }]);
   const panel = await openPanel(page);
   await panel.locator("[data-uttu-input]").fill("Bonjour");
   await panel.locator("[data-uttu-send]").click();
-  await expect(panel.locator("[data-uttu-gate]")).toBeVisible();
-  await panel.locator("[data-uttu-decline]").click();
   await expect(panel.locator("[data-uttu-gate]")).toHaveCount(0);
-  // A cost question is answered by the studio itself, without a paid call, even before consent.
+  await expect(lastReply(panel)).not.toContainText("Crédits insuffisants");
   await panel.locator("[data-uttu-input]").fill("Combien coûtent 3 portraits + 2 prises LTX ?");
   await panel.locator("[data-uttu-send]").click();
   await expect(lastReply(panel).locator("[data-uttu-total]")).toContainText("48–72");
+  await expect(lastReply(panel).locator(".u-small").last()).toContainText("sans appel payant");
   expect(calls.length).toBe(0);
 });
 
-test("Agent Uttu : sans compte relié, invitation à relier, aucun guide local", async ({ page }, testInfo) => {
+test("Agent Uttu : sans compte relié, le guide natif répond et le lien de connexion reste", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "Desktop only");
   const calls = await mockChat(page, []);
   const panel = await openPanel(page);
+  await expect(panel.locator("[data-uttu-engine]")).toHaveAttribute("data-uttu-engine", "native-qwen3vl");
   await expect(panel.locator("[data-uttu-mode]")).toHaveCount(0);
   await expect(panel.locator("[data-uttu-guide], [data-uttu-simulator]")).toHaveCount(0);
   const invite = panel.locator("[data-uttu-invite]");
-  await expect(invite).toContainText("≈ 0,2 crédit estimé par message");
+  await expect(invite).toContainText("sans appel payant");
   await invite.locator("[data-uttu-invite-connect]").click();
   await expect(page.locator("dialog[open]").last()).toBeVisible();
   expect(calls.length).toBe(0);
 });
 
-test("Agent Comfy : crédits insuffisants, message clair et aucune relance", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== "desktop", "Desktop only");
-  await simulateComfy(page);
-  const calls = await mockChat(page, [{ status: 402, json: { error: "credits" } }]);
-  await page.addInitScript(() => window.sessionStorage.setItem("u-ttu-uttu-comfy-ok", "1"));
-  const panel = await openPanel(page);
-  await panel.locator("[data-uttu-input]").fill("Bonjour");
-  await panel.locator("[data-uttu-send]").click();
-  await expect(lastReply(panel)).toContainText("Crédits insuffisants sur ton compte Comfy");
-  await expect(lastReply(panel).locator("[data-uttu-error=credits] [data-uttu-act=guide]")).toBeVisible();
-  expect(calls.length).toBe(1);
-});
-
-test("Agent Comfy parle allemand avec du", async ({ page }, testInfo) => {
+test("Agent natif en allemand : pas de porte d’accord, aucun appel au routeur", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "Desktop only");
   await page.context().addCookies([{ name: "u-ttu-locale", value: "de", url: "http://127.0.0.1:3000" }]);
   await page.addInitScript(() => window.localStorage.setItem("u-ttu-locale", "de"));
   await simulateComfy(page);
-  const calls = await mockChat(page, [{ json: { reply: "Verbinde zuerst dein Comfy-Konto, dann wähle einen Tab.", action: { kind: "none", tool: null, request: null }, credits: 0.16, measured: false } }]);
+  const calls = await mockChat(page, [{ json: { reply: "Verbinde zuerst dein Comfy-Konto.", action: { kind: "none", tool: null, request: null }, credits: 0.16, measured: false } }]);
   const panel = await openPanel(page);
-  await expect(panel.locator("[data-uttu-price]")).toHaveText("≈ 0,2 Credits geschätzt pro Nachricht");
+  await expect(panel.locator("[data-uttu-price]")).toHaveText("Vom Studio berechnet, ohne kostenpflichtigen Aufruf.");
   await panel.locator("[data-uttu-input]").fill("Wie fange ich an?");
   await panel.locator("[data-uttu-send]").click();
-  await expect(panel.locator("[data-uttu-gate]")).toContainText("Deine Zustimmung gilt für diese Sitzung");
+  await expect(panel.locator("[data-uttu-gate]")).toHaveCount(0);
+  await expect(lastReply(panel)).not.toContainText("Verbinde zuerst");
   expect(calls.length).toBe(0);
-  await panel.locator("[data-uttu-accept]").click();
-  await expect(lastReply(panel)).toContainText("Verbinde zuerst");
-  await expect(lastReply(panel).locator("[data-uttu-spent]")).toHaveText("höchstens ≈ 0,16 Credits geschätzt für diese Nachricht");
-  expect(calls[0].postDataJSON().locale).toBe("de");
 });
 
-test("Agent Comfy relié par la connexion Comfy (sans clé) : la note ne parle pas de clé, l'appel part en Bearer", async ({ page }, testInfo) => {
+test("Agent natif relié par la session Comfy : la note ne promet aucun envoi", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "Desktop only");
   await simulateComfy(page);
-  // Linked through « Se connecter avec Comfy »: Comfy's Firebase user sits in this origin's localStorage.
   await page.addInitScript(() => {
     localStorage.setItem("u-ttu-rendu", JSON.stringify({ mode: "session" }));
     localStorage.setItem("firebase:authUser:AIzaTest_key-1:[DEFAULT]", JSON.stringify({ uid: "u1", apiKey: "AIzaTest_key-1", stsTokenManager: { refreshToken: "r1", accessToken: "jwt.test", expirationTime: Date.now() + 3_600_000 } }));
-    window.sessionStorage.setItem("u-ttu-uttu-comfy-ok", "1");
   });
-  const calls = await mockChat(page, [{ json: { reply: "Bienvenue sur le studio.", action: { kind: "none", tool: null, request: null }, credits: 0.03, measured: true } }]);
+  const calls = await mockChat(page, []);
   const panel = await openPanel(page);
   await showPlan(page);
   const note = panel.locator("[data-uttu-paid-note]");
-  await expect(note).toContainText("ta connexion Comfy");
-  await expect(note).not.toContainText("clé");
+  await expect(note).toContainText("Qwen3-VL 8B");
+  await expect(note).not.toContainText("GPT-5 Nano via");
   await panel.locator("[data-uttu-input]").fill("Bonjour");
   await panel.locator("[data-uttu-send]").click();
-  await expect(lastReply(panel)).toContainText("Bienvenue");
-  expect(calls.length).toBe(1);
-  expect(calls[0].headers()["authorization"]).toBe("Bearer jwt.test");
-  expect(calls[0].headers()["x-api-key"]).toBeUndefined();
+  await expect(lastReply(panel)).toContainText("sans appel payant");
+  expect(calls.length).toBe(0);
 });
