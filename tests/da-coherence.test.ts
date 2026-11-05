@@ -82,8 +82,10 @@ describe("DA et logo partout", () => {
     assert.match(read("src/app/not-found.tsx"), /generateMetadata/);
     assert.doesNotMatch(read("src/app/not-found.tsx"), /Page introuvable/);
     const sitemap = read("src/app/sitemap.ts");
-    assert.match(sitemap, /\/anime\/bible/);
-    assert.match(sitemap, /path: "\/anime"/);
+    assert.match(sitemap, /\["cinema","anime"\]/);
+    assert.match(sitemap, /"cast","set","shoot","edit","finish","prompts","bible"/);
+    assert.match(sitemap, /\/studio\/\$\{section\}\/\$\{step\}/);
+    assert.doesNotMatch(sitemap, /path: "\/(anime|look|studio\/cgi)"/);
     assert.doesNotMatch(sitemap, /envoi-direct\/essai/);
     assert.match(read("src/app/envoi-direct/essai/page.tsx"), /index:\s*false/);
     assert.match(read("src/app/error.tsx"), /StatusPage kind="erreur"/);

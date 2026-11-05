@@ -15,6 +15,6 @@ export interface StudioSection {
 }
 
 export const STUDIO_SECTIONS: readonly StudioSection[] = [
-  { id: "cinema", href: "/studio/cgi", i18nKey: "cinema" },
-  { id: "anime", href: "/anime", i18nKey: "anime" },
+  { id: "cinema", href: "/studio/cinema/cast", i18nKey: "cinema" },
+  { id: "anime", href: "/studio/anime/cast", i18nKey: "anime" },
 ];

@@ -1,0 +1,386 @@
+[
+  {
+    "section": "cinema",
+    "step": "cast",
+    "size": "390x844",
+    "overflow": false,
+    "small": [],
+    "width": 375
+  },
+  {
+    "section": "cinema",
+    "step": "cast",
+    "size": "844x390",
+    "overflow": false,
+    "small": [],
+    "width": 829
+  },
+  {
+    "section": "cinema",
+    "step": "cast",
+    "size": "1024x600",
+    "overflow": false,
+    "small": [],
+    "width": 1009
+  },
+  {
+    "section": "cinema",
+    "step": "cast",
+    "size": "1280x800",
+    "overflow": false,
+    "small": [],
+    "width": 1265
+  },
+  {
+    "section": "cinema",
+    "step": "set",
+    "size": "390x844",
+    "overflow": false,
+    "small": [],
+    "width": 375
+  },
+  {
+    "section": "cinema",
+    "step": "set",
+    "size": "844x390",
+    "overflow": false,
+    "small": [],
+    "width": 829
+  },
+  {
+    "section": "cinema",
+    "step": "set",
+    "size": "1024x600",
+    "overflow": false,
+    "small": [],
+    "width": 1009
+  },
+  {
+    "section": "cinema",
+    "step": "set",
+    "size": "1280x800",
+    "overflow": false,
+    "small": [],
+    "width": 1265
+  },
+  {
+    "section": "cinema",
+    "step": "shoot",
+    "size": "390x844",
+    "overflow": false,
+    "small": [],
+    "width": 375
+  },
+  {
+    "section": "cinema",
+    "step": "shoot",
+    "size": "844x390",
+    "overflow": false,
+    "small": [],
+    "width": 829
+  },
+  {
+    "section": "cinema",
+    "step": "shoot",
+    "size": "1024x600",
+    "overflow": false,
+    "small": [],
+    "width": 1009
+  },
+  {
+    "section": "cinema",
+    "step": "shoot",
+    "size": "1280x800",
+    "overflow": false,
+    "small": [],
+    "width": 1265
+  },
+  {
+    "section": "cinema",
+    "step": "edit",
+    "size": "390x844",
+    "overflow": false,
+    "small": [],
+    "width": 390
+  },
+  {
+    "section": "cinema",
+    "step": "edit",
+    "size": "844x390",
+    "overflow": false,
+    "small": [],
+    "width": 829
+  },
+  {
+    "section": "cinema",
+    "step": "edit",
+    "size": "1024x600",
+    "overflow": false,
+    "small": [],
+    "width": 1009
+  },
+  {
+    "section": "cinema",
+    "step": "edit",
+    "size": "1280x800",
+    "overflow": false,
+    "small": [],
+    "width": 1265
+  },
+  {
+    "section": "cinema",
+    "step": "finish",
+    "size": "390x844",
+    "overflow": false,
+    "small": [],
+    "width": 375
+  },
+  {
+    "section": "cinema",
+    "step": "finish",
+    "size": "844x390",
+    "overflow": false,
+    "small": [],
+    "width": 829
+  },
+  {
+    "section": "cinema",
+    "step": "finish",
+    "size": "1024x600",
+    "overflow": false,
+    "small": [],
+    "width": 1009
+  },
+  {
+    "section": "cinema",
+    "step": "finish",
+    "size": "1280x800",
+    "overflow": false,
+    "small": [],
+    "width": 1265
+  },
+  {
+    "section": "cinema",
+    "step": "prompts",
+    "size": "390x844",
+    "overflow": false,
+    "small": [],
+    "width": 375
+  },
+  {
+    "section": "cinema",
+    "step": "prompts",
+    "size": "844x390",
+    "overflow": false,
+    "small": [],
+    "width": 829
+  },
+  {
+    "section": "cinema",
+    "step": "prompts",
+    "size": "1024x600",
+    "overflow": false,
+    "small": [],
+    "width": 1009
+  },
+  {
+    "section": "cinema",
+    "step": "prompts",
+    "size": "1280x800",
+    "overflow": false,
+    "small": [],
+    "width": 1265
+  },
+  {
+    "section": "anime",
+    "step": "cast",
+    "size": "390x844",
+    "overflow": false,
+    "small": [],
+    "width": 375
+  },
+  {
+    "section": "anime",
+    "step": "cast",
+    "size": "844x390",
+    "overflow": false,
+    "small": [],
+    "width": 829
+  },
+  {
+    "section": "anime",
+    "step": "cast",
+    "size": "1024x600",
+    "overflow": false,
+    "small": [],
+    "width": 1009
+  },
+  {
+    "section": "anime",
+    "step": "cast",
+    "size": "1280x800",
+    "overflow": false,
+    "small": [],
+    "width": 1265
+  },
+  {
+    "section": "anime",
+    "step": "set",
+    "size": "390x844",
+    "overflow": false,
+    "small": [],
+    "width": 375
+  },
+  {
+    "section": "anime",
+    "step": "set",
+    "size": "844x390",
+    "overflow": false,
+    "small": [],
+    "width": 829
+  },
+  {
+    "section": "anime",
+    "step": "set",
+    "size": "1024x600",
+    "overflow": false,
+    "small": [],
+    "width": 1009
+  },
+  {
+    "section": "anime",
+    "step": "set",
+    "size": "1280x800",
+    "overflow": false,
+    "small": [],
+    "width": 1265
+  },
+  {
+    "section": "anime",
+    "step": "shoot",
+    "size": "390x844",
+    "overflow": false,
+    "small": [],
+    "width": 375
+  },
+  {
+    "section": "anime",
+    "step": "shoot",
+    "size": "844x390",
+    "overflow": false,
+    "small": [],
+    "width": 829
+  },
+  {
+    "section": "anime",
+    "step": "shoot",
+    "size": "1024x600",
+    "overflow": false,
+    "small": [],
+    "width": 1009
+  },
+  {
+    "section": "anime",
+    "step": "shoot",
+    "size": "1280x800",
+    "overflow": false,
+    "small": [],
+    "width": 1265
+  },
+  {
+    "section": "anime",
+    "step": "edit",
+    "size": "390x844",
+    "overflow": false,
+    "small": [],
+    "width": 390
+  },
+  {
+    "section": "anime",
+    "step": "edit",
+    "size": "844x390",
+    "overflow": false,
+    "small": [],
+    "width": 829
+  },
+  {
+    "section": "anime",
+    "step": "edit",
+    "size": "1024x600",
+    "overflow": false,
+    "small": [],
+    "width": 1009
+  },
+  {
+    "section": "anime",
+    "step": "edit",
+    "size": "1280x800",
+    "overflow": false,
+    "small": [],
+    "width": 1265
+  },
+  {
+    "section": "anime",
+    "step": "finish",
+    "size": "390x844",
+    "overflow": false,
+    "small": [],
+    "width": 375
+  },
+  {
+    "section": "anime",
+    "step": "finish",
+    "size": "844x390",
+    "overflow": false,
+    "small": [],
+    "width": 829
+  },
+  {
+    "section": "anime",
+    "step": "finish",
+    "size": "1024x600",
+    "overflow": false,
+    "small": [],
+    "width": 1009
+  },
+  {
+    "section": "anime",
+    "step": "finish",
+    "size": "1280x800",
+    "overflow": false,
+    "small": [],
+    "width": 1265
+  },
+  {
+    "section": "anime",
+    "step": "prompts",
+    "size": "390x844",
+    "overflow": false,
+    "small": [],
+    "width": 375
+  },
+  {
+    "section": "anime",
+    "step": "prompts",
+    "size": "844x390",
+    "overflow": false,
+    "small": [],
+    "width": 829
+  },
+  {
+    "section": "anime",
+    "step": "prompts",
+    "size": "1024x600",
+    "overflow": false,
+    "small": [],
+    "width": 1009
+  },
+  {
+    "section": "anime",
+    "step": "prompts",
+    "size": "1280x800",
+    "overflow": false,
+    "small": [],
+    "width": 1265
+  }
+]
