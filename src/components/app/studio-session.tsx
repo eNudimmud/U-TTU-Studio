@@ -1234,7 +1234,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         else if (event.stage === "fetch" || event.stage === "ready") input.onStage("retour");
       }, {
         outputNode,
-        deferMeasure: true,
+        deferMeasure: true, holdMeasureUntilSaved: true,
         onCost: info => {
           if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
           void writeText(vault, notePath, assetNote({ id, kind: "plan", name: receipt.name, at, prompt: receipt.prompt, geste: "mont-final", template: receipt.template, refs: [], devis: quote.credits, cout: info.costCredits, media: path, note: notePath, preview: null, loose: false }));
@@ -1243,6 +1243,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       });
       await writeBlob(vault, path, result.video);
       await writeText(vault, notePath, assetNote({ id, kind: "plan", name: receipt.name, at, prompt: receipt.prompt, geste: "mont-final", template: receipt.template, refs: [], devis: quote.credits, cout: result.costCredits, media: path, note: notePath, preview: null, loose: false }));
+      void result.measureAfterSave?.().catch(() => {});
       await completePending(client, jobId);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
@@ -1296,7 +1297,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         else if (event.stage === "fetch" || event.stage === "ready") input.onStage("retour");
       }, {
         outputNode,
-        deferMeasure: true,
+        deferMeasure: true, holdMeasureUntilSaved: true,
         onCost: info => {
           if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
           void writeText(vault, notePath, assetNote({ id, kind: "plan", name: receipt.name, at, prompt: input.prompt, geste, template: row.template, refs, devis: row.credits, cout: info.costCredits, media: path, note: notePath, preview: null, loose: false }));
@@ -1305,6 +1306,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       });
       await writeBlob(vault, path, result.video);
       await writeText(vault, notePath, assetNote({ id, kind: "plan", name: receipt.name, at, prompt: input.prompt, geste, template: row.template, refs, devis: row.credits, cout: result.costCredits, media: path, note: notePath, preview: null, loose: false }));
+      void result.measureAfterSave?.().catch(() => {});
       await completePending(client, jobId);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
@@ -1416,7 +1418,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       }, {
         output: still ? "image" : "video",
         outputNode,
-        deferMeasure: true,
+        deferMeasure: true, holdMeasureUntilSaved: true,
         onCost: info => {
           if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
           void writeText(vault, notePath, assetNote({ id, kind: kindNote, name, at, prompt: input.prompt, geste, template: row.template, refs, devis: quote.credits, cout: info.costCredits, media: path, note: notePath, preview: null, loose: false }));
@@ -1427,6 +1429,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       if (still && await imageVide(result.video)) throw new RenderError("empty", t("suite.blankResult"));
       await writeBlob(vault, path, result.video);
       await writeText(vault, notePath, assetNote({ id, kind: kindNote, name, at, prompt: input.prompt, geste, template: row.template, refs, devis: quote.credits, cout: result.costCredits, media: path, note: notePath, preview: null, loose: false }));
+      void result.measureAfterSave?.().catch(() => {});
       await completePending(client, jobId);
       await reload();
       return { ok: true, path, url: URL.createObjectURL(result.video), cost: result.costCredits };
@@ -1515,7 +1518,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
       }, {
         output: sortie,
         outputNode,
-        deferMeasure: true,
+        deferMeasure: true, holdMeasureUntilSaved: true,
         all: Boolean(outil.lot) && !creation,
         onCost: info => {
           if (info.balanceAfter !== null) setBalance({ credits: info.balanceAfter, readAt: Date.now() });
@@ -1546,6 +1549,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
         await writeText(vault, extraNote, assetNote({ id: extraId, kind: "importe", name: `${name} · ${index + 2}/${lot}`, at, prompt: input.prompt, geste: row.id, template: row.template, refs: [...refs, mediaPath], devis: null, cout: null, media: extraMedia, note: extraNote, preview: null, loose: false }));
         extras.push({ path: extraMedia, url: URL.createObjectURL(extra.blob) });
       }
+      void result.measureAfterSave?.().catch(() => {});
       await completePending(client, jobId);
       await reload();
       return { ok: true, path: mediaPath, url: URL.createObjectURL(result.video), cost: result.costCredits, ...(extras.length ? { extras } : {}) };
