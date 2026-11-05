@@ -17,7 +17,7 @@ async function screenshot(page:Page,name:string){if(process.env.CREATION_SHOTS_D
 test('bibliothèque personnelle : formulaire vierge, plus de sept fiches et création possible même avec sept références jointes',async({page},info)=>{
   const paid:string[]=[];
   page.on('request',r=>{if(r.method()==='POST'&&/\/api\/(prompt|upload\/)/.test(r.url()))paid.push(r.url());});
-  await page.goto('/studio');await openLibrary(page);
+  await page.goto('/studio/legacy');await openLibrary(page);
   await expect(page.locator('[data-ref]')).toHaveCount(0);
   await expect(page.locator('[data-refs-capacity]')).toContainText('référence(s) nommée(s)');
   if(info.project.name==='mobile')await screenshot(page,'references-390x844.png');
@@ -67,7 +67,7 @@ test('Android : références personnelles, réemploi en un clic, devis, résulta
   await page.route(/\/api\/prompt$/,route=>{graphs.push(route.request().postDataJSON().prompt);return route.fallback();});
   await page.route(/\/api\/upload\/image$/,route=>{uploads++;return route.fallback();});
   await page.route(/\/api\/(queue|interrupt)$/,route=>{cancels++;return route.fulfill({json:{}});});
-  await page.goto('/studio');await openLibrary(page);await createRef(page,'Référence A',3);await createRef(page,'Référence B');
+  await page.goto('/studio/legacy');await openLibrary(page);await createRef(page,'Référence A',3);await createRef(page,'Référence B');
   await expect(page.locator('[data-ref-kind=cast]')).toHaveCount(2);
   await page.locator('[data-ref]').filter({hasText:'Référence A'}).tap();
   await expect(page.locator('[data-refs-sheet]')).toHaveCount(0);await expect(page.locator('[data-barre-chip]')).toHaveCount(1);
@@ -119,14 +119,14 @@ test('Android : références personnelles, réemploi en un clic, devis, résulta
   await page.locator('[data-fil-job=confirm] [data-fil-confirm]').tap();await page.locator('[data-bubble-return]').tap();
   await expect(page.locator('[data-fil-job=done]')).toHaveCount(2,{timeout:60000});expect(graphs).toHaveLength(2);expect(uploads).toBe(1);
   expect(Object.values(graphs[1]).filter(n=>n.class_type==='LoadImage')).toHaveLength(0);expect(cancels).toBe(0);
-  await page.goto('/studio#personnage');await expect(page.locator('main')).toContainText('Référence A');await expect(page.locator('main')).toContainText('Référence B');
+  await page.goto('/studio/legacy#personnage');await expect(page.locator('main')).toContainText('Référence A');await expect(page.locator('main')).toContainText('Référence B');
 });
 
 test('rechargement pendant le premier rendu : reprise du reçu, un seul POST, ancien résultat conservé en refaisant',async({page})=>{
   const comfy=await simulateComfy(page);let complete=false,cancels=0;
   await page.route(/\/api\/job\/([^/]+)\/status$/,r=>r.fulfill({json:{status:complete?'success':'in_progress'}}));
   await page.route(/\/api\/(queue|interrupt)$/,r=>{cancels++;return r.fulfill({json:{}});});
-  await page.goto('/studio');await page.locator('[data-barre-input]').fill('Un quai au lever du jour, lumière douce');await page.locator('[data-barre-send]').tap();await page.locator('[data-fil-confirm]').tap();
+  await page.goto('/studio/legacy');await page.locator('[data-barre-input]').fill('Un quai au lever du jour, lumière douce');await page.locator('[data-barre-send]').tap();await page.locator('[data-fil-confirm]').tap();
   await expect.poll(()=>page.evaluate(()=>Object.entries(localStorage).filter(([key])=>key.startsWith('u-ttu-barre-fil:')&&!key.endsWith(':nouveau')).some(([,raw])=>JSON.parse(raw).messages.some((m:{jobId?:string})=>Boolean(m.jobId))))).toBe(true);
   expect(comfy.prompts).toHaveLength(1);await page.reload();complete=true;
   await expect(page.locator('[data-fil-job=done]')).toHaveCount(1,{timeout:30000});expect(comfy.prompts).toHaveLength(1);expect(cancels).toBe(0);
@@ -135,7 +135,7 @@ test('rechargement pendant le premier rendu : reprise du reçu, un seul POST, an
 });
 
 test('référence : modification, suppression confirmée et persistance des catégories',async({page})=>{
-  await page.goto('/studio');await openLibrary(page);await createRef(page,'Texture de cuivre',1,'style');
+  await page.goto('/studio/legacy');await openLibrary(page);await createRef(page,'Texture de cuivre',1,'style');
   await page.locator('[data-ref-menu]').first().tap();await page.locator('[data-ref-edit]').tap();await page.locator('[data-ref-name]').fill('Cuivre patiné');await page.locator('[data-ref-save]').tap();
   await expect(page.locator('[data-ref]')).toContainText('Cuivre patiné');
   await page.locator('[data-ref-menu]').first().tap();await page.locator('[data-ref-delete]').tap();await expect(page.getByRole('alertdialog')).toBeVisible();await page.getByRole('alertdialog').getByRole('button',{name:'Annuler'}).tap();await expect(page.locator('[data-ref]')).toHaveCount(1);
@@ -144,7 +144,7 @@ test('référence : modification, suppression confirmée et persistance des cat�
 });
 
 test('supprimer une fiche de référence conserve les sources d’un rendu pour Refaire',async({page})=>{
-  const comfy=await simulateComfy(page);await page.goto('/studio');await openLibrary(page);await createRef(page,'Uttu');await page.locator('[data-ref]').tap();
+  const comfy=await simulateComfy(page);await page.goto('/studio/legacy');await openLibrary(page);await createRef(page,'Uttu');await page.locator('[data-ref]').tap();
   await page.locator('[data-barre-input]').fill('Uttu au bord du lac, lumière du matin');await page.locator('[data-barre-send]').tap();await page.locator('[data-fil-confirm]').tap();await page.locator('[data-bubble-return]').tap();await expect(page.locator('[data-fil-job=done]')).toHaveCount(1,{timeout:60000});
   await openLibrary(page);await page.locator('[data-ref-menu]').first().tap();await page.locator('[data-ref-delete]').tap();await page.locator('[data-ref-delete-confirm]').tap();await expect(page.locator('[data-ref]')).toHaveCount(0);await page.getByRole('dialog').getByRole('button',{name:'Fermer',exact:true}).tap();await page.reload();
   await page.locator('[data-fil-redo]').tap();expect(comfy.prompts).toHaveLength(1);await page.locator('[data-fil-job=confirm] [data-fil-confirm]').tap();await page.locator('[data-bubble-return]').tap();await expect(page.locator('[data-fil-job=done]')).toHaveCount(2,{timeout:60000});expect(comfy.prompts).toHaveLength(2);
@@ -154,9 +154,9 @@ test('vidéo : références existantes, audio, 10 s, format carré, 720p, son co
   const comfy=await simulateComfy(page);let graph:Record<string,{class_type:string;inputs:Record<string,unknown>}>={};
   comfy.setVideo(readFileSync('e2e/fixtures/prise-10s-vp9.mp4'));
   await page.route(/\/api\/prompt$/,r=>{graph=r.request().postDataJSON().prompt;return r.fallback();});
-  await page.goto('/studio#personnage');await page.getByLabel('Importer un personnage',{exact:true}).setInputFiles({...photo,name:'Uttu.webp'});
+  await page.goto('/studio/legacy#personnage');await page.getByLabel('Importer un personnage',{exact:true}).setInputFiles({...photo,name:'Uttu.webp'});
   await expect(page.locator('.u-toast')).toHaveText('Ajouté : 1');
-  await page.goto('/studio');await openLibrary(page);await expect(page.locator('[data-ref-kind=cast]')).toHaveCount(1);await page.locator('[data-ref]').tap();
+  await page.goto('/studio/legacy');await openLibrary(page);await expect(page.locator('[data-ref-kind=cast]')).toHaveCount(1);await page.locator('[data-ref]').tap();
   await page.locator('[data-barre-mode=video]').tap();await page.locator('[data-barre-settings]').tap();
   await page.locator('[data-barre-duree="10"]').tap();await page.locator('[data-barre-resolution="720p"]').tap();await page.locator('[data-barre-format="1:1"]').tap();await page.locator('[data-barre-sound]').tap();
   await page.locator('[data-barre-settings]').tap();
@@ -167,5 +167,5 @@ test('vidéo : références existantes, audio, 10 s, format carré, 720p, son co
   await page.locator('[data-fil-confirm]').tap();await page.locator('[data-bubble-return]').tap();await expect(page.locator('[data-fil-job=done]')).toHaveCount(1,{timeout:60000});
   expect(graph['136'].class_type).toBe('MiniMaxH3ReferenceToVideo');expect(graph['136'].inputs['ref_audios.ref_audio_0']).toEqual(['reference_audio',0]);expect(graph['132'].inputs.value).toBe(10);expect(graph['130'].inputs.audio).toBeUndefined();expect(graph['115'].inputs.aspect_ratio).toContain('1:1');
   await page.locator('[data-fil-result] > .u-fil-actions [data-montage-add]').tap();await expect(page.locator('[data-fil-result] [data-montage-done]')).toBeVisible();
-  await page.goto('/studio#montage');await expect(page.locator('[data-fm-track="plans"] [data-fm-clip]')).toHaveCount(1);await expect(page.locator('[data-fm-track="plans"] [data-fm-clip]').first()).toHaveAttribute('data-end','10.00');
+  await page.goto('/studio/legacy#montage');await expect(page.locator('[data-fm-track="plans"] [data-fm-clip]')).toHaveCount(1);await expect(page.locator('[data-fm-track="plans"] [data-fm-clip]').first()).toHaveAttribute('data-end','10.00');
 });

@@ -23,7 +23,7 @@ async function watch(page: Page) {
 }
 
 async function pickPika(page: Page) {
-  await page.goto("/studio#outils/vid-h3-refs");
+  await page.goto("/studio/legacy#outils/vid-h3-refs");
   const panel = page.locator("[data-tool-panel=vid-h3-refs]");
   await expect(panel.locator("[data-model-current]")).toHaveText("Fidèle, économique");
   await panel.locator("[data-model-menu] > button").click();

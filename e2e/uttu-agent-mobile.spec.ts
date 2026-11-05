@@ -19,7 +19,7 @@ test("Agent Uttu payant sur Android : devis, accord au toucher, contexte du proj
     return route.fulfill({ json: { reply: "Uttu est prêt et le quai aussi : passons à la PRISE.", action: { kind: "plan", tool: null, request: "Tourner Uttu sur le quai" }, credits: 0.04, measured: true } });
   });
 
-  await page.goto("/studio");
+  await page.goto("/studio/legacy");
   await page.locator("[data-top-uttu]").tap();
   const panel = page.locator("[data-assistant-panel]");
   await expect(panel).toBeVisible();

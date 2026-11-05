@@ -25,7 +25,7 @@ async function mockChat(page: Page, replies: Reply[]) {
   return calls;
 }
 async function openPanel(page: Page) {
-  await page.goto("/studio");
+  await page.goto("/studio/legacy");
   await page.locator("[data-top-uttu], [data-chain-uttu]").filter({ visible: true }).first().click();
   const panel = page.locator("[data-assistant-panel]");
   await expect(panel).toBeVisible();
@@ -86,7 +86,7 @@ for (const viewport of VIEWPORTS) {
     expect(calls.length).toBe(2);
     expect(calls[1].postDataJSON().history.length).toBeGreaterThan(0);
     const tool = lastReply(panel).locator("[data-uttu-tool=img-qwen]");
-    await expect(tool).toHaveAttribute("href", /\/studio#outils\/img-qwen$/);
+    await expect(tool).toHaveAttribute("href", /\/studio\/legacy#outils\/img-qwen$/);
     await expect(lastReply(panel).locator("[data-uttu-tool-cost]")).toContainText("crédits estimés par lancement");
     // Nothing was launched: no Comfy prompt left the studio.
     expect(calls.every(call => /\/studio-agent\/chat$/.test(call.url()))).toBe(true);

@@ -111,17 +111,17 @@ export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void
     <p className="u-rail-head eyebrow" aria-hidden="true">{t("outils.count", { n: String(total) })}</p>
     <ul role="list" className="u-rail-list">
       {FAMILLES.map(fam => <li key={fam}>
-        <a className="u-rail-item" href={assetPath(`/studio${familyHash(fam)}`)} data-rail-fam={fam} onClick={event => pickFamily(event, fam)} aria-label={`${t(`outils.fam.${fam}`)} · ${t("outils.count", { n: String(counts[fam]) })}`}>
+        <a className="u-rail-item" href={assetPath(`/studio/legacy${familyHash(fam)}`)} data-rail-fam={fam} onClick={event => pickFamily(event, fam)} aria-label={`${t(`outils.fam.${fam}`)} · ${t("outils.count", { n: String(counts[fam]) })}`}>
           <FamilyIcon fam={fam} /><span className="u-rail-name">{t(`outils.fam.${fam}`)}</span><span className="u-rail-n" aria-hidden="true">{counts[fam]}</span>
         </a>
       </li>)}
-      <li><a className="u-rail-item" href={assetPath(`/studio#outils/${REPERAGE_ID}`)} data-rail-reperage="" aria-label={t(`outils.t.${REPERAGE_ID}.title`)}>
+      <li><a className="u-rail-item" href={assetPath(`/studio/legacy#outils/${REPERAGE_ID}`)} data-rail-reperage="" aria-label={t(`outils.t.${REPERAGE_ID}.title`)}>
         <FamilyIcon fam="reperage" /><span className="u-rail-name">{t(`outils.t.${REPERAGE_ID}.title`)}</span>
       </a></li>
     </ul>
     <span className="u-rail-sep" aria-hidden="true" />
     <ul role="list" className="u-rail-list">
-      <li><a className="u-rail-item" href={assetPath("/studio#prise")} data-rail-film="" aria-current={place === "realiser" || place === "montage" ? "page" : undefined} aria-label={t("entry.film")}>
+      <li><a className="u-rail-item" href={assetPath("/studio/legacy#prise")} data-rail-film="" aria-current={place === "realiser" || place === "montage" ? "page" : undefined} aria-label={t("entry.film")}>
         <FamilyIcon fam="film" /><span className="u-rail-name">{t("entry.film")}</span>
       </a></li>
       <li><a className="u-rail-item" href={assetPath("/mon-studio")} data-rail-creations="" aria-current={place === "creations" ? "page" : undefined} aria-label={t("top.creations")}>
@@ -138,7 +138,7 @@ export function StudioRail({ place, onSearch }: { place: Place; onSearch(): void
 export function StudioTabs({ place, filmHref }: { place: Place; filmHref: string }) {
   const { t } = useI18n();
   const tabs: { id: string; href: string; label: string; full?: string; icon: Parameters<typeof FamilyIcon>[0]["fam"]; on: boolean }[] = [
-    { id: "creer", href: "/studio", label: t("chrome.studio"), icon: "home", on: place === "creer" },
+    { id: "creer", href: "/studio/legacy", label: t("chrome.studio"), icon: "home", on: place === "creer" },
     { id: "film", href: filmHref, label: t("top.film"), icon: "film", on: place === "realiser" || place === "montage" || place === "finish" },
     { id: "creations", href: "/mon-studio", label: t("chrome.mine"), full: t("chrome.mine"), icon: "creations", on: place === "creations" },
     { id: "guide", href: "/guide", label: t("chrome.guide"), icon: "guide", on: false },

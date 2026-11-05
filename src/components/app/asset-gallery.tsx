@@ -185,7 +185,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
     </article>}
     {rows.length === 0 ? <div className="u-empty" data-assets-empty="" data-creations-empty="">
       <p>{type ? t("creations.empty") : t("assets.empty")}</p>
-      {type && <a className="u-primary" href={assetPath("/studio")}>{t("creations.emptyCta")}</a>}
+      {type && <a className="u-primary" href={assetPath("/studio/legacy")}>{t("creations.emptyCta")}</a>}
     </div> : <div className="u-gallery u-asset-grid" data-density={dense ? "dense" : undefined}>
       {rows.map(card => {
         const src = srcOf(card);

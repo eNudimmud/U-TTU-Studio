@@ -27,7 +27,7 @@ test("Copier un mouvement : la vidéo de pose est ré-encodée sous la limite du
     };
   },RELAY_LIMIT);
   await page.route(/\/api\/prompt$/,route=>{graphs.push(route.request().postDataJSON().prompt);return route.fallback();});
-  await page.goto("/studio#outils/tous");
+  await page.goto("/studio/legacy#outils/tous");
   await page.locator("[data-outils-search]").fill("mouvement");
   await page.locator('[data-outil="vid-mouvement"]').first().tap();
   const panel=page.locator('[data-tool-panel="vid-mouvement"]');

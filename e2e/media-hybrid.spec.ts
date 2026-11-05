@@ -15,7 +15,7 @@ test('hybrid library: metadata only, dedup, classification, lazy download, reope
  await page.route(new RegExp(`/api/assets/${id}$`),r=>r.fulfill(missing?{status:404,json:{}}:{json:row}));
  await page.route(new RegExp(`/api/v2/assets/${id}$`),r=>r.fulfill({json:{...row,content_type:'image/webp',size_bytes:image.length,url:'https://expired.invalid/old',url_expires_at:'2020-01-01T00:00:00Z'}}));
  await page.route(new RegExp(`/api/v2/assets/${id}/content$`),r=>{downloads++;return r.fulfill({contentType:'image/webp',body:image});});
- await page.goto('/studio#personnage');
+ await page.goto('/studio/legacy#personnage');
  await page.getByLabel('Importer un personnage',{exact:true}).setInputFiles({name:'Local.webp',mimeType:'image/webp',buffer:image});
  await page.goto('/mon-studio');
  const library=page.locator('#mediatheque');await library.locator('[data-media-sync]').click();
@@ -62,7 +62,7 @@ test('hybrid library: selected cloud video and audio persist on the native timel
  for(const row of rows){
   await page.route(new RegExp(`/api/v2/assets/${row.id}/content$`),r=>{downloads++;return r.fulfill({contentType:row.mime_type,body:row.id===id?video:sound});});
  }
- await page.goto('/studio#personnage');
+ await page.goto('/studio/legacy#personnage');
  await page.getByLabel('Importer un personnage',{exact:true}).setInputFiles({name:'Local.webp',mimeType:'image/webp',buffer:image});
  await page.goto('/mon-studio');
  const library=page.locator('#mediatheque');await library.locator('[data-media-sync]').click();

@@ -18,7 +18,7 @@ async function watch(page: Page) {
 }
 
 test("hub : un clic depuis la barre du haut, une carte par intention, recherche, bientôt absent", async ({ page }) => {
-  await page.goto("/studio#outils/tous");
+  await page.goto("/studio/legacy#outils/tous");
   const hub = page.locator("[data-studio-entry]");
   await expect(hub.getByRole("heading", { name: "Qu’est-ce qu’on tourne ?" })).toBeVisible();
   await expect(hub.locator("[data-outil]")).toHaveCount(NOMBRE_OUTILS - OUTILS_HORS_CATALOGUE);
@@ -31,7 +31,7 @@ test("hub : un clic depuis la barre du haut, une carte par intention, recherche,
   // Image cut-out (BiRefNet, open) and video cut-out (partner node, hidden in open-weights mode).
   await expect(hub.locator("[data-outil]")).toHaveCount(OPEN_WEIGHTS_MODE ? 1 : 2);
 
-  await page.goto("/studio#personnage");
+  await page.goto("/studio/legacy#personnage");
   await openToolsHub(page);
   await expect(page).toHaveURL(/#outils\/tous$/);
   await page.locator("[data-film-nav-to=scene]").click();
@@ -43,7 +43,7 @@ test("hub : un clic depuis la barre du haut, une carte par intention, recherche,
 test("panneau unique : entrée, exemple, bouton nommé d'après l'action, le résultat du jour en grand avec « Et ensuite ? » ouvert", async ({ page }) => {
   await simulateComfy(page);
   const seen = await watch(page);
-  await page.goto("/studio#outils/ret-detourer");
+  await page.goto("/studio/legacy#outils/ret-detourer");
   const panel = page.locator("[data-tool-panel=ret-detourer]");
   await expect(panel).toBeVisible();
   const steps = await panel.locator("[data-tool-step]").evaluateAll(nodes => nodes.map(node => node.getAttribute("data-tool-step")));
@@ -76,7 +76,7 @@ test("panneau unique : entrée, exemple, bouton nommé d'après l'action, le ré
 test("outil ouvert depuis un texte : le template officiel entier part, le résultat arrive dans Mes créations", async ({ page }) => {
   await simulateComfy(page);
   const seen = await watch(page);
-  await page.goto("/studio#outils/img-qwen");
+  await page.goto("/studio/legacy#outils/img-qwen");
   const panel = page.locator("[data-tool-panel=img-qwen]");
   await panel.getByLabel("Consigne", { exact: true }).fill("Une gare la nuit, néons dorés, pluie fine.");
   await panel.locator("[data-tool-step=reglages] > button").click();
@@ -105,7 +105,7 @@ test("outil ouvert depuis un texte : le template officiel entier part, le résul
 });
 
 test("sans compte relié : la raison et le lien « Relier mon compte » sont à côté du bouton éteint", async ({ page }) => {
-  await page.goto("/studio#outils/img-klein");
+  await page.goto("/studio/legacy#outils/img-klein");
   const panel = page.locator("[data-tool-panel=img-klein]");
   await panel.getByLabel("Consigne", { exact: true }).fill("Un toit au lever du jour.");
   await expect(page.locator("[data-entry-link]")).toBeVisible();
@@ -114,17 +114,17 @@ test("sans compte relié : la raison et le lien « Relier mon compte » sont à 
 });
 
 test("page de création unique : une carte ouvre son outil, le film ouvre PRISE", async ({ page }) => {
-  await page.goto("/studio#outils/tous");
+  await page.goto("/studio/legacy#outils/tous");
   await page.locator("button[data-outil=vid-wan]").click();
   await expect(page).toHaveURL(/#outils\/vid-wan$/);
-  await page.goto("/studio#outils/tous");
+  await page.goto("/studio/legacy#outils/tous");
   await page.locator("[data-entry-film]").click();
   await expect(page).toHaveURL(/#prise$/);
   await expect(page.locator(".u-chain")).toBeVisible();
 });
 
 test('passer d’un outil à l’autre : un seul panneau à la fois, plus de liste des anciens résultats', async ({ page }) => {
-  await page.goto('/studio#outils/img-klein');
+  await page.goto('/studio/legacy#outils/img-klein');
   await expect(page.locator('[data-tool-panel]')).toHaveCount(1);
   await page.evaluate(() => { location.hash = 'outils/vid-parler'; });
   await expect(page.locator('[data-tool-panel="vid-parler"]')).toBeVisible();
@@ -135,7 +135,7 @@ test('passer d’un outil à l’autre : un seul panneau à la fois, plus de lis
 });
 
 test("brouillon : le texte et l’image d’un outil sont toujours là quand on y revient", async ({ page }) => {
-  await page.goto("/studio#outils/img-klein");
+  await page.goto("/studio/legacy#outils/img-klein");
   const panel = page.locator('[data-tool-panel="img-klein"]');
   await panel.locator("[data-tool-step=consigne] textarea").fill("un chat roux sur un toit");
   await page.evaluate(() => { location.hash = "outils/vid-parler"; });
@@ -147,7 +147,7 @@ test("brouillon : le texte et l’image d’un outil sont toujours là quand on 
 });
 
 test("raccord : deux cases visibles, image de départ et image d’arrivée", async ({ page }) => {
-  await page.goto("/studio#outils/vid-raccord");
+  await page.goto("/studio/legacy#outils/vid-raccord");
   const panel = page.locator("[data-tool-panel]").first();
   await expect(panel.locator("[data-outil-input=image]")).toBeVisible();
   await expect(panel.locator("[data-outil-input=image2]")).toBeVisible();
@@ -156,7 +156,7 @@ test("raccord : deux cases visibles, image de départ et image d’arrivée", as
 });
 
 test("compteur : l’annonce compte toutes les cartes affichées", async ({ page }) => {
-  await page.goto("/studio#outils/tous");
+  await page.goto("/studio/legacy#outils/tous");
   // F14 · the home paints before the studio opens; count once it is open (its prefs are read).
   const hub = page.locator("[data-studio-entry]:not([data-early])");
   await expect(hub.locator("[data-outil]")).toHaveCount(NOMBRE_OUTILS - OUTILS_HORS_CATALOGUE);
@@ -166,7 +166,7 @@ test("compteur : l’annonce compte toutes les cartes affichées", async ({ page
 });
 
 test("copier la lumière d’une image : deux cases nommées, ton portrait et l’image de lumière", async ({ page }) => {
-  await page.goto("/studio#outils/ret-lumiere-image");
+  await page.goto("/studio/legacy#outils/ret-lumiere-image");
   const panel = page.locator("[data-tool-panel]").first();
   await expect(panel.locator("[data-outil-input=image]")).toBeVisible();
   await expect(panel.locator("[data-outil-input=image2]")).toBeVisible();
@@ -177,7 +177,7 @@ test("copier la lumière d’une image : deux cases nommées, ton portrait et l�
 });
 
 test("FastH3, second modèle de « Vidéo fidèle aux références » : deux cases nommées, personnage et lieu", async ({ page }) => {
-  await page.goto("/studio#outils/vid-fasth3");
+  await page.goto("/studio/legacy#outils/vid-fasth3");
   const panel = page.locator("[data-tool-panel]").first();
   await expect(panel.locator("[data-tool-step=modele]")).toContainText("Lieu plus fidèle (multi-références)");
   await expect(panel.locator("[data-outil-input=image] .u-label")).toHaveText("Personnage");

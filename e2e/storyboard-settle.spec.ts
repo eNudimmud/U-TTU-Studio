@@ -139,7 +139,7 @@ test('a simulated shot left mid-render is on that shot and on the cut once', asy
   await page.locator('[data-sb-start]').click();
   await expect.poll(() => comfy.prompts.filter(item => item.kind === 'video').length, { timeout: 30_000 }).toBe(1);
   // Leave while the mocked job is still in progress. Do not cancel it.
-  await page.goto('/studio');
+  await page.goto('/studio/legacy');
   await expect(page.locator('[data-barre]')).toBeVisible({ timeout: 60_000 });
   await expect.poll(async () => registre(page), { timeout: 40_000 }).toContain('sb-quai-p2');
 
@@ -155,7 +155,7 @@ test('a simulated shot left mid-render is on that shot and on the cut once', asy
   const shot = filed.plans.find(plan => plan.id === 'sb-quai-p2');
   assertOne(shot?.prises.length, filed.plans.find(plan => plan.id === 'sb-quai-p1')?.prises.length ?? 0, filed.montage.clips);
 
-  await page.goto('/studio#montage');
+  await page.goto('/studio/legacy#montage');
   await expect(page.locator('[data-film-montage] video')).toHaveCount(1, { timeout: 30_000 });
   await page.reload();
   await expect(page.locator('[data-film-montage] video')).toHaveCount(1, { timeout: 30_000 });

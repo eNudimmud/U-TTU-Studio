@@ -60,8 +60,8 @@ export function TopBar({ place, step = null, onStep, cutReady = false }: { place
   const assistantOpen = useAssistantOpen();
   const lookReady = cast.some(card => Boolean(card.sheet || card.preview || card.photos.length));
   const hasScene = decor.some(card => Boolean(card.sheet || card.preview || card.geste === "repere"));
-  const resumeHref = `/studio#${TAB_HASH[resumeTab({ lookReady, hasScene })]}`;
-  const here = step && ["lora", "scene", "prise", "montage", "finaliser"].includes(step) ? `/studio#${TAB_HASH[step as Tab]}` : null;
+  const resumeHref = `/studio/legacy#${TAB_HASH[resumeTab({ lookReady, hasScene })]}`;
+  const here = step && ["lora", "scene", "prise", "montage", "finaliser"].includes(step) ? `/studio/legacy#${TAB_HASH[step as Tab]}` : null;
   const filmHref = here ?? resumeHref;
   const [drawer, setDrawer] = useState(false);
   const [palette, setPalette] = useState(false);
@@ -141,7 +141,7 @@ function MainNav({ place, filmHref, onPick }: { place: Place; filmHref: string; 
   const { t } = useI18n();
   const film = FILM_PLACE.includes(place);
   return <ul className="u-top-links" role="list">
-    <li><a href={assetPath("/studio")} onClick={onPick} data-top-studio="" aria-current={place === "creer" ? "page" : undefined}>{t("chrome.studio")}</a></li>
+    <li><a href={assetPath("/studio/legacy")} onClick={onPick} data-top-studio="" aria-current={place === "creer" ? "page" : undefined}>{t("chrome.studio")}</a></li>
     <li><a href={assetPath(filmHref)} onClick={onPick} data-top-film="" aria-current={film ? "page" : undefined}>{t("top.film")}</a></li>
     <li><a href={assetPath("/mon-studio")} onClick={onPick} data-top-creations="" aria-current={place === "creations" ? "page" : undefined}>{t("chrome.mine")}</a></li>
   </ul>;
@@ -222,7 +222,7 @@ function TasksBell() {
           <strong>{task.plain ? task.label : t(task.label)}</strong>
           <span className="u-task-state">{t(`taches.state.${task.state}`)}</span>
           {task.reason && <span className="u-task-why">{say(task.reason)}</span>}
-          {(task.state === "failed" || task.state === "interrupted") && <a className="u-link" data-task-relaunch="" href={assetPath(task.tool ? `/studio#outils/${task.tool}` : task.id === "prise" ? "/studio#prise" : task.label === "taches.decor" ? "/studio#scene" : "/studio#personnage")} onClick={close}>{t("taches.relaunch")}</a>}
+          {(task.state === "failed" || task.state === "interrupted") && <a className="u-link" data-task-relaunch="" href={assetPath(task.tool ? `/studio/legacy#outils/${task.tool}` : task.id === "prise" ? "/studio/legacy#prise" : task.label === "taches.decor" ? "/studio/legacy#scene" : "/studio/legacy#personnage")} onClick={close}>{t("taches.relaunch")}</a>}
         </li>)}
       </ul>}
       {tasks.some(task => task.state !== "running") && <button type="button" className="u-link" onClick={() => clearTasks()}>{t("taches.clear")}</button>}
@@ -260,7 +260,7 @@ function SearchPalette({ onClose }: { onClose(): void }) {
   const needle = query.trim();
   const places = [
     { id: "look", href: "/anime", label: t("chrome.look"), line: t("chrome.lookAnime") },
-    { id: "finish", href: "/studio#finaliser", label: t("nav.finish"), line: t("chrome.finishLead") },
+    { id: "finish", href: "/studio/legacy#finaliser", label: t("nav.finish"), line: t("chrome.finishLead") },
     { id: "guide", href: "/guide", label: t("chrome.guide"), line: t("chrome.openGuide") },
   ].filter(item => !needle || cherche(`${item.label} ${item.line}`, needle));
   const tools = outilsPublics(outilsFiltre).filter(item => !needle || cherche(`${t(`outils.t.${item.id}.title`)} ${t(`outils.t.${item.id}.line`)} ${t(`outils.fam.${familleVitrine(item)}`)}`, needle)).slice(0, needle ? 8 : 6);
@@ -280,7 +280,7 @@ function SearchPalette({ onClose }: { onClose(): void }) {
         </ul>
         <h2>{t("top.paletteTools")}</h2>
         {tools.length === 0 ? <p className="u-small">{t("outils.none")}</p> : <ul role="list">
-          {tools.map(item => <li key={item.id}><a href={assetPath(`/studio#outils/${item.id}`)} onClick={onClose} data-palette-outil={item.id}><strong>{t(`outils.t.${item.id}.title`)}</strong><span>{t(`outils.t.${item.id}.line`)}</span></a></li>)}
+          {tools.map(item => <li key={item.id}><a href={assetPath(`/studio/legacy#outils/${item.id}`)} onClick={onClose} data-palette-outil={item.id}><strong>{t(`outils.t.${item.id}.title`)}</strong><span>{t(`outils.t.${item.id}.line`)}</span></a></li>)}
         </ul>}
         <h2>{t("top.creations")}</h2>
         {mine.length === 0 ? <p className="u-small">{needle ? t("top.paletteNone") : t("top.paletteEmpty")}</p> : <ul role="list">

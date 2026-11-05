@@ -118,7 +118,7 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, 
       onImport={files => void importAssets(files, defaultFilter === "personnage" || defaultFilter === "decor" ? defaultFilter : undefined)}
       onUseRef={holdAsRef}
       onPrise={asset => {
-        if (!window.location.pathname.endsWith('/studio')) {
+        if (!window.location.pathname.endsWith('/studio/legacy')) {
           window.location.href = assetPath(studioTarget(asset.kind === 'decor' ? 'lieu' : asset.kind === 'personnage' ? 'personnage' : 'prise', asset.id, studio.project));
           return;
         }
@@ -127,7 +127,7 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, 
         window.location.hash = "prise";
       }}
       onMontage={asset => {
-        if (!window.location.pathname.endsWith('/studio')) {
+        if (!window.location.pathname.endsWith('/studio/legacy')) {
           window.location.href = assetPath(studioTarget('asset', asset.id, studio.project));
           return;
         }

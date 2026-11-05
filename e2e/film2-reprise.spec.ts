@@ -23,7 +23,7 @@ test('une étape échoue : son image est gardée, « Réessayer » ne renvoie qu
   const prefix = `film2-${page.viewportSize()?.width}x${page.viewportSize()?.height}`;
   if (SHOTS) mkdirSync(SHOTS, { recursive: true });
   const snap = async (name: string) => { if (SHOTS) { await page.waitForTimeout(300); await page.screenshot({ path: join(SHOTS, `${prefix}-${name}.png`) }); } };
-  await page.goto('/studio#prise');
+  await page.goto('/studio/legacy#prise');
   const field = page.locator('[data-film-phrase]');
   const gold = page.locator('[data-film-tourner]');
   await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });

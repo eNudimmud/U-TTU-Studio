@@ -17,7 +17,7 @@ test("Doubler une prise (VEED) : langues, version, devis par seconde, confirmati
   let cancels=0;
   await page.route(/\/api\/prompt$/,route=>{graphs.push(route.request().postDataJSON().prompt);return route.fallback();});
   await page.route(/\/api\/(queue|interrupt)$/,route=>{cancels++;return route.fulfill({json:{}});});
-  await page.goto("/studio#outils/tous");
+  await page.goto("/studio/legacy#outils/tous");
   await page.locator("[data-outils-search]").fill("doubler");
   const card=page.locator('[data-outil="vid-doubler"]').first();
   await expect(card).toBeVisible();

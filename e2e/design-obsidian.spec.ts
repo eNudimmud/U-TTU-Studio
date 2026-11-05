@@ -21,12 +21,12 @@ const SIZES: { name: string; width: number; height: number }[] = [
 ];
 
 const PAGES = [
-  { id: "barre", url: "/studio#outils", ready: "[data-barre]" },
-  { id: "entree", url: "/studio#outils/tous", ready: "[data-tous]" },
-  { id: "outil", url: "/studio#outils/img-klein", ready: "[data-tool-panel]" },
-  { id: "film", url: "/studio#personnage", ready: "#u-title" },
-  { id: "prise", url: "/studio#prise", ready: "#u-title" },
-  { id: "montage", url: "/studio#montage", ready: "#u-title" },
+  { id: "barre", url: "/studio/legacy#outils", ready: "[data-barre]" },
+  { id: "entree", url: "/studio/legacy#outils/tous", ready: "[data-tous]" },
+  { id: "outil", url: "/studio/legacy#outils/img-klein", ready: "[data-tool-panel]" },
+  { id: "film", url: "/studio/legacy#personnage", ready: "#u-title" },
+  { id: "prise", url: "/studio/legacy#prise", ready: "#u-title" },
+  { id: "montage", url: "/studio/legacy#montage", ready: "#u-title" },
   { id: "creations", url: "/mon-studio", ready: "#u-title" },
   { id: "accueil", url: "/", ready: "h1" },
 ];
@@ -93,7 +93,7 @@ test.describe("toutes les tailles d'écran", () => {
 });
 
 test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvre PRISE", async ({ page }) => {
-  await page.goto("/studio#outils/tous");
+  await page.goto("/studio/legacy#outils/tous");
   const entry = page.locator("[data-studio-entry]");
   await expect(entry.locator("[data-outils-count]")).toHaveText(`${NOMBRE_OUTILS} outils`);
   const cards = entry.locator(".u-outil-card");
@@ -110,7 +110,7 @@ test("entrée : chaque carte a sa vignette, et « Maquette 3D et cadrage » ouvr
 });
 
 test("page de création unique : la barre, la porte du film, une rangée par famille avec vignettes réelles", async ({ page }) => {
-  await page.goto("/studio#outils/tous");
+  await page.goto("/studio/legacy#outils/tous");
   const entry = page.locator("[data-studio-entry]");
   await expect(entry.locator("[data-entry-uttu], [data-entry-prompt]")).toHaveCount(0);
   await expect(page.locator("#u-title em")).toHaveCount(1);

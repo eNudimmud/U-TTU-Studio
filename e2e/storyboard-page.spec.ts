@@ -82,7 +82,7 @@ test('closed: four sizes, 44 px targets, no side scroll, the portrait stays', as
 
 test('closed: the studio keeps the door, marked Soon, and it opens the holding page', async ({ page }) => {
   test.skip(!STORYBOARD_CLOSED, 'the board is open again');
-  await page.goto('/studio');
+  await page.goto('/studio/legacy');
   const bar = page.locator('[data-barre]');
   await bar.locator('[data-barre-plus]').click();
   const item = page.locator('[data-barre-storyboard]');
@@ -93,7 +93,7 @@ test('closed: the studio keeps the door, marked Soon, and it opens the holding p
   await expect(page).toHaveURL(/\/storyboard/);
   await expect(page.locator('[data-storyboard-holding][data-storyboard-gate="closed"]')).toBeVisible();
 
-  await page.goto('/studio');
+  await page.goto('/studio/legacy');
   const entry = page.locator('[data-storyboard-entry]');
   await expect(entry).toBeVisible({ timeout: 20_000 });
   await expect(entry.locator('[data-storyboard-soon]')).toBeVisible();
@@ -109,7 +109,7 @@ test('open to everyone: /storyboard is U1.1; ?storyboard=0 hides it, ?storyboard
   expect((await page.goto('/storyboard?storyboard=u11'))?.status()).toBe(200);
   await expect(page.locator('[data-u11]')).toBeVisible({ timeout: 60_000 });
   expect((await page.goto('/storyboard?storyboard=0'))?.status()).toBe(404);
-  await page.goto('/studio?storyboard=0');
+  await page.goto('/studio/legacy?storyboard=0');
   const bar = page.locator('[data-barre]');
   await bar.locator('[data-barre-plus]').click();
   await expect(bar.locator('[data-barre-attach]')).toHaveCount(3);
@@ -161,7 +161,7 @@ test('legacy hatch: ?storyboard=legacy still opens the paper page; an unknown na
 test('bubble: « Make a storyboard » for everyone, carrying the idea to /storyboard', async ({ page }) => {
   test.skip(STORYBOARD_CLOSED, 'holding page covers this until StoryWeave; flip STORYBOARD_CLOSED');
   test.setTimeout(120_000);
-  await page.goto('/studio');
+  await page.goto('/studio/legacy');
   const bar = page.locator('[data-barre]');
   const idea = 'Uttu traverse la ville sous la pluie.';
   await bar.locator('textarea').fill(idea);

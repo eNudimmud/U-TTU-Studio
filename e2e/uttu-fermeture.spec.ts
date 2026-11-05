@@ -14,7 +14,7 @@ const open = async (page: Page) => {
 test("Escape closes Uttu and returns focus to the U*TTU button", async ({ page }) => {
   await simulateComfy(page);
   // The U*TTU button sits in the creation page's top bar; the film opens Uttu from its menu.
-  await page.goto("/studio");
+  await page.goto("/studio/legacy");
   await open(page);
   await panel(page).locator("h2").click();
   await expect(panel(page)).toBeVisible();
@@ -27,7 +27,7 @@ test("Escape closes Uttu and returns focus to the U*TTU button", async ({ page }
 
 test("a tap on the chain while Uttu is open closes it and still changes the stage", async ({ page }) => {
   await simulateComfy(page);
-  await page.goto("/studio#personnage");
+  await page.goto("/studio/legacy#personnage");
   await expect(page.locator(".u-app")).toHaveAttribute("data-studio", "lora");
   await openAssistant(page);
   await expect(panel(page)).toBeVisible();
@@ -52,7 +52,7 @@ test("docked on a wide screen, Uttu stays open on a press outside and still clos
   test.skip(testInfo.project.name !== "desktop", "one wide run");
   await page.setViewportSize({ width: 1700, height: 900 });
   await simulateComfy(page);
-  await page.goto("/studio#personnage");
+  await page.goto("/studio/legacy#personnage");
   await openAssistant(page);
   await expect(panel(page)).toBeVisible();
   await page.locator("[data-film-nav-to=scene]").click();

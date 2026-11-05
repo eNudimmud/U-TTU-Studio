@@ -82,3 +82,23 @@ test("les anciennes routes gardent leurs paramètres et aboutissent au bon unive
     await expect(page.locator(".ps-project")).toBeEnabled();
   }
 });
+
+test("l’entrée légère ouvre les sections et garde le contexte des anciens liens", async ({ page }) => {
+  await page.goto("/studio");
+  await expect(page.getByRole("heading", { name: "Choisis ton univers." })).toBeVisible();
+  await expect(page.locator(".u-app")).toHaveCount(0);
+  await page.getByRole("link", { name: /ANIME Dessin/ }).click();
+  await expect(page).toHaveURL(/\/studio\/anime\/cast$/);
+  await expect(page.locator(".ps-project")).toBeEnabled();
+
+  await page.goto("/studio#outils/ret-detourer");
+  await expect(page).toHaveURL(/\/studio\/anime\/cast\/ret-detourer$/);
+  await expect(page.getByRole("heading", { name: "Détourer", exact: true })).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/studio\/anime\/cast$/);
+
+  await page.goto("/studio?project=atelier&plan=shared-plan#prise");
+  await expect(page).toHaveURL(/\/studio\/legacy\?project=atelier&plan=shared-plan#prise$/);
+  await expect(page.locator(".u-app")).toHaveAttribute("data-studio", "prise");
+  await expect(page.locator("[data-film-plans]")).toBeVisible();
+});

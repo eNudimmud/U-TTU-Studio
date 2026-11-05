@@ -56,7 +56,7 @@ async function simulateDirect(page: Page, direct: boolean) {
 }
 
 async function openFinaliser(page: Page) {
-  await page.goto("/studio#outils/vid-finaliser");
+  await page.goto("/studio/legacy#outils/vid-finaliser");
   const panel = page.locator('[data-tool-panel="vid-finaliser"]');
   await expect(panel).toBeVisible();
   return panel;
@@ -118,7 +118,7 @@ for (const family of families) {
     const seen = await simulateDirect(page, true);
     const prompts: string[] = [];
     await page.route(/\/api\/prompt$/, route => { prompts.push(JSON.stringify(route.request().postDataJSON()?.prompt ?? {})); return route.fallback(); });
-    await page.goto(`/studio#outils/${family.tool}`);
+    await page.goto(`/studio/legacy#outils/${family.tool}`);
     const panel = page.locator(`[data-tool-panel="${family.tool}"]`);
     await expect(panel).toBeVisible();
     const path = family.file(name => info.outputPath(name));
@@ -138,7 +138,7 @@ test("Store connecté · Copier un mouvement : le clip est remis à 16 i/s (81 i
   await simulateComfy(page);
   const relay = await simulateRelay(page);
   const seen = await simulateDirect(page, true);
-  await page.goto("/studio#outils/vid-mouvement");
+  await page.goto("/studio/legacy#outils/vid-mouvement");
   const panel = page.locator('[data-tool-panel="vid-mouvement"]');
   await expect(panel).toBeVisible();
   const clip = heavyMp4(info.outputPath("clip.mp4"), 15 * 1024 * 1024);
