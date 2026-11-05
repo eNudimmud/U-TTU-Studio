@@ -46,6 +46,8 @@ export type TakeRunEvent =
   | { stage: "measure"; jobId: string };
 
 export interface TakeRunResult {
+  /** A caller that files its own media starts billing attribution after durable storage. */
+  measureAfterSave?: () => Promise<void>;
   jobId: string;
   video: Blob;
   filename: string;
@@ -60,6 +62,7 @@ export interface TakeRunResult {
 }
 
 export interface TakeRunOptions {
+  holdMeasureUntilSaved?: boolean;
   sleep?: (ms: number) => Promise<void>;
   now?: () => number;
   pollMs?: number;
@@ -217,6 +220,12 @@ export async function followTake(
     return info;
   };
 
+  if (options.holdMeasureUntilSaved) {
+    const result = pack(null, null);
+    let measuring: Promise<void> | undefined;
+    result.measureAfterSave = () => measuring ??= readCost().then(() => undefined);
+    return result;
+  }
   if (options.deferMeasure) {
     // Never block the result on the balance poll: show bytes first, fill the quote line later.
     void readCost().catch(() => {
