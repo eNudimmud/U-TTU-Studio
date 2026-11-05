@@ -1,2 +1,6 @@
-import { redirect } from "next/navigation";
-export default function Page() { redirect("/studio/cinema/cast"); }
+import { permanentRedirect } from "next/navigation";
+import { withSearchParams, type LegacySearch } from "@/lib/sections/redirect";
+
+export default async function Page({ searchParams }: { searchParams: Promise<LegacySearch> }) {
+  permanentRedirect(withSearchParams("/studio/cinema/cast", await searchParams));
+}

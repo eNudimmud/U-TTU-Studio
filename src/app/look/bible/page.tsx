@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
+import { withSearchParams, type LegacySearch } from "@/lib/sections/redirect";
 
-// Renamed to ANIME Studio. Old links (bookmarks, other PRs) still land, now on the clear name.
-export default function Page() {
-  redirect("/anime/bible");
+export default async function Page({ searchParams }: { searchParams: Promise<LegacySearch> }) {
+  permanentRedirect(withSearchParams("/studio/anime/bible", await searchParams));
 }
