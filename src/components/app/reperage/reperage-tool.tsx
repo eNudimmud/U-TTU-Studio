@@ -19,8 +19,8 @@ const Sheet = dynamic(() => import("./reperage-3d").then(module => module.Repera
 
 /** Same page when the studio is open (the hash switches the tab), otherwise the studio page. */
 function goStudio(hash: "prise" | "scene") {
-  const target = assetPath(`/studio#${hash}`);
-  if (window.location.pathname === assetPath("/studio") || window.location.pathname === assetPath("/studio/")) window.location.hash = hash;
+  const target = assetPath(`/studio/legacy#${hash}`);
+  if (window.location.pathname === assetPath("/studio/legacy") || window.location.pathname === assetPath("/studio/legacy/")) window.location.hash = hash;
   else window.location.assign(target);
 }
 

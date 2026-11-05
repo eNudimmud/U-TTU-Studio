@@ -35,7 +35,7 @@ const SHEET = "Un vrai lieu en décor";
 const SEARCH = "Une adresse, une place, une ville";
 
 async function openSheet(page: Page) {
-  await page.goto("/studio#personnage");
+  await page.goto("/studio/legacy#personnage");
   await page.getByRole("navigation").getByRole("button", { name: "DÉCOR" }).click();
   await page.locator("[data-rep3d-open]").click();
   const sheet = page.getByRole("dialog", { name: SHEET });

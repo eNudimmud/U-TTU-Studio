@@ -10,7 +10,7 @@ test("open weights : aucun outil partenaire, un seul compte, pas d’interrupteu
   await simulateComfy(page);
   // Even a device that once turned partner services on stays on open weights.
   await page.addInitScript(() => localStorage.setItem("u-ttu-moteurs", JSON.stringify({ partenaires: true, nanoBanana: true, openWeightsOnly: false, engine: "ltx", engineManual: false })));
-  await page.goto("/studio#outils/tous");
+  await page.goto("/studio/legacy#outils/tous");
   const rail = page.locator("[data-rail] .u-rail-head");
   if (await rail.isVisible()) await expect(rail).toContainText(String(NOMBRE_OUTILS_OPEN_WEIGHTS));
   for (const word of ["kling", "seedance", "vidu", "ideogram", "seedream", "genjutsu", "tripo", "meshy", "nano"]) {
@@ -26,7 +26,7 @@ test("open weights : aucun outil partenaire, un seul compte, pas d’interrupteu
 
 test("open weights : « Image en volume » reste, sans l’option Personnage (Hunyuan3D 2.1, licence hors UE/UK/Corée du Sud)", async ({ page }) => {
   await simulateComfy(page);
-  await page.goto("/studio#outils/3d-ouvert");
+  await page.goto("/studio/legacy#outils/3d-ouvert");
   const panel = page.locator("[data-tool-panel=\"3d-ouvert\"]");
   await expect(panel).toBeVisible({ timeout: 20_000 });
   await expect(panel.locator("[data-tool-mesh]")).toHaveCount(0);

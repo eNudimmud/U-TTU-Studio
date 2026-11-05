@@ -31,7 +31,7 @@ test('carte du plan : de l’accueil au POST en ≤ 3 taps et 1 champ, puis la p
   let taps = 0;
   const tap = async (target: Locator) => { await expect(target).toBeEnabled(); await target.click(); taps += 1; };
 
-  await page.goto('/studio');
+  await page.goto('/studio/legacy');
   await snap('01-accueil');
   // Tap 1 · the film door opens the plan card, not CAST.
   await tap(page.locator('[data-entry-film]'));
@@ -123,7 +123,7 @@ for (const size of [{ width: 390, height: 844 }, { width: 844, height: 390 }, { 
   test(`carte du plan ${size.width}×${size.height} : champ et bouton or au premier écran, un seul primaire`, async ({ page }, info) => {
     test.skip(info.project.name !== 'desktop', 'sizes are set here');
     await page.setViewportSize(size);
-    await page.goto('/studio#prise');
+    await page.goto('/studio/legacy#prise');
     const field = page.locator('[data-film-phrase]');
     await expect(field).toBeVisible({ timeout: 30_000 });
     await onScreen(page, field);
@@ -132,7 +132,7 @@ for (const size of [{ width: 390, height: 844 }, { width: 844, height: 390 }, { 
     const actions = await page.locator('[data-film-plans] button:visible, [data-film-plans] textarea:visible').count();
     expect(actions).toBeLessThanOrEqual(10);
     // The old ?film2=0 link no longer switches FILM off: it lands on the same PRISE with exactly one plan composer.
-    await page.goto('/studio?film2=0#prise');
+    await page.goto('/studio/legacy?film2=0#prise');
     const legacy = page.locator('[data-film-phrase]');
     await expect(legacy).toHaveCount(1, { timeout: 30_000 });
     await expect(legacy).toBeVisible();

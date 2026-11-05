@@ -15,7 +15,7 @@ test('Plans : ≤ 12 actions et 1 seul bouton primaire au 1er écran, quatre ong
   await simulateComfy(page);
   for (const size of SIZES) {
     await page.setViewportSize(size);
-    await page.goto('/studio#prise');
+    await page.goto('/studio/legacy#prise');
     await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });
     await page.waitForTimeout(300);
     const actions = await firstScreen(page);
@@ -65,7 +65,7 @@ test('scénario A : 4 taps de l’entrée du studio au plan visible dans MONTAGE
   const tap = async (selector: string) => { await page.locator(selector).first().click(); taps += 1; };
 
   // Where « Entrer dans le studio » lands.
-  await page.goto('/studio');
+  await page.goto('/studio/legacy');
   await tap('[data-entry-film]');
   await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });
   await expect(page.locator('[data-film-nav-to="prise"]')).toHaveAttribute('aria-current', 'page');

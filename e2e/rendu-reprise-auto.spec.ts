@@ -49,7 +49,7 @@ test('a render left running is followed again on return, saved without opening C
   const comfy = await cloud(context);
 
   // 1 · Send a CAST render, then close the tab while the cloud is still working.
-  await page.goto('/studio#personnage');
+  await page.goto('/studio/legacy#personnage');
   await expect(page.getByRole('heading', { name: 'CAST' })).toBeVisible();
   await page.getByRole('textbox', { name: 'Nom' }).fill('Léa');
   await page.getByRole('textbox', { name: 'Texte', exact: true }).fill('Une femme de trente ans, manteau rouge, cheveux courts.');
@@ -63,7 +63,7 @@ test('a render left running is followed again on return, saved without opening C
 
   // 2 · Come back: the studio says it follows the render, and the recovery button is on the page.
   const back = await context.newPage();
-  await back.goto('/studio#personnage');
+  await back.goto('/studio/legacy#personnage');
   const banner = back.locator('[data-rendu-suivi]');
   await expect(banner).toBeVisible({ timeout: 15_000 });
   await expect(banner).toHaveAttribute('data-rendu-suivi', /queue|prepare|render/);

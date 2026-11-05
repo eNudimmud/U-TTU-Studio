@@ -17,7 +17,7 @@ test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et a
   await page.route(/\/api\/job\/video-recovery-123\/status$/, route => route.fulfill({ json: { status: done ? 'success' : 'in_progress' } }));
   await page.route(/\/api\/jobs\/video-recovery-123$/, route => route.fulfill({ json: { status: 'success', outputs: { '68': { images: [{ filename: 'raccord.mp4', subfolder: '', type: 'output' }] } } } })); // 68: SaveVideo of video_ltx2_5_flf2v
   await page.route(/\/api\/view\?/, route => route.fulfill({ contentType: 'video/mp4', body: video }));
-  await page.goto('/studio#personnage');
+  await page.goto('/studio/legacy#personnage');
   await expect(page.getByLabel('Importer un personnage', { exact: true })).toBeEnabled();
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Portrait.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
@@ -45,7 +45,7 @@ test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et a
   await expect(card).toHaveCount(1);
   await card.getByRole('button').first().click();
   await page.locator('.u-asset-detail').getByRole('button', { name: 'Ajouter au montage', exact: true }).click();
-  await expect(page).toHaveURL(/\/studio\?project=atelier#montage$/);
+  await expect(page).toHaveURL(/\/studio\/legacy\?project=atelier#montage$/);
   await expect(page.locator('[data-fm-track="plans"] [data-fm-clip]')).toHaveCount(1);
   // Nav badge flips once the cut is filled; vault write is awaited in montage-stage.
   await expect(page.getByRole('button', { name: /MONTAGE/ })).not.toContainText('Vide');
@@ -59,7 +59,7 @@ test('contrat vidéo LTX simulé : confirmation renouvelée, reçu, reprise et a
 test('stockage réel, import conservé après fermeture et confirmation accessible au clavier', async ({ page, context }, info) => {
   const paid: string[] = [];
   await context.route(/\/api\/(prompt|upload|queue)/, route => { paid.push(route.request().url()); return route.abort(); });
-  await page.goto('/studio#personnage');
+  await page.goto('/studio/legacy#personnage');
   await expect(page.getByLabel('Importer un personnage', { exact: true })).toBeEnabled();
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Portrait-archive.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');
@@ -111,7 +111,7 @@ test('contrat simulé : identifier un envoi ambigu ne crée jamais un autre rend
   await page.route(/\/api\/job\/existing-job-123\/status$/, route => route.fulfill({ json: { status: 'success' } }));
   await page.route(/\/api\/jobs\/existing-job-123$/, route => route.fulfill({ json: { status: 'success', outputs: { save: { images: [{ filename: 'recovered.webp', subfolder: '', type: 'output' }] } } } }));
   await page.route(/\/api\/view\?/, route => route.fulfill({ contentType: 'image/webp', body: portrait }));
-  await page.goto('/studio#personnage');
+  await page.goto('/studio/legacy#personnage');
   await expect(page.getByLabel('Importer un personnage', { exact: true })).toBeEnabled();
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Initial.webp', mimeType: 'image/webp', buffer: portrait });
   await expect(page.getByRole('navigation').getByRole('button', { name: 'CAST' })).toContainText('Prêt');

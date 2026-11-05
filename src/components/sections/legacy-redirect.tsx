@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { tabFromLocation } from "@/lib/studio-route";
+import { legacyStudioDestination } from "@/lib/sections/navigation";
 import {
   SECTIONS,
   sectionPath,
@@ -11,14 +11,6 @@ import {
   type Step,
 } from "@/lib/sections/registry";
 import "./studio.css";
-const stageForTab: Record<string, Step> = {
-  lora: "cast",
-  look: "cast",
-  scene: "set",
-  prise: "shoot",
-  montage: "edit",
-  finaliser: "finish",
-};
 export function LegacyStudioRedirect() {
   const router = useRouter();
   const [last, setLast] = useState<Section | null>(null);
@@ -34,33 +26,20 @@ export function LegacyStudioRedirect() {
     const hash = window.location.hash,
       query = window.location.search;
     if (!hash && !query) return;
-    const tab = tabFromLocation(hash, query);
-    if (hash.startsWith("#outils/")) {
-      const id = decodeURIComponent(hash.slice(8));
+    let alive = true;
+    const navigate = (tools: Record<string, Step> = {}) => {
+      const destination = legacyStudioDestination(section, hash, query, tools);
+      if (alive && destination) router.replace(destination);
+    };
+    if (hash.startsWith("#outils/") && !query) {
       void import("@/lib/sections/tools").then(({ sectionTools }) => {
+        const tools: Record<string, Step> = {};
         for (const step of ["cast", "set", "shoot", "edit"] as const)
-          if (sectionTools(step).some((item) => item.tool.id === id)) {
-            router.replace(`${sectionPath(section, step)}/${id}`);
-            return;
-          }
-        const primary: Record<string, Step> = {
-          "img-klein": "cast",
-          "img-qwen": "cast",
-          "img-refs": "cast",
-          "vid-ltx-image": "shoot",
-          "vid-wan": "shoot",
-          "ret-finaliser": "finish",
-          "vid-finaliser": "finish",
-        };
-        router.replace(
-          primary[id]
-            ? sectionPath(section, primary[id])
-            : `/studio/legacy${query}${hash}`,
-        );
+          for (const { tool } of sectionTools(step)) tools[tool.id] ??= step;
+        navigate(tools);
       });
-    } else if (tab && stageForTab[tab])
-      router.replace(sectionPath(section, stageForTab[tab]));
-    else router.replace(`/studio/legacy${query}${hash}`);
+    } else navigate();
+    return () => { alive = false; };
   }, [router]);
   return (
     <div className="production-studio ps-cinema" lang="fr">

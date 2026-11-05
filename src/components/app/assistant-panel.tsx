@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { legacyStudioHref } from "@/lib/legacy-studio";
 import { assetPath } from '@/lib/site';
 import { useI18n, useLocaleSwitch } from '@/components/i18n/provider';
 import { SEMANTIC_MODEL_ENABLED } from '@/lib/agent/semantic-flag';
@@ -243,7 +244,7 @@ export function AssistantPanel() {
       const result = await prepareStep(session, contextRef.current, bound, selected);
       await commit({ ...liveConversation.current, plan: updateStep(bound, step.id, { state: result.state, baseline, results: result.results }) });
       window.dispatchEvent(new Event(AGENT_EVENT));
-      if (result.href) { toggleAssistant(false); window.location.assign(assetPath(result.href)); }
+      if (result.href) { toggleAssistant(false); window.location.assign(assetPath(legacyStudioHref(result.href))); }
     });
   }
   function accept(step: ProductionStep) {
@@ -271,7 +272,7 @@ export function AssistantPanel() {
           <label className="u-field"><span className="u-label">{t('assistant.ask')}</span><textarea ref={kernelInput} value={query} maxLength={2000} rows={3} disabled={busy || !session.ready || Boolean(project && loaded !== project)} aria-describedby="u-agent-guidance" onChange={e => { setQuery(e.target.value); setModelConfirm(false); }} placeholder={t('agent.placeholder')} data-assistant-input="" /></label>
           <div className="u-agent-actions"><button className="u-primary" data-agent-send="" aria-describedby="u-agent-guidance" disabled={busy || !query.trim() || loaded !== project || !project}>{t('agent.send')}</button><button type="button" className="u-secondary" onClick={() => { setLibrary(v => !v); setMediaQuery(''); }}>{t('media.title')}</button></div>
         </form>
-        {hinted.length > 0 && <ul className="u-assistant-list">{hinted.map(op => op && <li key={op.id}><a href={assetPath(op.href!)} data-assistant-outil={op.toolId}>{op.label}</a></li>)}</ul>}
+        {hinted.length > 0 && <ul className="u-assistant-list">{hinted.map(op => op && <li key={op.id}><a href={assetPath(legacyStudioHref(op.href!))} data-assistant-outil={op.toolId}>{op.label}</a></li>)}</ul>}
         {SEMANTIC_MODEL_ENABLED && <details><summary>{t('agent.model')}</summary><p className="u-small">{t('agent.modelHelp')}</p><label className="u-field">{t('agent.modelKey')}<input type="password" autoComplete="off" value={modelKey} onChange={e => { setModelKey(e.target.value); setModelConfirm(false); }} /></label><p className="u-small">{t('agent.modelScope')}</p><label className="u-media-name"><input type="checkbox" checked={modelConfirm} onChange={e => setModelConfirm(e.target.checked)} />{t('agent.modelConsent')}</label><button type="button" className="u-secondary" aria-describedby="u-agent-guidance" disabled={busy || !modelConfirm || modelKey.length < 10 || !query.trim() || loaded !== project} onClick={() => void sendSemantic()}>{t('agent.modelSend')}</button></details>}
         {error && <p role="alert">{error}</p>}
         {resources.length > 0 && <details><summary>{t('agent.references')} ({conversation.selectedIds.length})</summary><div className="u-agent-resources">{resources.map(r => <label key={r.id}><input type="checkbox" disabled={busy || !r.available || loaded !== project} checked={conversation.selectedIds.includes(r.id)} onChange={e => { const checked = e.target.checked; void work(() => commit({ ...liveConversation.current, selectedIds: checked ? [...new Set([...liveConversation.current.selectedIds, r.id])].slice(0, 20) : liveConversation.current.selectedIds.filter(id => id !== r.id) }, true)); }} />{r.name} · {t(`media.kinds.${r.kind}`)}{!r.available && ` · ${t('media.uncached')}`}</label>)}</div></details>}

@@ -10,7 +10,7 @@ test.describe("barre du bas et retours", () => {
   test.beforeEach(({}, info) => { test.skip(info.project.name !== "mobile", "bottom bar is the phone layout"); });
 
   test("quatre onglets, quatre destinations, un seul formulaire", async ({ page }) => {
-    await page.goto("/studio");
+    await page.goto("/studio/legacy");
     const tabs = page.locator("[data-tabs] a");
     await expect(tabs).toHaveCount(4);
     const hrefs = await tabs.evaluateAll(links => links.map(link => (link as HTMLAnchorElement).href));
@@ -30,12 +30,12 @@ test.describe("barre du bas et retours", () => {
     const film = new URL(page.url());
     seen.add(`${film.pathname}${film.hash}`);
     expect(seen.size).toBe(3);
-    await page.goto("/studio#outils");
+    await page.goto("/studio/legacy#outils");
     await expect(page.locator("textarea:visible")).toHaveCount(1);
   });
 
   test("un vieux lien #creer ouvre l'onglet Créer, pas Film", async ({ page }) => {
-    await page.goto("/studio#creer");
+    await page.goto("/studio/legacy#creer");
     await expect(current(page)).toHaveAttribute("data-tab", "creer");
     await expect(page.locator("[data-barre-input]")).toBeVisible();
   });

@@ -9,7 +9,7 @@ for (const size of sizes) test(`refused Comfy key shows a visible error at ${siz
   await page.route(/\/api\/user(\?|$)/, r => r.fulfill({ status: 401, contentType: 'application/json', body: '{"error":"unauthorized"}' }));
   await page.route(/\/api\/(prompt|upload)/, r => r.abort());
   await page.setViewportSize(size);
-  await page.goto('/studio');
+  await page.goto('/studio/legacy');
   await page.locator('main').getByRole('button', { name: 'Relier', exact: true }).first().click();
   const dialog = page.locator('dialog.u-native-sheet[open]');
   await expect(dialog).toBeVisible();
@@ -35,7 +35,7 @@ const USER = { id: 'u1', email: 'test@example.invalid' };
 
 async function openSheet(page: import('@playwright/test').Page) {
   await page.route(/\/api\/(prompt|upload)/, r => r.abort());
-  await page.goto('/studio');
+  await page.goto('/studio/legacy');
   await page.locator('main').getByRole('button', { name: 'Relier', exact: true }).first().click();
   const dialog = page.locator('dialog.u-native-sheet[open]');
   await expect(dialog).toBeVisible();

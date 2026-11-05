@@ -45,8 +45,8 @@ it('rejects excess references before uploads and submission instead of losing th
   }
 });
 it('targets the requested project and montage, including an empty saved edit', () => {
-  assert.equal(studioTarget('prise', 'take-a', 'film'), '/studio?project=film&take=take-a#prise');
-  assert.equal(studioTarget('plan', 'plan-a', 'film'), '/studio?project=film&plan=plan-a#prise');
+  assert.equal(studioTarget('prise', 'take-a', 'film'), '/studio/legacy?project=film&take=take-a#prise');
+  assert.equal(studioTarget('plan', 'plan-a', 'film'), '/studio/legacy?project=film&plan=plan-a#prise');
   const one = emptyEdit('one', 'One'), two = emptyEdit('two', 'Two');
   const input = { saved: [one, two], sequences: [], shots: [], takes: [] };
   assert.equal(chooseEdit({ ...input, requestedId: 'two' }).edit, two);

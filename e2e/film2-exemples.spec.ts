@@ -21,7 +21,7 @@ async function snap(page: Page, name: string) {
 async function open(page: Page, locale = 'fr') {
   await page.context().addCookies([{ name: 'u-ttu-locale', value: locale, url: test.info().project.use.baseURL ?? 'http://127.0.0.1:3000' }]);
   await page.addInitScript(value => window.localStorage.setItem('u-ttu-locale', value), locale);
-  await page.goto('/studio#prise');
+  await page.goto('/studio/legacy#prise');
   await expect(page.locator('[data-film-ready="true"]')).toBeVisible({ timeout: 30_000 });
 }
 

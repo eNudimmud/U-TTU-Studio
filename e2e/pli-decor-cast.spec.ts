@@ -18,7 +18,7 @@ test('DÉCOR shows its text field and gold button without scrolling', async ({ p
   await simulateComfy(page);
   for (const [width, height] of SIZES) {
     await page.setViewportSize({ width, height });
-    await page.goto('/studio#decor');
+    await page.goto('/studio/legacy#decor');
     await expect(page.getByRole('heading', { name: 'DÉCOR' })).toBeVisible();
     expect(await page.evaluate(() => window.scrollY), `${width}x${height}`).toBe(0);
     const field = await onFirstScreen(page, '[data-decor-form] textarea');
@@ -32,7 +32,7 @@ test('DÉCOR shows its text field and gold button without scrolling', async ({ p
 
 test('CAST: after an import the gold button goes on to DÉCOR', async ({ page }) => {
   await simulateComfy(page);
-  await page.goto('/studio#personnage');
+  await page.goto('/studio/legacy#personnage');
   await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: 'Uttu.webp', mimeType: 'image/webp', buffer: readFileSync('public/exemples/cast-dj.webp') });
   const gold = page.locator('[data-cast-gold]');
   await expect(gold).toHaveAttribute('data-cast-ready', '');

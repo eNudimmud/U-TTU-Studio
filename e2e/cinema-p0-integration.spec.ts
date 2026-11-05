@@ -89,7 +89,7 @@ test('P0: board → selected shot → plain request on that shot only → undo �
   await expect(exit).toHaveCount(1);
   await expect(exit).toBeVisible();
   expect((await exit.boundingBox())!.height).toBeGreaterThanOrEqual(43.5);
-  await expect(exit).toHaveAttribute('href', /\/studio#montage$/);
+  await expect(exit).toHaveAttribute('href', /\/studio\/legacy#montage$/);
 
   // Four sizes on the board: 44 px targets, no side scroll, one composer, never « free ».
   for (const [width, height] of SIZES) {
@@ -109,7 +109,7 @@ test('P0: board → selected shot → plain request on that shot only → undo �
   await ready(page);
   await page.locator('[data-sb-export]').click();
   await page.locator('[data-sb-export-video]').click();
-  await expect(page).toHaveURL(/\/studio#montage$/);
+  await expect(page).toHaveURL(/\/studio\/legacy#montage$/);
   await expect(page.locator('.u-chain [aria-current="page"]')).toContainText('MONTAGE', { timeout: 30_000 });
   await page.waitForTimeout(1500);
   expect(posts, 'no paid POST, no cancel').toEqual([]);
@@ -121,7 +121,7 @@ test('P0: the legacy ?film2=0 link and the studio open on one plan composer, wit
   const posts = watchPosts(page);
   for (const [width, height] of SIZES) {
     await page.setViewportSize({ width, height });
-    await page.goto('/studio?film2=0#prise');
+    await page.goto('/studio/legacy?film2=0#prise');
     const field = page.locator('[data-film-phrase]');
     await expect(field).toHaveCount(1, { timeout: 30_000 });
     await expect(field).toBeVisible();

@@ -42,7 +42,7 @@ test("asset : menu 44 px, un coût, Détourer ouvre la page outil avec l’image
   await expect(link).toContainText("Détourer");
   await expect(link).toContainText("≈ 1 crédit");
   await link.click();
-  await expect(page).toHaveURL(/\/studio#outils\/ret-detourer/);
+  await expect(page).toHaveURL(/\/studio\/legacy#outils\/ret-detourer/);
   const panel = page.locator("[data-tool-panel=ret-detourer]");
   await expect(panel).toBeVisible();
   await expect(panel.locator("[data-outil-input=image] img")).toBeVisible();
@@ -61,7 +61,7 @@ test("asset : Modifier ouvre la page outil, l’original n’est pas envoyé", a
   const link = page.locator(".u-asset-detail [data-suite-item=suite-modifier]");
   await expect(link).toHaveAttribute("aria-current", "true");
   await link.click();
-  await expect(page).toHaveURL(/\/studio#outils\/ret-modifier/);
+  await expect(page).toHaveURL(/\/studio\/legacy#outils\/ret-modifier/);
   const panel = page.locator("[data-tool-panel=ret-modifier]");
   await expect(panel.locator("[data-outil-input=image] img")).toBeVisible();
   await expect(panel.locator("textarea")).toBeVisible();
@@ -87,7 +87,7 @@ test("prise importée : trois actions, chacune vers sa page, un coût", async ({
   await expect(detail.locator("[data-suite-item=suite-fluidifier]")).toHaveAttribute("href", /#outils\/vid-fluidifier/);
   await expect(detail.locator(".u-suite")).not.toContainText(/réserve/i);
   await finish.click();
-  await expect(page).toHaveURL(/\/studio#outils\/vid-finaliser/);
+  await expect(page).toHaveURL(/\/studio\/legacy#outils\/vid-finaliser/);
   const panel = page.locator("[data-tool-panel=vid-finaliser]");
   await expect(panel.locator("[data-outil-input=video] video")).toBeVisible({ timeout: 30_000 });
   await expect(panel.locator("[data-tool-go]")).toContainText("≈ 42 crédits");

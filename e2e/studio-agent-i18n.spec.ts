@@ -17,7 +17,7 @@ for (const c of cases) test(`assistant i18n: ${c.locale} ${c.width}×${c.height}
   let paid = 0;
   await page.route(/\/api\/(prompt|upload)|typesafe\.ai|\/studio-agent\/interpret/, r => { paid++; return r.abort(); });
   await page.setViewportSize({ width: c.width, height: c.height });
-  await page.goto('/studio#personnage');
+  await page.goto('/studio/legacy#personnage');
   await openPlan(page);
   const panel = page.locator('[data-assistant-panel]');
   await expect(panel).toBeVisible();

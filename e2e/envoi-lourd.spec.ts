@@ -15,7 +15,7 @@ async function graphs(page: Page) {
   return seen;
 }
 async function openTool(page: Page, id: string) {
-  await page.goto(`/studio#outils/${id}`);
+  await page.goto(`/studio/legacy#outils/${id}`);
   const panel = page.locator(`[data-tool-panel="${id}"]`);
   await expect(panel).toBeVisible();
   return panel;
@@ -104,7 +104,7 @@ test("Bulle · références (#158) : une référence de 9 Mo part sous la limite
   await simulateComfy(page);
   const relay = await simulateRelay(page);
   const seen = await graphs(page);
-  await page.goto("/studio");
+  await page.goto("/studio/legacy");
   await page.locator("[data-barre-plus]").tap();
   await page.locator("[data-barre-attach=reference]").tap();
   await page.locator("[data-refs-new]").tap();

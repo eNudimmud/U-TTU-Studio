@@ -23,16 +23,16 @@ test('le sélecteur de la bulle ne montre que les références nommées, sans do
   const paid: string[] = [];
   page.on('request', r => { if (r.method() === 'POST' && /\/api\/(prompt|upload\/)/.test(r.url())) paid.push(r.url()); });
   // JD's library: the same sheet imported twice under its camera name, and a loose building photo.
-  await page.goto('/studio#personnage');
+  await page.goto('/studio/legacy#personnage');
   for (let i = 0; i < 2; i++) {
     await page.getByLabel('Importer un personnage', { exact: true }).setInputFiles({ name: '1000052812.png', ...alien });
     await expect(page.getByText(/import/i).first()).toBeVisible();
     await page.waitForTimeout(600);
   }
-  await page.goto('/studio#scene');
+  await page.goto('/studio/legacy#scene');
   await page.getByLabel('Importer un décor', { exact: true }).setInputFiles({ name: '1000052926.webp', ...batiment });
   await page.waitForTimeout(800);
-  await page.goto('/studio'); await openPicker(page);
+  await page.goto('/studio/legacy'); await openPicker(page);
   await createRef(page, 'L’alien', 'cast', [alien]);
   await createRef(page, 'Fennec', 'cast', [creature, creature, creature]);
   await createRef(page, 'Planète rose', 'decor', [paysage]);
