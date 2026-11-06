@@ -89,7 +89,7 @@ describe("rendu CAST et DÉCOR", () => {
       seed: 7,
       clientId: "client",
       balanceBefore: 100,
-    }, { sleep: async () => {}, now: () => 0, pollMs: 0, timeoutMs: 10 });
+    }, { sleep: async () => {}, now: () => 0, pollMs: 0, timeoutMs: 10, invalidImage: async () => false });
     assert.deepEqual(fake.calls, ["submit", "status", "file", "balance"]);
     assert.equal(result.jobId, "job-1");
     assert.equal(result.costCredits, 12);

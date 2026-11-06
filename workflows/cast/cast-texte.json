@@ -1,57 +1,65 @@
 {
-  "id": "e8f30439-267f-45de-b260-db0d114b2c85",
+  "id": "54bb395d-3e60-4c94-b525-85523901575b",
   "revision": 0,
-  "last_node_id": 27,
-  "last_link_id": 47,
+  "last_node_id": 483,
+  "last_link_id": 713,
   "nodes": [
     {
-      "id": 9,
-      "type": "SaveImage",
+      "id": 13,
+      "type": "ResolutionSelector",
       "pos": [
-        720,
-        -130
+        580,
+        2750
       ],
       "size": [
-        570,
-        620
+        300,
+        190
       ],
       "flags": {},
-      "order": 6,
+      "order": 0,
       "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 22
-        }
-      ],
+      "showAdvanced": false,
+      "inputs": [],
       "outputs": [
         {
-          "name": "images",
-          "type": "IMAGE",
-          "links": null
+          "name": "width",
+          "type": "INT",
+          "links": [
+            670
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            671
+          ]
         }
       ],
       "properties": {
-        "Node name for S&R": "SaveImage"
+        "Node name for S&R": "ResolutionSelector"
       },
       "widgets_values": [
-        "image_flux3_klein_base_t2i"
+        "1:1 (Square)",
+        1,
+        8
       ],
       "widgets_values_named": {
-        "filename_prefix": "image_flux3_klein_base_t2i"
+        "aspect_ratio": "1:1 (Square)",
+        "megapixels": 1,
+        "multiple": 8
       }
     },
     {
-      "id": 18,
-      "type": "3301b744-2960-415a-83b0-fe8a89d99fdb",
+      "id": 459,
+      "type": "c291ceec-b98f-4751-9d0b-7bc288f27b30",
       "pos": [
-        260,
-        -130
+        920,
+        2470
       ],
       "size": [
-        420,
-        620
+        410,
+        610
       ],
       "flags": {},
       "order": 4,
@@ -59,15 +67,15 @@
       "inputs": [
         {
           "label": "positive_prompt",
-          "name": "value",
+          "name": "prompt",
           "type": "STRING",
           "widget": {
-            "name": "value"
+            "name": "prompt"
           },
           "link": null
         },
         {
-          "label": "enable_prompt_upsampler",
+          "label": "refine_prompt",
           "name": "switch",
           "type": "BOOLEAN",
           "widget": {
@@ -76,11 +84,21 @@
           "link": null
         },
         {
-          "label": "negative_prompt",
-          "name": "text",
-          "type": "STRING",
+          "label": "thinking_mode",
+          "name": "thinking",
+          "shape": 7,
+          "type": "BOOLEAN",
           "widget": {
-            "name": "text"
+            "name": "thinking"
+          },
+          "link": null
+        },
+        {
+          "label": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
           },
           "link": null
         },
@@ -90,7 +108,7 @@
           "widget": {
             "name": "width"
           },
-          "link": 40
+          "link": 670
         },
         {
           "name": "height",
@@ -98,32 +116,23 @@
           "widget": {
             "name": "height"
           },
-          "link": 41
+          "link": 671
         },
         {
-          "label": "unet_model",
-          "name": "unet_name",
+          "label": "sampler",
+          "name": "scheduler",
           "type": "COMBO",
           "widget": {
-            "name": "unet_name"
+            "name": "scheduler"
           },
           "link": null
         },
         {
-          "label": "clip_model",
-          "name": "clip_name",
+          "label": "scheduler",
+          "name": "scheduler_1",
           "type": "COMBO",
           "widget": {
-            "name": "clip_name"
-          },
-          "link": null
-        },
-        {
-          "label": "vae_model",
-          "name": "vae_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "vae_name"
+            "name": "scheduler_1"
           },
           "link": null
         },
@@ -135,6 +144,24 @@
             "name": "clip_name_1"
           },
           "link": null
+        },
+        {
+          "label": "cache_device",
+          "name": "device",
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        },
+        {
+          "label": "dtype",
+          "name": "dtype_1",
+          "type": "COMBO",
+          "widget": {
+            "name": "dtype_1"
+          },
+          "link": null
         }
       ],
       "outputs": [
@@ -142,7 +169,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            22
+            672
           ]
         }
       ],
@@ -150,616 +177,637 @@
         "previewExposures": []
       },
       "widgets_values": [
-        "close up profile of a young male athlete with closed eyes pressing his sweaty forehead against a soccer ball, right hand gripping the ball, stark white background, athletic jacket, white ball with jagged red graphic patterns, high contrast studio lighting, highly detailed skin texture, sharp focus Absolutely no text, no typography, no letters, no words, no numbers, no logos, no watermark, no captions, pure imagery only.",
-        true,
+        "Greyscale fashion editorial portrait of an avant-garde woman tilted upwards in profile, captured with striking high-contrast chiaroscuro lighting. She wears oversized, thick-rimmed circular black sunglasses with matte dark lenses, concealing her upward gaze. Her attire merges high couture with tactical abstraction: a high-necked structural dress tailored from heavyweight fabric featuring a disrupted optical camouflage pattern—interlocking oversized polka dots, pixelated stippling, and organic contour blotches in stark monochrome that mimic military disruptive patterns in a refined runway style. Around her shoulders, asymmetric pleated webbing and tailored cargo straps are integrated seamlessly into the garment’s architecture. In her gloved hand, she clutches a structured matte-leather geometric handbag accented with subtle tactical buckles, utility stitching, and dark brushed-metal hardware. Her skin texture is rendered with hyper-detailed clarity, sculpted by intense, razor-sharp studio key light and deep graphite shadows. The striking background is a vivid mixed-media graphic collage, composed of flat vibrant lime green planes, stark black and white overlapping circles, segmented semi-circles with bold zebra striping, dense micro-halftone dot matrices, and vector topographic contour lines. The clash between monochromatic disruptive camo elements on her clothing and the saturated, retro-futuristic pop-art backdrop creates an intense visual dissonance, emphasizing sharp silhouettes, paper cut-out edges, dynamic compositional balance, and clean graphic novel textures. Absolutely no text, no typography, no letters, no words, no numbers, no logos, no watermark, no captions, pure imagery only.",
+        false,
+        false,
+        4096,
         "",
+        1,
+        25,
         1024,
         1024,
-        758781618552631,
-        3.5,
-        50,
         "euler",
         "simple",
-        "flux3-image-klein-base-int8-convrot.safetensors",
-        "qwen3vl_4b_int8_convrot.safetensors",
-        "flux2-vae.safetensors",
-        "qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors"
+        447606998181262,
+        "qwen_image_2.1_int8_convrot.safetensors",
+        "qwen3vl_8b_int8_convrot.safetensors",
+        "qwen_image_2.1_vae_bf16.safetensors",
+        "qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors",
+        "auto",
+        "default"
       ],
       "widgets_values_named": {
-        "value": "close up profile of a young male athlete with closed eyes pressing his sweaty forehead against a soccer ball, right hand gripping the ball, stark white background, athletic jacket, white ball with jagged red graphic patterns, high contrast studio lighting, highly detailed skin texture, sharp focus Absolutely no text, no typography, no letters, no words, no numbers, no logos, no watermark, no captions, pure imagery only.",
-        "switch": true,
-        "text": "",
+        "prompt": "Greyscale fashion editorial portrait of an avant-garde woman tilted upwards in profile, captured with striking high-contrast chiaroscuro lighting. She wears oversized, thick-rimmed circular black sunglasses with matte dark lenses, concealing her upward gaze. Her attire merges high couture with tactical abstraction: a high-necked structural dress tailored from heavyweight fabric featuring a disrupted optical camouflage pattern—interlocking oversized polka dots, pixelated stippling, and organic contour blotches in stark monochrome that mimic military disruptive patterns in a refined runway style. Around her shoulders, asymmetric pleated webbing and tailored cargo straps are integrated seamlessly into the garment’s architecture. In her gloved hand, she clutches a structured matte-leather geometric handbag accented with subtle tactical buckles, utility stitching, and dark brushed-metal hardware. Her skin texture is rendered with hyper-detailed clarity, sculpted by intense, razor-sharp studio key light and deep graphite shadows. The striking background is a vivid mixed-media graphic collage, composed of flat vibrant lime green planes, stark black and white overlapping circles, segmented semi-circles with bold zebra striping, dense micro-halftone dot matrices, and vector topographic contour lines. The clash between monochromatic disruptive camo elements on her clothing and the saturated, retro-futuristic pop-art backdrop creates an intense visual dissonance, emphasizing sharp silhouettes, paper cut-out edges, dynamic compositional balance, and clean graphic novel textures. Absolutely no text, no typography, no letters, no words, no numbers, no logos, no watermark, no captions, pure imagery only.",
+        "switch": false,
+        "thinking": false,
+        "max_length": 4096,
+        "negative_prompt": "",
+        "cfg": 1,
+        "steps": 25,
         "width": 1024,
         "height": 1024,
-        "seed": 758781618552631,
-        "cfg": 3.5,
-        "steps": 50,
-        "sampler_name": "euler",
-        "scheduler": "simple",
-        "unet_name": "flux3-image-klein-base-int8-convrot.safetensors",
-        "clip_name": "qwen3vl_4b_int8_convrot.safetensors",
-        "vae_name": "flux2-vae.safetensors",
-        "clip_name_1": "qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors"
+        "scheduler": "euler",
+        "scheduler_1": "simple",
+        "seed": 447606998181262,
+        "unet_name": "qwen_image_2.1_int8_convrot.safetensors",
+        "clip_name": "qwen3vl_8b_int8_convrot.safetensors",
+        "vae_name": "qwen_image_2.1_vae_bf16.safetensors",
+        "clip_name_1": "qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors",
+        "device": "auto",
+        "dtype_1": "default"
       }
     },
     {
-      "id": 19,
-      "type": "ResolutionSelector",
+      "id": 461,
+      "type": "SaveImageAdvanced",
       "pos": [
-        -70,
-        160
+        1830,
+        2470
       ],
       "size": [
-        270,
-        150
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "showAdvanced": true,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "width",
-          "type": "INT",
-          "links": [
-            40
-          ]
-        },
-        {
-          "name": "height",
-          "type": "INT",
-          "links": [
-            41
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ResolutionSelector"
-      },
-      "widgets_values": [
-        "1:1 (Square)",
-        1,
-        16
-      ],
-      "widgets_values_named": {
-        "aspect_ratio": "1:1 (Square)",
-        "megapixels": 1,
-        "multiple": 16
-      }
-    },
-    {
-      "id": 20,
-      "type": "MarkdownNote",
-      "pos": [
-        -570,
-        -130
-      ],
-      "size": [
-        470,
-        660
-      ],
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "properties": {},
-      "widgets_values": [
-        "Guide: [Subgraph](https://docs.comfy.org/interface/features/subgraph)\n\n## Model Links\n\n- [Hugging Face:black-forest-labs/flux-3-image-klein-comfy](https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy)\n\n**text_encoders**\n\n- [qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors](https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/main/text_encoders/qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors)\n- [qwen3vl_4b_int8_convrot.safetensors](https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/main/text_encoders/qwen3vl_4b_int8_convrot.safetensors)\n\n**diffusion_models**\n\n- [flux3-image-klein-base-int8-convrot.safetensors](https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/main/diffusion_models/flux3-image-klein-base-int8-convrot.safetensors)\n\n**vae**\n\n- [flux2-vae.safetensors](https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/main/vae/flux2-vae.safetensors)\n\n\n## Model Storage Location\n\n```\n📂 ComfyUI/\n├── 📂 models/\n│   ├── 📂 text_encoders/\n│   │   ├── qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors\n│   │   └── qwen3vl_4b_int8_convrot.safetensors\n│   ├── 📂 diffusion_models/\n│   │   └── flux3-image-klein-base-int8-convrot.safetensors\n│   └── 📂 vae/\n│       └── flux2-vae.safetensors\n```\n\n## Report Issue\n\nNote: Please update ComfyUI first ([guide](https://docs.comfy.org/installation/update_comfyui)) and prepare required models. Desktop/Cloud updates follow stable releases, so some nightly-supported models may not be available yet.\n\n- Cannot run / runtime errors: [ComfyUI/issues](https://github.com/comfyanonymous/ComfyUI/issues)\n- UI / frontend issues: [ComfyUI_frontend/issues](https://github.com/Comfy-Org/ComfyUI_frontend/issues)\n- Workflow issues: [workflow_templates/issues](https://github.com/Comfy-Org/workflow_templates/issues)\n"
-      ],
-      "widgets_values_named": {
-        "text": "Guide: [Subgraph](https://docs.comfy.org/interface/features/subgraph)\n\n## Model Links\n\n- [Hugging Face:black-forest-labs/flux-3-image-klein-comfy](https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy)\n\n**text_encoders**\n\n- [qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors](https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/main/text_encoders/qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors)\n- [qwen3vl_4b_int8_convrot.safetensors](https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/main/text_encoders/qwen3vl_4b_int8_convrot.safetensors)\n\n**diffusion_models**\n\n- [flux3-image-klein-base-int8-convrot.safetensors](https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/main/diffusion_models/flux3-image-klein-base-int8-convrot.safetensors)\n\n**vae**\n\n- [flux2-vae.safetensors](https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/main/vae/flux2-vae.safetensors)\n\n\n## Model Storage Location\n\n```\n📂 ComfyUI/\n├── 📂 models/\n│   ├── 📂 text_encoders/\n│   │   ├── qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors\n│   │   └── qwen3vl_4b_int8_convrot.safetensors\n│   ├── 📂 diffusion_models/\n│   │   └── flux3-image-klein-base-int8-convrot.safetensors\n│   └── 📂 vae/\n│       └── flux2-vae.safetensors\n```\n\n## Report Issue\n\nNote: Please update ComfyUI first ([guide](https://docs.comfy.org/installation/update_comfyui)) and prepare required models. Desktop/Cloud updates follow stable releases, so some nightly-supported models may not be available yet.\n\n- Cannot run / runtime errors: [ComfyUI/issues](https://github.com/comfyanonymous/ComfyUI/issues)\n- UI / frontend issues: [ComfyUI_frontend/issues](https://github.com/Comfy-Org/ComfyUI_frontend/issues)\n- Workflow issues: [workflow_templates/issues](https://github.com/Comfy-Org/workflow_templates/issues)\n"
-      },
-      "color": "#222",
-      "bgcolor": "#000"
-    },
-    {
-      "id": 24,
-      "type": "MarkdownNote",
-      "pos": [
-        -10,
-        1130
-      ],
-      "size": [
-        210,
-        90
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "properties": {},
-      "widgets_values": [
-        "Plug the `STRING` output into the `prompt` input of the `Text to Image (FLUX 3 Image Klein SD)` node when you want to use bounding box\n"
-      ],
-      "widgets_values_named": {
-        "text": "Plug the `STRING` output into the `prompt` input of the `Text to Image (FLUX 3 Image Klein SD)` node when you want to use bounding box\n"
-      },
-      "color": "#222",
-      "bgcolor": "#000"
-    },
-    {
-      "id": 25,
-      "type": "CreateBoundingBoxes",
-      "pos": [
-        -550,
-        630
-      ],
-      "size": [
-        420,
-        560
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "background",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": null
-        },
-        {
-          "name": "bboxes",
-          "shape": 7,
-          "type": "BOUNDING_BOX,ARRAY,STRING",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "name": "preview",
-          "type": "IMAGE",
-          "links": []
-        },
-        {
-          "name": "bboxes",
-          "type": "BOUNDING_BOX",
-          "links": []
-        },
-        {
-          "name": "elements",
-          "type": "ARRAY",
-          "links": [
-            47
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CreateBoundingBoxes"
-      },
-      "widgets_values": [
-        1024,
-        1024,
-        [],
-        []
-      ],
-      "widgets_values_named": {
-        "width": 1024,
-        "height": 1024,
-        "editor_state": [],
-        "last_incoming": []
-      }
-    },
-    {
-      "id": 26,
-      "type": "PreviewAny",
-      "pos": [
-        -90,
-        900
-      ],
-      "size": [
-        390,
-        180
-      ],
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "source",
-          "type": "*",
-          "link": 46
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": []
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewAny"
-      },
-      "widgets_values": [],
-      "widgets_values_named": {}
-    },
-    {
-      "id": 27,
-      "type": "Flux3LayoutPrompt",
-      "pos": [
-        -100,
-        640
-      ],
-      "size": [
-        400,
-        200
+        850,
+        610
       ],
       "flags": {},
       "order": 5,
       "mode": 0,
       "inputs": [
         {
-          "name": "element",
-          "type": "ARRAY",
-          "link": 47
+          "name": "images",
+          "type": "IMAGE",
+          "link": 672
         }
       ],
       "outputs": [
         {
-          "name": "prompt",
-          "type": "STRING",
-          "links": [
-            46
-          ]
+          "name": "images",
+          "type": "IMAGE",
+          "links": []
         }
       ],
-      "properties": {
-        "Node name for S&R": "Flux3LayoutPrompt"
-      },
+      "properties": {},
       "widgets_values": [
-        ""
+        "Qwen_image_2.1",
+        "png",
+        "8-bit",
+        "sRGB"
       ],
       "widgets_values_named": {
-        "prompt": ""
+        "filename_prefix": "Qwen_image_2.1",
+        "format": "png",
+        "format.bit_depth": "8-bit",
+        "format.input_color_space": "sRGB"
       }
+    },
+    {
+      "id": 463,
+      "type": "MarkdownNote",
+      "pos": [
+        -350,
+        2470
+      ],
+      "size": [
+        420,
+        620
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Note: Model links",
+      "properties": {},
+      "widgets_values": [
+        "Guide: [Subgraph](https://docs.comfy.org/interface/features/subgraph)\n\n## Model Links\n\n- [Hugging Face:Comfy-Org/Qwen-Image-2.1](https://huggingface.co/Comfy-Org/Qwen-Image-2.1)\n- [ModelScope:Comfy-Org/Qwen-Image-2.1](https://modelscope.cn/models/Comfy-Org/Qwen-Image-2.1)\n\n**diffusion_models**\n\n- [qwen_image_2.1_int8_convrot.safetensors](https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/diffusion_models/qwen_image_2.1_int8_convrot.safetensors) (6.76 GB)\n\n**text_encoders**\n\n- [qwen3vl_8b_int8_convrot.safetensors](https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/text_encoders/qwen3vl_8b_int8_convrot.safetensors) (8.71 GB)\n- [qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors](https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/text_encoders/qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors) (8.82 GB)\n\n**vae**\n\n- [qwen_image_2.1_vae_bf16.safetensors](https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/vae/qwen_image_2.1_vae_bf16.safetensors) (644.2 MB)\n\n\n## Model Storage Location\n\n```\n📂 ComfyUI/\n├── 📂 models/\n│   ├── 📂 diffusion_models/\n│   │   └── qwen_image_2.1_int8_convrot.safetensors\n│   ├── 📂 text_encoders/\n│   │   ├── qwen3vl_8b_int8_convrot.safetensors\n│   │   └── qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors\n│   └── 📂 vae/\n│       └── qwen_image_2.1_vae_bf16.safetensors\n```\n\n## Report Issue\n\nNote: Please update ComfyUI first ([guide](https://docs.comfy.org/installation/update_comfyui)) and prepare required models. Desktop/Cloud updates follow stable releases, so some nightly-supported models may not be available yet.\n\n- Cannot run / runtime errors: [ComfyUI/issues](https://github.com/comfyanonymous/ComfyUI/issues)\n- UI / frontend issues: [ComfyUI_frontend/issues](https://github.com/Comfy-Org/ComfyUI_frontend/issues)\n- Workflow issues: [workflow_templates/issues](https://github.com/Comfy-Org/workflow_templates/issues)\n"
+      ],
+      "widgets_values_named": {
+        "text": "Guide: [Subgraph](https://docs.comfy.org/interface/features/subgraph)\n\n## Model Links\n\n- [Hugging Face:Comfy-Org/Qwen-Image-2.1](https://huggingface.co/Comfy-Org/Qwen-Image-2.1)\n- [ModelScope:Comfy-Org/Qwen-Image-2.1](https://modelscope.cn/models/Comfy-Org/Qwen-Image-2.1)\n\n**diffusion_models**\n\n- [qwen_image_2.1_int8_convrot.safetensors](https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/diffusion_models/qwen_image_2.1_int8_convrot.safetensors) (6.76 GB)\n\n**text_encoders**\n\n- [qwen3vl_8b_int8_convrot.safetensors](https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/text_encoders/qwen3vl_8b_int8_convrot.safetensors) (8.71 GB)\n- [qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors](https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/text_encoders/qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors) (8.82 GB)\n\n**vae**\n\n- [qwen_image_2.1_vae_bf16.safetensors](https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/vae/qwen_image_2.1_vae_bf16.safetensors) (644.2 MB)\n\n\n## Model Storage Location\n\n```\n📂 ComfyUI/\n├── 📂 models/\n│   ├── 📂 diffusion_models/\n│   │   └── qwen_image_2.1_int8_convrot.safetensors\n│   ├── 📂 text_encoders/\n│   │   ├── qwen3vl_8b_int8_convrot.safetensors\n│   │   └── qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors\n│   └── 📂 vae/\n│       └── qwen_image_2.1_vae_bf16.safetensors\n```\n\n## Report Issue\n\nNote: Please update ComfyUI first ([guide](https://docs.comfy.org/installation/update_comfyui)) and prepare required models. Desktop/Cloud updates follow stable releases, so some nightly-supported models may not be available yet.\n\n- Cannot run / runtime errors: [ComfyUI/issues](https://github.com/comfyanonymous/ComfyUI/issues)\n- UI / frontend issues: [ComfyUI_frontend/issues](https://github.com/Comfy-Org/ComfyUI_frontend/issues)\n- Workflow issues: [workflow_templates/issues](https://github.com/Comfy-Org/workflow_templates/issues)\n"
+      },
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 468,
+      "type": "MarkdownNote",
+      "pos": [
+        100,
+        2470
+      ],
+      "size": [
+        420,
+        220
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Note: Usage",
+      "properties": {},
+      "widgets_values": [
+        "## Size\nQwen Image 2.1 has native 2K (2048*2048) support for direct output.\n\nOutput size comes from ResolutionSelector (width/height). Default is 1 megapixel (1024*1024). For native 2K, set 1:1 and 4 megapixels (2048*2048). Prefer multiples of 32.\n\n## Transparent Image\n\nTo generate a transparent image, wrap the prompt like this and replace the middle with the subject:\n\n---\nThis is an RGBA format image with transparency. `[your description]`. The image has an alpha channel and a transparent background.\n\n---\nSave as PNG to keep the alpha channel.\n\n## Parameters\n\n- prompt: what to generate. For RGBA, see Note: transparent.\n- negative_prompt: unused while cfg is 1.\n- cfg: keep 1 for the Qwen Image 2.1 official path. Raise it only if you use a negative prompt.\n- steps: Qwen Image 2.1 official  pipeline uses about 40-50 with euler. This template starts at 25. More advanced samplers need fewer steps.\n"
+      ],
+      "widgets_values_named": {
+        "text": "## Size\nQwen Image 2.1 has native 2K (2048*2048) support for direct output.\n\nOutput size comes from ResolutionSelector (width/height). Default is 1 megapixel (1024*1024). For native 2K, set 1:1 and 4 megapixels (2048*2048). Prefer multiples of 32.\n\n## Transparent Image\n\nTo generate a transparent image, wrap the prompt like this and replace the middle with the subject:\n\n---\nThis is an RGBA format image with transparency. `[your description]`. The image has an alpha channel and a transparent background.\n\n---\nSave as PNG to keep the alpha channel.\n\n## Parameters\n\n- prompt: what to generate. For RGBA, see Note: transparent.\n- negative_prompt: unused while cfg is 1.\n- cfg: keep 1 for the Qwen Image 2.1 official path. Raise it only if you use a negative prompt.\n- steps: Qwen Image 2.1 official  pipeline uses about 40-50 with euler. This template starts at 25. More advanced samplers need fewer steps.\n"
+      },
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 483,
+      "type": "MarkdownNote",
+      "pos": [
+        1350,
+        2590
+      ],
+      "size": [
+        420,
+        480
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Note: PE",
+      "properties": {},
+      "widgets_values": [
+        "## Prompt Enhancer\n\nThe prompt enhancer rewrites your prompt with the Qwen 3.5 prompt enhancer model before the image model sees it. These settings follow the official prompt enhancer release, and the ones you are most likely to change are exposed on the node.\n\n- `refine_prompt`: on runs the rewrite and feeds it to the image model, off passes your prompt through as written. On gives the image model a fuller prompt and usually better results; off skips the rewrite pass and the run finishes faster. This template starts with it off.\n- `thinking_mode`: turn this on together with the enhancer. The checkpoint was trained with a reasoning block and loses quality without it.\n- `max_length`: the token budget for the reasoning block plus the rewritten prompt, 4096 here. The official setting is 16256; this template caps it lower so a single rewrite cannot run for many minutes.\n- `sampling_mode`: the sampling values live inside the subgraph. They follow the official ones: `temperature` 1.0, `top_p` 0.95, `top_k` 20, `min_p` 0, `presence_penalty` 1.5, `repetition_penalty` 1.0.\n\nThe enhancer checkpoint and its system prompt live inside the subgraph."
+      ],
+      "widgets_values_named": {
+        "text": "## Prompt Enhancer\n\nThe prompt enhancer rewrites your prompt with the Qwen 3.5 prompt enhancer model before the image model sees it. These settings follow the official prompt enhancer release, and the ones you are most likely to change are exposed on the node.\n\n- `refine_prompt`: on runs the rewrite and feeds it to the image model, off passes your prompt through as written. On gives the image model a fuller prompt and usually better results; off skips the rewrite pass and the run finishes faster. This template starts with it off.\n- `thinking_mode`: turn this on together with the enhancer. The checkpoint was trained with a reasoning block and loses quality without it.\n- `max_length`: the token budget for the reasoning block plus the rewritten prompt, 4096 here. The official setting is 16256; this template caps it lower so a single rewrite cannot run for many minutes.\n- `sampling_mode`: the sampling values live inside the subgraph. They follow the official ones: `temperature` 1.0, `top_p` 0.95, `top_k` 20, `min_p` 0, `presence_penalty` 1.5, `repetition_penalty` 1.0.\n\nThe enhancer checkpoint and its system prompt live inside the subgraph."
+      },
+      "color": "#222",
+      "bgcolor": "#000"
     }
   ],
   "links": [
     [
-      22,
-      18,
+      670,
+      13,
       0,
-      9,
-      0,
-      "IMAGE"
-    ],
-    [
-      40,
-      19,
-      0,
-      18,
-      3,
-      "INT"
-    ],
-    [
-      41,
-      19,
-      1,
-      18,
+      459,
       4,
       "INT"
     ],
     [
-      46,
-      27,
-      0,
-      26,
-      0,
-      "STRING"
+      671,
+      13,
+      1,
+      459,
+      5,
+      "INT"
     ],
     [
-      47,
-      25,
-      2,
-      27,
+      672,
+      459,
       0,
-      "ARRAY"
+      461,
+      0,
+      "IMAGE"
     ]
   ],
-  "groups": [
-    {
-      "id": 5,
-      "title": "Create bounding boxes for precise control",
-      "bounding": [
-        -560,
-        560,
-        868.5829359476047,
-        670
-      ],
-      "color": "#444",
-      "flags": {}
-    }
-  ],
+  "groups": [],
   "definitions": {
     "subgraphs": [
       {
-        "id": "3301b744-2960-415a-83b0-fe8a89d99fdb",
+        "id": "c291ceec-b98f-4751-9d0b-7bc288f27b30",
         "version": 1,
         "state": {
-          "lastGroupId": 5,
-          "lastNodeId": 27,
-          "lastLinkId": 47,
-          "lastRerouteId": 0
+          "lastGroupId": 38,
+          "lastNodeId": 483,
+          "lastLinkId": 713,
+          "lastRerouteId": 9
         },
         "revision": 0,
         "config": {},
-        "name": "Text to Image (FLUX 3 Image Klein)",
+        "name": "Text to Image (Qwen Image 2.1)",
         "inputNode": {
           "id": -10,
           "bounding": [
-            -1020,
-            -120,
-            197.865234375,
-            328
+            -660,
+            610,
+            143.044921875,
+            408
           ]
         },
         "outputNode": {
           "id": -20,
           "bounding": [
-            1390,
-            -163.32889918205035,
+            1960,
+            640,
             128,
             68
           ]
         },
         "inputs": [
           {
-            "id": "35437e31-565b-4d42-bc06-d95c5929e7d8",
-            "name": "value",
+            "id": "6a73de3b-f4cd-43a4-9076-76648c6902f0",
+            "name": "prompt",
             "type": "STRING",
             "linkIds": [
-              25
+              684,
+              711
             ],
+            "localized_name": "prompt",
             "label": "positive_prompt",
             "pos": [
-              -846.134765625,
-              -96
+              -540.955078125,
+              634
             ]
           },
           {
-            "id": "853a4192-ebce-42de-bdff-77c36b59cc1a",
+            "id": "140602e4-2e82-49b4-b1d6-afa99d79a475",
             "name": "switch",
             "type": "BOOLEAN",
             "linkIds": [
-              26
+              688
             ],
-            "label": "enable_prompt_upsampler",
+            "label": "refine_prompt",
             "pos": [
-              -846.134765625,
-              -76
+              -540.955078125,
+              654
             ]
           },
           {
-            "id": "c11f1876-7b42-4679-a736-8deaa8f21fd7",
-            "name": "text",
+            "id": "e80f9a8b-0a83-40c8-ac0f-cc0bc633ed26",
+            "name": "thinking",
+            "type": "BOOLEAN",
+            "linkIds": [
+              695
+            ],
+            "label": "thinking_mode",
+            "pos": [
+              -540.955078125,
+              674
+            ]
+          },
+          {
+            "id": "728d8016-b3b6-4b71-abe0-3fb23e5e96fa",
+            "name": "max_length",
+            "type": "INT",
+            "linkIds": [
+              713
+            ],
+            "pos": [
+              -540.955078125,
+              974
+            ]
+          },
+          {
+            "id": "d4c1377f-7fbc-4519-b83c-9a3b9c2de104",
+            "name": "negative_prompt",
             "type": "STRING",
             "linkIds": [
-              43
+              657
             ],
-            "label": "negative_prompt",
             "pos": [
-              -846.134765625,
-              -56
+              -540.955078125,
+              694
             ]
           },
           {
-            "id": "1514590b-7a78-450b-82b4-cfbe7820a9db",
-            "name": "width",
-            "type": "INT",
-            "linkIds": [
-              27
-            ],
-            "pos": [
-              -846.134765625,
-              -36
-            ]
-          },
-          {
-            "id": "f2e18bfe-65b0-4d24-9c78-bec0b9573e97",
-            "name": "height",
-            "type": "INT",
-            "linkIds": [
-              28
-            ],
-            "pos": [
-              -846.134765625,
-              -16
-            ]
-          },
-          {
-            "id": "32c26da2-7e60-44bf-851a-72690937b4b4",
-            "name": "seed",
-            "type": "INT",
-            "linkIds": [
-              30,
-              31
-            ],
-            "pos": [
-              -846.134765625,
-              4
-            ]
-          },
-          {
-            "id": "6c064d6f-9925-4808-83cc-7e3409190ca7",
+            "id": "420ee896-17c3-4e07-95fc-0ff309a6b836",
             "name": "cfg",
             "type": "FLOAT",
             "linkIds": [
-              44
+              658
             ],
             "pos": [
-              -846.134765625,
-              24
+              -540.955078125,
+              714
             ]
           },
           {
-            "id": "dae5d571-ced0-46d6-8a0a-5a71b8ca945a",
+            "id": "349c3f72-ba7a-4277-84ff-8029faa16019",
             "name": "steps",
             "type": "INT",
             "linkIds": [
-              42
+              659
             ],
+            "label": "steps",
             "pos": [
-              -846.134765625,
-              44
+              -540.955078125,
+              734
             ]
           },
           {
-            "id": "46e71c72-9f95-4c32-89d2-2dab4b63b284",
-            "name": "sampler_name",
-            "type": "COMBO",
+            "id": "91c96cf8-057b-4da2-b71e-305541a3527e",
+            "name": "width",
+            "type": "INT",
             "linkIds": [
-              33
+              660
             ],
+            "localized_name": "width",
             "pos": [
-              -846.134765625,
-              64
+              -540.955078125,
+              754
             ]
           },
           {
-            "id": "8ba10fc2-8e73-4ece-8f77-27515bbe2698",
+            "id": "661cc520-6bd0-4925-90ec-cecaa188b57d",
+            "name": "height",
+            "type": "INT",
+            "linkIds": [
+              661
+            ],
+            "localized_name": "height",
+            "pos": [
+              -540.955078125,
+              774
+            ]
+          },
+          {
+            "id": "9f0e91b8-5a4a-4f5a-a2a4-4ddc180df0fd",
             "name": "scheduler",
             "type": "COMBO",
             "linkIds": [
-              34
+              662
             ],
+            "label": "sampler",
             "pos": [
-              -846.134765625,
-              84
+              -540.955078125,
+              794
             ]
           },
           {
-            "id": "bc8e2627-1b51-4333-9d88-0cb6307f7545",
+            "id": "4710583f-3cb0-4091-87ab-dadd8a2e657c",
+            "name": "scheduler_1",
+            "type": "COMBO",
+            "linkIds": [
+              668
+            ],
+            "label": "scheduler",
+            "pos": [
+              -540.955078125,
+              814
+            ]
+          },
+          {
+            "id": "977ce57d-3764-491c-8d2d-543754cfbaf1",
+            "name": "seed",
+            "type": "INT",
+            "linkIds": [
+              667,
+              697
+            ],
+            "pos": [
+              -540.955078125,
+              834
+            ]
+          },
+          {
+            "id": "143494fb-a40e-423f-be3b-ecc808b408b0",
             "name": "unet_name",
             "type": "COMBO",
             "linkIds": [
-              35
+              663
             ],
-            "label": "unet_model",
             "pos": [
-              -846.134765625,
-              104
+              -540.955078125,
+              854
             ]
           },
           {
-            "id": "fe422dee-acbe-4c34-898b-62bb878ddb83",
+            "id": "d8528289-e121-45ed-9c31-e6370ce4ba5e",
             "name": "clip_name",
             "type": "COMBO",
             "linkIds": [
-              36
+              664
             ],
-            "label": "clip_model",
             "pos": [
-              -846.134765625,
-              124
+              -540.955078125,
+              874
             ]
           },
           {
-            "id": "29a73fdf-7b55-4612-8966-bba0b4cab854",
+            "id": "f03d1fb0-d592-4997-b55e-e7a2549c36e5",
             "name": "vae_name",
             "type": "COMBO",
             "linkIds": [
-              37
+              665
             ],
-            "label": "vae_model",
             "pos": [
-              -846.134765625,
-              144
+              -540.955078125,
+              894
             ]
           },
           {
-            "id": "b9c679d9-c634-4fa8-92e7-b2921ad34dd0",
+            "id": "e12b2532-5fcd-4f34-9ddd-71df7e5021c5",
             "name": "clip_name_1",
             "type": "COMBO",
             "linkIds": [
-              38
+              696
             ],
             "label": "PE_model",
             "pos": [
-              -846.134765625,
-              164
+              -540.955078125,
+              914
+            ]
+          },
+          {
+            "id": "d2597afa-78fa-49f2-96cb-5fda1a3b9eee",
+            "name": "device",
+            "type": "COMBO",
+            "linkIds": [
+              703
+            ],
+            "label": "cache_device",
+            "pos": [
+              -540.955078125,
+              934
+            ]
+          },
+          {
+            "id": "ef25ddbe-1463-4c53-9065-93aa867e77ab",
+            "name": "dtype_1",
+            "type": "COMBO",
+            "linkIds": [
+              704
+            ],
+            "label": "dtype",
+            "pos": [
+              -540.955078125,
+              954
             ]
           }
         ],
         "outputs": [
           {
-            "id": "fa9fefe4-677e-4f8b-aba5-35459b097c37",
+            "id": "f6f3effc-0961-4c17-b52c-a77c16ca6aa4",
             "name": "IMAGE",
             "type": "IMAGE",
             "linkIds": [
-              6
+              650
             ],
             "localized_name": "IMAGE",
             "pos": [
-              1414,
-              -139.32889918205035
+              1984,
+              664
             ]
           }
         ],
         "widgets": [],
         "nodes": [
           {
-            "id": 17,
-            "type": "PrimitiveStringMultiline",
+            "id": 451,
+            "type": "UNETLoader",
             "pos": [
-              -680,
-              -950
+              -190,
+              410
             ],
             "size": [
-              490,
-              450
+              510,
+              90
             ],
             "flags": {},
-            "order": 13,
+            "order": 1,
             "mode": 0,
             "inputs": [
               {
-                "localized_name": "value",
-                "name": "value",
-                "type": "STRING",
+                "localized_name": "unet_name",
+                "name": "unet_name",
+                "type": "COMBO",
                 "widget": {
-                  "name": "value"
+                  "name": "unet_name"
                 },
-                "link": 25
+                "link": 663
               }
             ],
             "outputs": [
               {
-                "localized_name": "STRING",
-                "name": "STRING",
-                "type": "STRING",
+                "localized_name": "MODEL",
+                "name": "MODEL",
+                "type": "MODEL",
                 "links": [
-                  15,
-                  17
+                  701
                 ]
               }
             ],
             "properties": {
-              "Node name for S&R": "PrimitiveStringMultiline"
+              "Node name for S&R": "UNETLoader",
+              "models": [
+                {
+                  "name": "qwen_image_2.1_int8_convrot.safetensors",
+                  "url": "https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/diffusion_models/qwen_image_2.1_int8_convrot.safetensors",
+                  "directory": "diffusion_models"
+                }
+              ]
             },
             "widgets_values": [
-              ""
+              "qwen_image_2.1_int8_convrot.safetensors",
+              "default"
             ],
             "widgets_values_named": {
-              "value": ""
+              "unet_name": "qwen_image_2.1_int8_convrot.safetensors",
+              "weight_dtype": "default"
             }
           },
           {
-            "id": 12,
-            "type": "CLIPLoader",
+            "id": 452,
+            "type": "TextEncodeQwenImage21",
             "pos": [
-              -140,
-              -930
+              440,
+              410
             ],
             "size": [
-              500,
-              110
+              530,
+              680
             ],
             "flags": {},
-            "order": 10,
+            "order": 2,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "clip",
+                "name": "clip",
+                "type": "CLIP",
+                "link": 647
+              },
+              {
+                "localized_name": "image_1",
+                "name": "images.image_1",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": null
+              },
+              {
+                "localized_name": "vae",
+                "name": "vae",
+                "shape": 7,
+                "type": "VAE",
+                "link": null
+              },
+              {
+                "localized_name": "prompt",
+                "name": "prompt",
+                "type": "STRING",
+                "widget": {
+                  "name": "prompt"
+                },
+                "link": 687
+              },
+              {
+                "localized_name": "negative_prompt",
+                "name": "negative_prompt",
+                "type": "STRING",
+                "widget": {
+                  "name": "negative_prompt"
+                },
+                "link": 657
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "positive",
+                "name": "positive",
+                "type": "CONDITIONING",
+                "links": [
+                  653
+                ]
+              },
+              {
+                "localized_name": "negative",
+                "name": "negative",
+                "type": "CONDITIONING",
+                "links": [
+                  655
+                ]
+              },
+              {
+                "localized_name": "latent",
+                "name": "latent",
+                "type": "LATENT",
+                "links": null
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "TextEncodeQwenImage21"
+            },
+            "widgets_values": [
+              "",
+              "",
+              1024
+            ],
+            "widgets_values_named": {
+              "prompt": "",
+              "negative_prompt": "",
+              "resolution": 1024
+            }
+          },
+          {
+            "id": 453,
+            "type": "CLIPLoader",
+            "pos": [
+              -190,
+              570
+            ],
+            "size": [
+              510,
+              120
+            ],
+            "flags": {},
+            "order": 3,
             "mode": 0,
             "inputs": [
               {
@@ -769,7 +817,7 @@
                 "widget": {
                   "name": "clip_name"
                 },
-                "link": 38
+                "link": 664
               }
             ],
             "outputs": [
@@ -778,7 +826,7 @@
                 "name": "CLIP",
                 "type": "CLIP",
                 "links": [
-                  10
+                  647
                 ]
               }
             ],
@@ -786,79 +834,313 @@
               "Node name for S&R": "CLIPLoader",
               "models": [
                 {
-                  "name": "qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors",
-                  "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/main/text_encoders/qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors",
+                  "name": "qwen3vl_8b_int8_convrot.safetensors",
+                  "url": "https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/text_encoders/qwen3vl_8b_int8_convrot.safetensors",
                   "directory": "text_encoders"
                 }
               ]
             },
             "widgets_values": [
-              "qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors",
-              "flux3",
+              "qwen3vl_8b_int8_convrot.safetensors",
+              "qwen_image",
               "default"
             ],
             "widgets_values_named": {
-              "clip_name": "qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors",
-              "type": "flux3",
+              "clip_name": "qwen3vl_8b_int8_convrot.safetensors",
+              "type": "qwen_image",
               "device": "default"
             }
           },
           {
-            "id": 14,
-            "type": "PrimitiveStringMultiline",
+            "id": 454,
+            "type": "VAELoader",
             "pos": [
-              -150,
-              -750
+              -190,
+              770
             ],
             "size": [
-              530,
-              700
+              510,
+              70
             ],
             "flags": {},
-            "order": 0,
+            "order": 4,
             "mode": 0,
-            "inputs": [],
+            "inputs": [
+              {
+                "localized_name": "vae_name",
+                "name": "vae_name",
+                "type": "COMBO",
+                "widget": {
+                  "name": "vae_name"
+                },
+                "link": 665
+              }
+            ],
             "outputs": [
               {
-                "localized_name": "STRING",
-                "name": "STRING",
-                "type": "STRING",
+                "localized_name": "VAE",
+                "name": "VAE",
+                "type": "VAE",
                 "links": [
-                  13
+                  649
                 ]
               }
             ],
-            "title": "Text (System prompt)",
             "properties": {
-              "Node name for S&R": "PrimitiveStringMultiline"
+              "Node name for S&R": "VAELoader",
+              "models": [
+                {
+                  "name": "qwen_image_2.1_vae_bf16.safetensors",
+                  "url": "https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/vae/qwen_image_2.1_vae_bf16.safetensors",
+                  "directory": "vae"
+                }
+              ]
             },
             "widgets_values": [
-              "You are the prompt upsampler of a text-to-image model. Expand the user's short request into ONE detailed, self-contained caption: the exact text the image model receives. Output only the caption, with no greetings, explanations, refusals, questions, Markdown, headings, JSON, coordinates, ids or angle-bracket tokens, and no quotes around it. If the input is not clearly an image request, caption a visualization of its concept. The request may begin with a \"TARGET CANVAS: W:H\" line: compose for that canvas (wide spreads content sideways, tall stacks it) and never mention the ratio or the canvas.\n\nFidelity and planning: keep every explicit subject, attribute, count, spatial constraint, style cue and piece of wording; never contradict, substitute, drop or narrow the request, and keep an abstract concept abstract. Decide everything left open as ONE concrete, consistent plan; never offer alternatives or hedge. Never re-express a stated constraint through another mechanism; add camera optics (depth of field, bokeh, blur) only when asked for or implied. Without a stated style, plan an actual photograph and open with the medium convention (\"Full-color outdoor photograph, ...\", \"Full-color indoor photograph, ...\", \"Studio photograph, ...\", \"Close-up photograph, ...\"); keep \"Photorealistic\" for renders, and turn \"photorealistic\" or \"realistic\" requests for photos into the photograph convention. Give a photograph a few ordinary, non-ideal specifics drawn from the scene's own objects instead of the stock-photo ideal. Do not invent names, brands, logos or celebrities; keep user-named ones. A long request keeps its content but not its wording: drop appraisal and sales vocabulary, turn moods into observable physical facts, and add only new concrete content with positions. Time of day is lighting, not rendered text.\n\nCaption format: one continuous prose block in the generative voice, never \"this image shows\", \"we can see\" or \"is visible\". Lead with medium and style, then scene, lighting and camera, then the subjects with concrete colors, materials and state. Every person in focus gets an observable profile: ethnicity, gender, age range, skin tone (\"fair skin\", \"brown skin\"), hair and clothing. Make the layout reconstructable from words: frame-relative positions (frame-left, frame-right, upper, lower, foreground, midground, background), sentence-initial anchors (\"On the left, ...\", \"In the background, ...\"), relations (holds, faces, behind) and a consistent order; describe up to about ten instances one by one, beyond that give the exact count and arrangement. Out-of-focus or distant planes are shapes, colors and silhouettes, never identities or readable text, and the background takes about a sixth of the caption. Be definite: no hedging adverbs, no quality or emotion judgments, no closing sentence about mood; state negations as what is present. Rendered text: transcribe every wording verbatim inside double quotes in its original language and script, keep the line breaks of multi-line text, and give its typography, color and placement; author concrete, domain-correct wording when the request needs text it does not supply, and name canonical structures (calendar, keyboard, periodic table) exactly with their full layout. All prose is English; only quoted text keeps its language. Typical length is 100 to 350 words, more for complex scenes.\n\nOutput only the caption.\n"
+              "qwen_image_2.1_vae_bf16.safetensors"
             ],
             "widgets_values_named": {
-              "value": "You are the prompt upsampler of a text-to-image model. Expand the user's short request into ONE detailed, self-contained caption: the exact text the image model receives. Output only the caption, with no greetings, explanations, refusals, questions, Markdown, headings, JSON, coordinates, ids or angle-bracket tokens, and no quotes around it. If the input is not clearly an image request, caption a visualization of its concept. The request may begin with a \"TARGET CANVAS: W:H\" line: compose for that canvas (wide spreads content sideways, tall stacks it) and never mention the ratio or the canvas.\n\nFidelity and planning: keep every explicit subject, attribute, count, spatial constraint, style cue and piece of wording; never contradict, substitute, drop or narrow the request, and keep an abstract concept abstract. Decide everything left open as ONE concrete, consistent plan; never offer alternatives or hedge. Never re-express a stated constraint through another mechanism; add camera optics (depth of field, bokeh, blur) only when asked for or implied. Without a stated style, plan an actual photograph and open with the medium convention (\"Full-color outdoor photograph, ...\", \"Full-color indoor photograph, ...\", \"Studio photograph, ...\", \"Close-up photograph, ...\"); keep \"Photorealistic\" for renders, and turn \"photorealistic\" or \"realistic\" requests for photos into the photograph convention. Give a photograph a few ordinary, non-ideal specifics drawn from the scene's own objects instead of the stock-photo ideal. Do not invent names, brands, logos or celebrities; keep user-named ones. A long request keeps its content but not its wording: drop appraisal and sales vocabulary, turn moods into observable physical facts, and add only new concrete content with positions. Time of day is lighting, not rendered text.\n\nCaption format: one continuous prose block in the generative voice, never \"this image shows\", \"we can see\" or \"is visible\". Lead with medium and style, then scene, lighting and camera, then the subjects with concrete colors, materials and state. Every person in focus gets an observable profile: ethnicity, gender, age range, skin tone (\"fair skin\", \"brown skin\"), hair and clothing. Make the layout reconstructable from words: frame-relative positions (frame-left, frame-right, upper, lower, foreground, midground, background), sentence-initial anchors (\"On the left, ...\", \"In the background, ...\"), relations (holds, faces, behind) and a consistent order; describe up to about ten instances one by one, beyond that give the exact count and arrangement. Out-of-focus or distant planes are shapes, colors and silhouettes, never identities or readable text, and the background takes about a sixth of the caption. Be definite: no hedging adverbs, no quality or emotion judgments, no closing sentence about mood; state negations as what is present. Rendered text: transcribe every wording verbatim inside double quotes in its original language and script, keep the line breaks of multi-line text, and give its typography, color and placement; author concrete, domain-correct wording when the request needs text it does not supply, and name canonical structures (calendar, keyboard, periodic table) exactly with their full layout. All prose is English; only quoted text keeps its language. Typical length is 100 to 350 words, more for complex scenes.\n\nOutput only the caption.\n"
+              "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
             }
           },
           {
-            "id": 11,
+            "id": 456,
+            "type": "EmptyLatentImage",
+            "pos": [
+              -70,
+              1010
+            ],
+            "size": [
+              300,
+              120
+            ],
+            "flags": {},
+            "order": 5,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "width",
+                "name": "width",
+                "type": "INT",
+                "widget": {
+                  "name": "width"
+                },
+                "link": 660
+              },
+              {
+                "localized_name": "height",
+                "name": "height",
+                "type": "INT",
+                "widget": {
+                  "name": "height"
+                },
+                "link": 661
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "LATENT",
+                "name": "LATENT",
+                "type": "LATENT",
+                "links": [
+                  654
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "EmptyLatentImage"
+            },
+            "widgets_values": [
+              1024,
+              1024,
+              1
+            ],
+            "widgets_values_named": {
+              "width": 1024,
+              "height": 1024,
+              "batch_size": 1
+            }
+          },
+          {
+            "id": 457,
+            "type": "VAEDecode",
+            "pos": [
+              1620,
+              660
+            ],
+            "size": [
+              230,
+              60
+            ],
+            "flags": {},
+            "order": 6,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "samples",
+                "name": "samples",
+                "type": "LATENT",
+                "link": 651
+              },
+              {
+                "localized_name": "vae",
+                "name": "vae",
+                "type": "VAE",
+                "link": 649
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "IMAGE",
+                "name": "IMAGE",
+                "type": "IMAGE",
+                "links": [
+                  650
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "VAEDecode"
+            }
+          },
+          {
+            "id": 458,
+            "type": "KSampler",
+            "pos": [
+              1180,
+              640
+            ],
+            "size": [
+              270,
+              270
+            ],
+            "flags": {},
+            "order": 7,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "model",
+                "name": "model",
+                "type": "MODEL",
+                "link": 700
+              },
+              {
+                "localized_name": "positive",
+                "name": "positive",
+                "type": "CONDITIONING",
+                "link": 653
+              },
+              {
+                "localized_name": "negative",
+                "name": "negative",
+                "type": "CONDITIONING",
+                "link": 655
+              },
+              {
+                "localized_name": "latent_image",
+                "name": "latent_image",
+                "type": "LATENT",
+                "link": 654
+              },
+              {
+                "localized_name": "seed",
+                "name": "seed",
+                "type": "INT",
+                "widget": {
+                  "name": "seed"
+                },
+                "link": 667
+              },
+              {
+                "localized_name": "steps",
+                "name": "steps",
+                "type": "INT",
+                "widget": {
+                  "name": "steps"
+                },
+                "link": 659
+              },
+              {
+                "localized_name": "cfg",
+                "name": "cfg",
+                "type": "FLOAT",
+                "widget": {
+                  "name": "cfg"
+                },
+                "link": 658
+              },
+              {
+                "localized_name": "sampler_name",
+                "name": "sampler_name",
+                "type": "COMBO",
+                "widget": {
+                  "name": "sampler_name"
+                },
+                "link": 662
+              },
+              {
+                "localized_name": "scheduler",
+                "name": "scheduler",
+                "type": "COMBO",
+                "widget": {
+                  "name": "scheduler"
+                },
+                "link": 668
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "LATENT",
+                "name": "LATENT",
+                "type": "LATENT",
+                "links": [
+                  651
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "KSampler"
+            },
+            "widgets_values": [
+              0,
+              "fixed",
+              25,
+              1,
+              "euler",
+              "simple",
+              1
+            ],
+            "widgets_values_named": {
+              "seed": 0,
+              "control_after_generate": "fixed",
+              "steps": 25,
+              "cfg": 1,
+              "sampler_name": "euler",
+              "scheduler": "simple",
+              "denoise": 1
+            }
+          },
+          {
+            "id": 471,
             "type": "TextGenerate",
             "pos": [
-              400,
-              -930
+              470,
+              -420
             ],
             "size": [
               400,
               460
             ],
             "flags": {},
-            "order": 9,
+            "order": 8,
             "mode": 0,
+            "showAdvanced": true,
             "inputs": [
               {
                 "localized_name": "clip",
                 "name": "clip",
                 "type": "CLIP",
-                "link": 10
+                "link": 681
               },
               {
                 "localized_name": "image",
@@ -886,7 +1168,7 @@
                 "name": "system_prompt",
                 "shape": 7,
                 "type": "STRING",
-                "link": 13
+                "link": 709
               },
               {
                 "localized_name": "prompt",
@@ -895,7 +1177,16 @@
                 "widget": {
                   "name": "prompt"
                 },
-                "link": 17
+                "link": 711
+              },
+              {
+                "localized_name": "max_length",
+                "name": "max_length",
+                "type": "INT",
+                "widget": {
+                  "name": "max_length"
+                },
+                "link": 713
               },
               {
                 "localized_name": "seed",
@@ -904,7 +1195,17 @@
                 "widget": {
                   "name": "sampling_mode.seed"
                 },
-                "link": 31
+                "link": 697
+              },
+              {
+                "localized_name": "thinking",
+                "name": "thinking",
+                "shape": 7,
+                "type": "BOOLEAN",
+                "widget": {
+                  "name": "thinking"
+                },
+                "link": 695
               }
             ],
             "outputs": [
@@ -913,7 +1214,7 @@
                 "name": "generated_text",
                 "type": "STRING",
                 "links": [
-                  19
+                  712
                 ]
               },
               {
@@ -928,400 +1229,55 @@
             },
             "widgets_values": [
               "",
-              3584,
+              4096,
               "on",
               1,
-              1,
+              20,
               0.95,
               0,
               1,
               0,
               1.5,
-              false,
               true,
-              "off"
+              true,
+              "auto"
             ],
             "widgets_values_named": {
               "prompt": "",
-              "max_length": 3584,
+              "max_length": 4096,
               "sampling_mode": "on",
               "sampling_mode.temperature": 1,
-              "sampling_mode.top_k": 1,
+              "sampling_mode.top_k": 20,
               "sampling_mode.top_p": 0.95,
               "sampling_mode.min_p": 0,
               "sampling_mode.repetition_penalty": 1,
               "sampling_mode.seed": 0,
               "sampling_mode.presence_penalty": 1.5,
-              "thinking": false,
+              "thinking": true,
               "use_default_template": true,
-              "mtp": "off"
+              "mtp": "auto"
             }
           },
           {
-            "id": 1,
-            "type": "UNETLoader",
-            "pos": [
-              -150,
-              60
-            ],
-            "size": [
-              340,
-              90
-            ],
-            "flags": {},
-            "order": 1,
-            "mode": 0,
-            "inputs": [
-              {
-                "localized_name": "unet_name",
-                "name": "unet_name",
-                "type": "COMBO",
-                "widget": {
-                  "name": "unet_name"
-                },
-                "link": 35
-              }
-            ],
-            "outputs": [
-              {
-                "localized_name": "MODEL",
-                "name": "MODEL",
-                "type": "MODEL",
-                "slot_index": 0,
-                "links": [
-                  1
-                ]
-              }
-            ],
-            "properties": {
-              "Node name for S&R": "UNETLoader",
-              "models": [
-                {
-                  "name": "flux3-image-klein-base-int8-convrot.safetensors",
-                  "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/main/diffusion_models/flux3-image-klein-base-int8-convrot.safetensors",
-                  "directory": "diffusion_models"
-                }
-              ]
-            },
-            "widgets_values": [
-              "flux3-image-klein-base-int8-convrot.safetensors",
-              "default"
-            ],
-            "widgets_values_named": {
-              "unet_name": "flux3-image-klein-base-int8-convrot.safetensors",
-              "weight_dtype": "default"
-            },
-            "color": "#223",
-            "bgcolor": "#335"
-          },
-          {
-            "id": 4,
-            "type": "CLIPTextEncode",
-            "pos": [
-              250,
-              90
-            ],
-            "size": [
-              450,
-              460
-            ],
-            "flags": {},
-            "order": 4,
-            "mode": 0,
-            "inputs": [
-              {
-                "localized_name": "clip",
-                "name": "clip",
-                "type": "CLIP",
-                "link": 2
-              },
-              {
-                "localized_name": "text",
-                "name": "text",
-                "type": "STRING",
-                "widget": {
-                  "name": "text"
-                },
-                "link": 20
-              }
-            ],
-            "outputs": [
-              {
-                "localized_name": "CONDITIONING",
-                "name": "CONDITIONING",
-                "type": "CONDITIONING",
-                "slot_index": 0,
-                "links": [
-                  8
-                ]
-              }
-            ],
-            "title": "Positive Prompt",
-            "properties": {
-              "Node name for S&R": "CLIPTextEncode"
-            },
-            "widgets_values": [
-              "A close-up photograph of a red fox standing in fresh snow at sunrise. The fox faces the camera with alert ears and amber eyes, its thick orange fur dusted with snowflakes. Soft golden light comes from the left, the background is a blurred line of snow-covered pine trees, shallow depth of field."
-            ],
-            "widgets_values_named": {
-              "text": "A close-up photograph of a red fox standing in fresh snow at sunrise. The fox faces the camera with alert ears and amber eyes, its thick orange fur dusted with snowflakes. Soft golden light comes from the left, the background is a blurred line of snow-covered pine trees, shallow depth of field."
-            },
-            "color": "#232",
-            "bgcolor": "#353"
-          },
-          {
-            "id": 2,
-            "type": "CLIPLoader",
-            "pos": [
-              -150,
-              220
-            ],
-            "size": [
-              340,
-              110
-            ],
-            "flags": {},
-            "order": 2,
-            "mode": 0,
-            "inputs": [
-              {
-                "localized_name": "clip_name",
-                "name": "clip_name",
-                "type": "COMBO",
-                "widget": {
-                  "name": "clip_name"
-                },
-                "link": 36
-              }
-            ],
-            "outputs": [
-              {
-                "localized_name": "CLIP",
-                "name": "CLIP",
-                "type": "CLIP",
-                "slot_index": 0,
-                "links": [
-                  2,
-                  3
-                ]
-              }
-            ],
-            "properties": {
-              "Node name for S&R": "CLIPLoader",
-              "models": [
-                {
-                  "name": "qwen3vl_4b_int8_convrot.safetensors",
-                  "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/main/text_encoders/qwen3vl_4b_int8_convrot.safetensors",
-                  "directory": "text_encoders"
-                }
-              ]
-            },
-            "widgets_values": [
-              "qwen3vl_4b_int8_convrot.safetensors",
-              "flux3",
-              "default"
-            ],
-            "widgets_values_named": {
-              "clip_name": "qwen3vl_4b_int8_convrot.safetensors",
-              "type": "flux3",
-              "device": "default"
-            },
-            "color": "#432",
-            "bgcolor": "#653"
-          },
-          {
-            "id": 7,
-            "type": "KSampler",
-            "pos": [
-              760,
-              30
-            ],
-            "size": [
-              320,
-              480
-            ],
-            "flags": {},
-            "order": 7,
-            "mode": 0,
-            "inputs": [
-              {
-                "localized_name": "model",
-                "name": "model",
-                "type": "MODEL",
-                "link": 1
-              },
-              {
-                "localized_name": "positive",
-                "name": "positive",
-                "type": "CONDITIONING",
-                "link": 8
-              },
-              {
-                "localized_name": "negative",
-                "name": "negative",
-                "type": "CONDITIONING",
-                "link": 9
-              },
-              {
-                "localized_name": "latent_image",
-                "name": "latent_image",
-                "type": "LATENT",
-                "link": 39
-              },
-              {
-                "localized_name": "seed",
-                "name": "seed",
-                "type": "INT",
-                "widget": {
-                  "name": "seed"
-                },
-                "link": 30
-              },
-              {
-                "localized_name": "steps",
-                "name": "steps",
-                "type": "INT",
-                "widget": {
-                  "name": "steps"
-                },
-                "link": 42
-              },
-              {
-                "localized_name": "cfg",
-                "name": "cfg",
-                "type": "FLOAT",
-                "widget": {
-                  "name": "cfg"
-                },
-                "link": 44
-              },
-              {
-                "localized_name": "sampler_name",
-                "name": "sampler_name",
-                "type": "COMBO",
-                "widget": {
-                  "name": "sampler_name"
-                },
-                "link": 33
-              },
-              {
-                "localized_name": "scheduler",
-                "name": "scheduler",
-                "type": "COMBO",
-                "widget": {
-                  "name": "scheduler"
-                },
-                "link": 34
-              }
-            ],
-            "outputs": [
-              {
-                "localized_name": "LATENT",
-                "name": "LATENT",
-                "type": "LATENT",
-                "slot_index": 0,
-                "links": [
-                  4
-                ]
-              }
-            ],
-            "properties": {
-              "Node name for S&R": "KSampler"
-            },
-            "widgets_values": [
-              3,
-              "randomize",
-              15,
-              1,
-              "er_sde",
-              "simple",
-              1
-            ],
-            "widgets_values_named": {
-              "seed": 3,
-              "control_after_generate": "randomize",
-              "steps": 15,
-              "cfg": 1,
-              "sampler_name": "er_sde",
-              "scheduler": "simple",
-              "denoise": 1
-            }
-          },
-          {
-            "id": 3,
-            "type": "VAELoader",
-            "pos": [
-              -150,
-              400
-            ],
-            "size": [
-              340,
-              60
-            ],
-            "flags": {},
-            "order": 3,
-            "mode": 0,
-            "inputs": [
-              {
-                "localized_name": "vae_name",
-                "name": "vae_name",
-                "type": "COMBO",
-                "widget": {
-                  "name": "vae_name"
-                },
-                "link": 37
-              }
-            ],
-            "outputs": [
-              {
-                "localized_name": "VAE",
-                "name": "VAE",
-                "type": "VAE",
-                "slot_index": 0,
-                "links": [
-                  5
-                ]
-              }
-            ],
-            "properties": {
-              "Node name for S&R": "VAELoader",
-              "models": [
-                {
-                  "name": "flux2-vae.safetensors",
-                  "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy/resolve/main/vae/flux2-vae.safetensors",
-                  "directory": "vae"
-                }
-              ]
-            },
-            "widgets_values": [
-              "flux2-vae.safetensors"
-            ],
-            "widgets_values_named": {
-              "vae_name": "flux2-vae.safetensors"
-            },
-            "color": "#323",
-            "bgcolor": "#535"
-          },
-          {
-            "id": 13,
+            "id": 472,
             "type": "PreviewAny",
             "pos": [
-              830,
-              -660
+              990,
+              -250
             ],
             "size": [
-              350,
-              490
+              470,
+              430
             ],
             "flags": {},
-            "order": 11,
+            "order": 9,
             "mode": 0,
             "inputs": [
               {
                 "localized_name": "source",
                 "name": "source",
                 "type": "*",
-                "link": 21
+                "link": 686
               }
             ],
             "outputs": [
@@ -1330,7 +1286,7 @@
                 "name": "STRING",
                 "type": "STRING",
                 "links": [
-                  20
+                  687
                 ]
               }
             ],
@@ -1341,18 +1297,74 @@
             "widgets_values_named": {}
           },
           {
-            "id": 16,
+            "id": 473,
+            "type": "CLIPLoader",
+            "pos": [
+              -180,
+              -420
+            ],
+            "size": [
+              530,
+              120
+            ],
+            "flags": {},
+            "order": 10,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "clip_name",
+                "name": "clip_name",
+                "type": "COMBO",
+                "widget": {
+                  "name": "clip_name"
+                },
+                "link": 696
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "CLIP",
+                "name": "CLIP",
+                "type": "CLIP",
+                "links": [
+                  681
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "CLIPLoader",
+              "models": [
+                {
+                  "name": "qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors",
+                  "url": "https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/text_encoders/qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors",
+                  "directory": "text_encoders"
+                }
+              ]
+            },
+            "widgets_values": [
+              "qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors",
+              "stable_diffusion",
+              "default"
+            ],
+            "widgets_values_named": {
+              "clip_name": "qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors",
+              "type": "stable_diffusion",
+              "device": "default"
+            }
+          },
+          {
+            "id": 474,
             "type": "ComfySwitchNode",
             "pos": [
-              860,
-              -910
+              990,
+              -420
             ],
             "size": [
               270,
               80
             ],
             "flags": {},
-            "order": 12,
+            "order": 11,
             "mode": 0,
             "inputs": [
               {
@@ -1360,14 +1372,14 @@
                 "name": "on_false",
                 "shape": 7,
                 "type": "STRING",
-                "link": 15
+                "link": 684
               },
               {
                 "localized_name": "on_true",
                 "name": "on_true",
                 "shape": 7,
                 "type": "STRING",
-                "link": 19
+                "link": 712
               },
               {
                 "localized_name": "switch",
@@ -1376,7 +1388,7 @@
                 "widget": {
                   "name": "switch"
                 },
-                "link": 26
+                "link": 688
               }
             ],
             "outputs": [
@@ -1385,7 +1397,7 @@
                 "name": "output",
                 "type": "STRING",
                 "links": [
-                  21
+                  686
                 ]
               }
             ],
@@ -1400,462 +1412,437 @@
             }
           },
           {
-            "id": 6,
-            "type": "EmptyFlux2LatentImage",
+            "id": 475,
+            "type": "PrimitiveStringMultiline",
             "pos": [
-              -120,
-              590
+              -180,
+              -240
             ],
             "size": [
-              300,
-              110
+              530,
+              270
             ],
             "flags": {},
-            "order": 6,
+            "order": 0,
             "mode": 0,
-            "inputs": [
-              {
-                "localized_name": "width",
-                "name": "width",
-                "type": "INT",
-                "widget": {
-                  "name": "width"
-                },
-                "link": 27
-              },
-              {
-                "localized_name": "height",
-                "name": "height",
-                "type": "INT",
-                "widget": {
-                  "name": "height"
-                },
-                "link": 28
-              }
-            ],
+            "inputs": [],
             "outputs": [
               {
-                "localized_name": "LATENT",
-                "name": "LATENT",
-                "type": "LATENT",
-                "slot_index": 0,
-                "links": [
-                  39
-                ]
-              }
-            ],
-            "properties": {
-              "Node name for S&R": "EmptyFlux2LatentImage"
-            },
-            "widgets_values": [
-              1024,
-              1024,
-              1
-            ],
-            "widgets_values_named": {
-              "width": 1024,
-              "height": 1024,
-              "batch_size": 1
-            },
-            "color": "#323",
-            "bgcolor": "#535"
-          },
-          {
-            "id": 5,
-            "type": "CLIPTextEncode",
-            "pos": [
-              250,
-              610
-            ],
-            "size": [
-              460,
-              110
-            ],
-            "flags": {},
-            "order": 5,
-            "mode": 0,
-            "inputs": [
-              {
-                "localized_name": "clip",
-                "name": "clip",
-                "type": "CLIP",
-                "link": 3
-              },
-              {
-                "localized_name": "text",
-                "name": "text",
+                "localized_name": "STRING",
+                "name": "STRING",
                 "type": "STRING",
-                "widget": {
-                  "name": "text"
-                },
-                "link": 43
-              }
-            ],
-            "outputs": [
-              {
-                "localized_name": "CONDITIONING",
-                "name": "CONDITIONING",
-                "type": "CONDITIONING",
-                "slot_index": 0,
                 "links": [
-                  9
+                  709
                 ]
               }
             ],
-            "title": "Negative Prompt (empty = reference default)",
+            "title": "Text (System Prompt)",
             "properties": {
-              "Node name for S&R": "CLIPTextEncode"
+              "Node name for S&R": "PrimitiveStringMultiline"
             },
             "widgets_values": [
-              ""
+              "# Image Prompt Rewriting Expert\n\nYou turn a user's image request into one long English paragraph that describes the\nfinished image as if you were looking at it, plus the aspect ratio it should be\nrendered at. You are not talking to the user and not talking to a renderer: you are\nan observer reporting what is in the frame.\n\nWork through the eight steps below in order. Each step commits one decision; later\nsteps never revise an earlier one.\n\n## Step 1 — Read the brief and split it in two\n\nList what the user has fixed and what they have left open.\n\nFixed, and it must survive into your description unchanged: every string of text\nthey want shown, every named object, every count, every stated colour, every stated\nposition, and the aspect ratio if they gave one. Copy their text strings character\nfor character, in their own script, including punctuation and spacing.\n\nA third thing they may give you is an instruction about the job rather than about the\npicture — \"use double quotes\", \"no hard-edged blocks\", \"4K, no noise\", \"make sure the\ntext is sharp\". That is not content. Obey it silently where it applies and never echo\nit: the description states what is in the frame, never what must be done.\n\nOpen, and you must decide it: everything they did not mention. A three-word request\nand a three-hundred-word request both become a description of the same size, so a\nshort brief means you are inventing most of the frame, not writing less.\n\n## Step 2 — Fix the frame\n\nDecide the orientation from the subject, then pick the ratio.\n\nIf the user states a ratio, use it. Otherwise: `3:2` for anything horizontal and\n`2:3` for anything vertical — these are the two defaults and cover most images.\nUse `1:1` for a square badge, icon, album cover or single centred emblem, `16:9`\nfor a wide cinematic or presentation frame, `1:2` or `9:16` for a phone screen or a\ntall standing banner. `3:4`, `2:1`, `21:9`, `4:3`, `9:21`, `4:5`, `3:1`, `5:4`,\n`1:3` exist but only when the subject or the user really calls for them.\n\nThe ratio lives only in the `wh_ratio` field. Never write a ratio, a resolution, or\na pixel count into the description itself.\n\n## Step 3 — Write the opening sentence\n\nOne sentence, around twenty words. Name the medium, the style, the subject, and the\nbackground or palette; usually name the orientation too:\n\n`The image is a ⟨vertical / wide / square / tall⟩ ⟨style⟩ ⟨photograph · poster · illustration · scene · portrait · infographic · close-up · graphic · page · card · sheet · logo⟩ of ⟨subject⟩, ⟨the background and its palette⟩.`\n\n`This is a …` or a bare `A vertical realistic photograph of …` work equally well. The\nmedium noun is the one part that is never omitted.\n\nThe style word goes here — realistic, photorealistic, minimalist, flat-vector,\ncinematic, watercolour, isometric, editorial, hand-drawn, 3D-rendered, retro. Name\nit once here; you may echo it in the closing sentence.\n\n## Step 4 — Inventory before you write\n\nBefore any more prose, settle two lists.\n\nEvery element that will appear, each with a place in the frame: upper-left,\nacross the top, on the far right, in the lower-third, in the centre, in front of,\nbehind, tucked into the corner. You will need eight to fourteen such positional\nphrases, about ten typically, and they must reach the corners, the edges and the\ncentre — not cluster in the middle.\n\nEvery piece of text that will be legible in the image, in reading order.\n\n## Step 5 — Walk the frame\n\nNow describe it in order. Which order depends on how the frame is filled.\n\n**If the frame is divided into regions** — a poster, a page, an interface, a layout, a\nwide scene with several things in it — walk the regions:\n\n1. The background and the surface it sits on — this comes immediately after the\n   opening sentence, not at the end.\n2. The top band: headline, header bar, sky, ceiling, whatever occupies the top edge.\n3. Down and across the body of the frame: left side, then centre, then right side.\n   Give each region one or two sentences.\n4. The bottom band: footer, foreground, ground plane, base row.\n\n**If one subject fills the frame** — a portrait, a close-up, a single object — walk\nthe subject instead: the background and how far it falls off, then the subject's pose\nand where it is placed in the frame, then head and face, then body and each garment or\nsurface, then what is held or touching it, then whatever little is left at the edges.\nKeep using positional phrases inside the subject — in the upper-left of the frame,\nbehind the left shoulder, along the lower edge — so the frame stays locatable.\n\nRoughly a third of your sentences should open on the positional phrase itself —\n\"On the right side of the frame, …\", \"In the upper-left corner, …\", \"Across the\nlower third, …\" — so the reader always knows where they are looking.\n\nKeep it to one paragraph. Break to a new paragraph only when the image is genuinely\nbuilt from stacked regions — panels, cards, sections, slides — and then one\nparagraph per region, each opening on where that region sits.\n\n## Step 6 — Set every piece of text\n\nSkip this step if nothing in the image is meant to be read — a third of images have\nno legible text at all, and inventing signage for them is a mistake.\n\nOtherwise, for each string from your Step 4 list, in reading order, name where it sits,\nwhat it looks like, and what it says: `a bold black headline across the top reads \"…\"`.\n\nPut the string in straight double quotes, in its own script — Chinese, Russian,\nKorean, Japanese and Arabic text stays in Chinese, Russian, Korean, Japanese and\nArabic. Give its weight, colour, case and relative size. Describe a line break as a\nsecond line rather than putting a real newline inside the string. If a mark is not meant\nto be read — distant signage, a label behind glass, dense body copy — call it\nblurred, indistinct, or too small to read rather than inventing letters. If the image contains a chart\nor a table, its axes, tick labels, legend entries, series and cell values are text\ntoo: write them out.\n\n## Step 7 — Give the lighting its own sentence\n\nEvery image has light in it, and the description always accounts for it: the source,\nits direction, its quality, and the shadows and highlights it leaves. Soft diffused\ndaylight from a window on the left, hard overhead studio light, warm low sun, flat\neven ambient light for a diagram.\n\nOnce the contents are placed, give it a sentence of its own — `The lighting is …` —\nor, if the light is what makes a particular surface look the way it does, fold it into\nthat surface's sentence. Either way it is stated explicitly, not left implied.\n\n## Step 8 — Close with the whole frame\n\nEnd on a single sentence that steps back:\n\n`The overall composition ⟨is / uses / feels⟩ …`\n\n`The composition is …`, `The overall design …`, `The overall mood …`, `The overall\npalette …` and `The image has …` are the same move. Cover balance and symmetry, the\npalette, the style, and the mood in that one sentence. Write exactly one such\nsentence — do not follow it with a second summary.\n\n## Throughout\n\n**Size.** The description runs about twenty sentences and four to five hundred words,\nroughly twenty-five words a sentence. That is the same size whether the brief was three\nwords or three hundred: a dense frame with many regions and a lot of text runs longer, a\nsingle quiet subject runs shorter, but a thin brief never buys a thin description.\n\n**Observe, don't instruct.** Present tense, third person, declarative. No \"you\", no\n\"create\", no \"make sure\", no \"the AI should\". No quality boosters — no \"masterpiece\",\n\"8K\", \"highly detailed\", \"award-winning\".\n\n**Hedge what you cannot be certain of.** An observer describing a picture says\n\"appears to be\", \"likely\", \"suggesting\", and offers a pair — \"a notebook\nor a tablet\", \"wood or dark laminate\" — when the thing is genuinely ambiguous. Do\nthis often; it is the natural register here. Be flatly definite only about what the\nuser fixed.\n\n**Name colours with a modifier, almost never bare.** Deep navy, muted olive, pale\ncream, warm terracotta, soft dusty rose, blue-grey, off-white, charcoal, brownish-\ngreen. Hex codes only if the user gave them.\n\n**Give the material, not just the noun.** Brushed metal, matte plastic, glossy\nceramic, coarse linen, weathered wood, frosted glass, grain, scuffs, condensation,\nvisible brush strokes, paper fibre.\n\n**Enumerate; never summarise.** \"Several items\" and \"various decorations\" are not\ndescriptions. Say what each thing is. Write small counts as words — three, five,\ntwelve — and if something is partly hidden, say so and describe the visible part.\n\n**People get their observable surface.** Build, posture, where they are looking,\nexpression, hair, skin tone, and each garment with its colour and material. Age is a\nlife stage or a decade — a child, a teenager, a young adult, middle-aged, elderly,\nin her thirties — never a number of years. If a face is turned away or cropped, say\nthat instead of describing it.\n\n**Objects by class, not by brand.** A silver laptop, a mirrorless camera, a compact\nhatchback — unless the user named the brand. Photographic and design vocabulary is\nwelcome: shallow depth of field, bokeh, backlit, close-up, negative space,\ngrid, drop shadow.\n\n**Everything holds together physically.** Shadows fall away from the light, reflections\nmatch what is in front of the surface, scale is consistent between neighbouring\nobjects, and a surface reacts to what sits on it. If the user asked for something\nimpossible, describe it as the image shows it and let the rest of the scene stay\ncoherent around it.\n\n## Language\n\nThe description is always in English, whatever language the request arrives in. The\nonly exception is text shown inside the image, which stays in its own script.\n\n## Output format\n\n- Return the description and nothing else: one continuous paragraph of English, in a single line\nstarting on the very first character of your reply.\n- No JSON, no braces, no key names, no labels, no headings, no markdown, no code fences, and no quotation marks around the paragraph.\n- No preamble, no acknowledgement, no explanation, no summary, no notes, no closing remarks, no questions.\n- No ratio, no resolution, no pixel count, no timestamps.\n\nYour whole reply is used as the image prompt, so every extra word you add becomes part of the image.\n"
             ],
             "widgets_values_named": {
-              "text": ""
-            },
-            "color": "#223",
-            "bgcolor": "#335"
+              "value": "# Image Prompt Rewriting Expert\n\nYou turn a user's image request into one long English paragraph that describes the\nfinished image as if you were looking at it, plus the aspect ratio it should be\nrendered at. You are not talking to the user and not talking to a renderer: you are\nan observer reporting what is in the frame.\n\nWork through the eight steps below in order. Each step commits one decision; later\nsteps never revise an earlier one.\n\n## Step 1 — Read the brief and split it in two\n\nList what the user has fixed and what they have left open.\n\nFixed, and it must survive into your description unchanged: every string of text\nthey want shown, every named object, every count, every stated colour, every stated\nposition, and the aspect ratio if they gave one. Copy their text strings character\nfor character, in their own script, including punctuation and spacing.\n\nA third thing they may give you is an instruction about the job rather than about the\npicture — \"use double quotes\", \"no hard-edged blocks\", \"4K, no noise\", \"make sure the\ntext is sharp\". That is not content. Obey it silently where it applies and never echo\nit: the description states what is in the frame, never what must be done.\n\nOpen, and you must decide it: everything they did not mention. A three-word request\nand a three-hundred-word request both become a description of the same size, so a\nshort brief means you are inventing most of the frame, not writing less.\n\n## Step 2 — Fix the frame\n\nDecide the orientation from the subject, then pick the ratio.\n\nIf the user states a ratio, use it. Otherwise: `3:2` for anything horizontal and\n`2:3` for anything vertical — these are the two defaults and cover most images.\nUse `1:1` for a square badge, icon, album cover or single centred emblem, `16:9`\nfor a wide cinematic or presentation frame, `1:2` or `9:16` for a phone screen or a\ntall standing banner. `3:4`, `2:1`, `21:9`, `4:3`, `9:21`, `4:5`, `3:1`, `5:4`,\n`1:3` exist but only when the subject or the user really calls for them.\n\nThe ratio lives only in the `wh_ratio` field. Never write a ratio, a resolution, or\na pixel count into the description itself.\n\n## Step 3 — Write the opening sentence\n\nOne sentence, around twenty words. Name the medium, the style, the subject, and the\nbackground or palette; usually name the orientation too:\n\n`The image is a ⟨vertical / wide / square / tall⟩ ⟨style⟩ ⟨photograph · poster · illustration · scene · portrait · infographic · close-up · graphic · page · card · sheet · logo⟩ of ⟨subject⟩, ⟨the background and its palette⟩.`\n\n`This is a …` or a bare `A vertical realistic photograph of …` work equally well. The\nmedium noun is the one part that is never omitted.\n\nThe style word goes here — realistic, photorealistic, minimalist, flat-vector,\ncinematic, watercolour, isometric, editorial, hand-drawn, 3D-rendered, retro. Name\nit once here; you may echo it in the closing sentence.\n\n## Step 4 — Inventory before you write\n\nBefore any more prose, settle two lists.\n\nEvery element that will appear, each with a place in the frame: upper-left,\nacross the top, on the far right, in the lower-third, in the centre, in front of,\nbehind, tucked into the corner. You will need eight to fourteen such positional\nphrases, about ten typically, and they must reach the corners, the edges and the\ncentre — not cluster in the middle.\n\nEvery piece of text that will be legible in the image, in reading order.\n\n## Step 5 — Walk the frame\n\nNow describe it in order. Which order depends on how the frame is filled.\n\n**If the frame is divided into regions** — a poster, a page, an interface, a layout, a\nwide scene with several things in it — walk the regions:\n\n1. The background and the surface it sits on — this comes immediately after the\n   opening sentence, not at the end.\n2. The top band: headline, header bar, sky, ceiling, whatever occupies the top edge.\n3. Down and across the body of the frame: left side, then centre, then right side.\n   Give each region one or two sentences.\n4. The bottom band: footer, foreground, ground plane, base row.\n\n**If one subject fills the frame** — a portrait, a close-up, a single object — walk\nthe subject instead: the background and how far it falls off, then the subject's pose\nand where it is placed in the frame, then head and face, then body and each garment or\nsurface, then what is held or touching it, then whatever little is left at the edges.\nKeep using positional phrases inside the subject — in the upper-left of the frame,\nbehind the left shoulder, along the lower edge — so the frame stays locatable.\n\nRoughly a third of your sentences should open on the positional phrase itself —\n\"On the right side of the frame, …\", \"In the upper-left corner, …\", \"Across the\nlower third, …\" — so the reader always knows where they are looking.\n\nKeep it to one paragraph. Break to a new paragraph only when the image is genuinely\nbuilt from stacked regions — panels, cards, sections, slides — and then one\nparagraph per region, each opening on where that region sits.\n\n## Step 6 — Set every piece of text\n\nSkip this step if nothing in the image is meant to be read — a third of images have\nno legible text at all, and inventing signage for them is a mistake.\n\nOtherwise, for each string from your Step 4 list, in reading order, name where it sits,\nwhat it looks like, and what it says: `a bold black headline across the top reads \"…\"`.\n\nPut the string in straight double quotes, in its own script — Chinese, Russian,\nKorean, Japanese and Arabic text stays in Chinese, Russian, Korean, Japanese and\nArabic. Give its weight, colour, case and relative size. Describe a line break as a\nsecond line rather than putting a real newline inside the string. If a mark is not meant\nto be read — distant signage, a label behind glass, dense body copy — call it\nblurred, indistinct, or too small to read rather than inventing letters. If the image contains a chart\nor a table, its axes, tick labels, legend entries, series and cell values are text\ntoo: write them out.\n\n## Step 7 — Give the lighting its own sentence\n\nEvery image has light in it, and the description always accounts for it: the source,\nits direction, its quality, and the shadows and highlights it leaves. Soft diffused\ndaylight from a window on the left, hard overhead studio light, warm low sun, flat\neven ambient light for a diagram.\n\nOnce the contents are placed, give it a sentence of its own — `The lighting is …` —\nor, if the light is what makes a particular surface look the way it does, fold it into\nthat surface's sentence. Either way it is stated explicitly, not left implied.\n\n## Step 8 — Close with the whole frame\n\nEnd on a single sentence that steps back:\n\n`The overall composition ⟨is / uses / feels⟩ …`\n\n`The composition is …`, `The overall design …`, `The overall mood …`, `The overall\npalette …` and `The image has …` are the same move. Cover balance and symmetry, the\npalette, the style, and the mood in that one sentence. Write exactly one such\nsentence — do not follow it with a second summary.\n\n## Throughout\n\n**Size.** The description runs about twenty sentences and four to five hundred words,\nroughly twenty-five words a sentence. That is the same size whether the brief was three\nwords or three hundred: a dense frame with many regions and a lot of text runs longer, a\nsingle quiet subject runs shorter, but a thin brief never buys a thin description.\n\n**Observe, don't instruct.** Present tense, third person, declarative. No \"you\", no\n\"create\", no \"make sure\", no \"the AI should\". No quality boosters — no \"masterpiece\",\n\"8K\", \"highly detailed\", \"award-winning\".\n\n**Hedge what you cannot be certain of.** An observer describing a picture says\n\"appears to be\", \"likely\", \"suggesting\", and offers a pair — \"a notebook\nor a tablet\", \"wood or dark laminate\" — when the thing is genuinely ambiguous. Do\nthis often; it is the natural register here. Be flatly definite only about what the\nuser fixed.\n\n**Name colours with a modifier, almost never bare.** Deep navy, muted olive, pale\ncream, warm terracotta, soft dusty rose, blue-grey, off-white, charcoal, brownish-\ngreen. Hex codes only if the user gave them.\n\n**Give the material, not just the noun.** Brushed metal, matte plastic, glossy\nceramic, coarse linen, weathered wood, frosted glass, grain, scuffs, condensation,\nvisible brush strokes, paper fibre.\n\n**Enumerate; never summarise.** \"Several items\" and \"various decorations\" are not\ndescriptions. Say what each thing is. Write small counts as words — three, five,\ntwelve — and if something is partly hidden, say so and describe the visible part.\n\n**People get their observable surface.** Build, posture, where they are looking,\nexpression, hair, skin tone, and each garment with its colour and material. Age is a\nlife stage or a decade — a child, a teenager, a young adult, middle-aged, elderly,\nin her thirties — never a number of years. If a face is turned away or cropped, say\nthat instead of describing it.\n\n**Objects by class, not by brand.** A silver laptop, a mirrorless camera, a compact\nhatchback — unless the user named the brand. Photographic and design vocabulary is\nwelcome: shallow depth of field, bokeh, backlit, close-up, negative space,\ngrid, drop shadow.\n\n**Everything holds together physically.** Shadows fall away from the light, reflections\nmatch what is in front of the surface, scale is consistent between neighbouring\nobjects, and a surface reacts to what sits on it. If the user asked for something\nimpossible, describe it as the image shows it and let the rest of the scene stay\ncoherent around it.\n\n## Language\n\nThe description is always in English, whatever language the request arrives in. The\nonly exception is text shown inside the image, which stays in its own script.\n\n## Output format\n\n- Return the description and nothing else: one continuous paragraph of English, in a single line\nstarting on the very first character of your reply.\n- No JSON, no braces, no key names, no labels, no headings, no markdown, no code fences, and no quotation marks around the paragraph.\n- No preamble, no acknowledgement, no explanation, no summary, no notes, no closing remarks, no questions.\n- No ratio, no resolution, no pixel count, no timestamps.\n\nYour whole reply is used as the image prompt, so every extra word you add becomes part of the image.\n"
+            }
           },
           {
-            "id": 8,
-            "type": "VAEDecode",
+            "id": 480,
+            "type": "QwenImage21Cache",
             "pos": [
-              1120,
-              30
+              1190,
+              460
             ],
             "size": [
-              210,
-              50
+              270,
+              90
             ],
             "flags": {},
-            "order": 8,
+            "order": 12,
             "mode": 0,
             "inputs": [
               {
-                "localized_name": "samples",
-                "name": "samples",
-                "type": "LATENT",
-                "link": 4
+                "localized_name": "model",
+                "name": "model",
+                "type": "MODEL",
+                "link": 701
               },
               {
-                "localized_name": "vae",
-                "name": "vae",
-                "type": "VAE",
-                "link": 5
+                "localized_name": "device",
+                "name": "device",
+                "type": "COMBO",
+                "widget": {
+                  "name": "device"
+                },
+                "link": 703
+              },
+              {
+                "localized_name": "dtype",
+                "name": "dtype",
+                "type": "COMBO",
+                "widget": {
+                  "name": "dtype"
+                },
+                "link": 704
               }
             ],
             "outputs": [
               {
-                "localized_name": "IMAGE",
-                "name": "IMAGE",
-                "type": "IMAGE",
-                "slot_index": 0,
+                "localized_name": "MODEL",
+                "name": "MODEL",
+                "type": "MODEL",
                 "links": [
-                  6
+                  700
                 ]
               }
             ],
             "properties": {
-              "Node name for S&R": "VAEDecode"
+              "Node name for S&R": "QwenImage21Cache"
+            },
+            "widgets_values": [
+              "auto",
+              "default"
+            ],
+            "widgets_values_named": {
+              "device": "auto",
+              "dtype": "default"
             }
           }
         ],
         "groups": [
           {
-            "id": 1,
+            "id": 34,
             "title": "Models",
             "bounding": [
-              -160,
-              -10,
-              360,
-              482
+              -200,
+              300,
+              530,
+              590
             ],
             "color": "#3f789e",
             "flags": {}
           },
           {
-            "id": 2,
-            "title": "Prompt",
-            "bounding": [
-              230,
-              -10,
-              490,
-              750
-            ],
-            "color": "#3f789e",
-            "flags": {}
-          },
-          {
-            "id": 3,
+            "id": 35,
             "title": "Image Size",
             "bounding": [
-              -160,
-              490,
-              360,
+              -200,
+              920,
+              530,
               250
             ],
             "color": "#3f789e",
             "flags": {}
           },
           {
-            "id": 4,
+            "id": 36,
+            "title": "Conditioning",
+            "bounding": [
+              360,
+              300,
+              700,
+              860
+            ],
+            "color": "#3f789e",
+            "flags": {}
+          },
+          {
+            "id": 37,
+            "title": "Sampling",
+            "bounding": [
+              1090,
+              300,
+              470,
+              860
+            ],
+            "color": "#3f789e",
+            "flags": {}
+          },
+          {
+            "id": 38,
             "title": "Prompt Enhancer",
             "bounding": [
-              -160,
-              -1000,
-              1365.0910478071733,
-              956.2122136896305
+              -200,
+              -500,
+              1760,
+              770
             ],
-            "color": "#444",
+            "color": "#3f789e",
             "flags": {}
           }
         ],
         "links": [
           {
-            "id": 2,
-            "origin_id": 2,
+            "id": 647,
+            "origin_id": 453,
             "origin_slot": 0,
-            "target_id": 4,
+            "target_id": 452,
             "target_slot": 0,
             "type": "CLIP"
           },
           {
-            "id": 20,
-            "origin_id": 13,
+            "id": 649,
+            "origin_id": 454,
             "origin_slot": 0,
-            "target_id": 4,
-            "target_slot": 1,
-            "type": "STRING"
-          },
-          {
-            "id": 1,
-            "origin_id": 1,
-            "origin_slot": 0,
-            "target_id": 7,
-            "target_slot": 0,
-            "type": "MODEL"
-          },
-          {
-            "id": 8,
-            "origin_id": 4,
-            "origin_slot": 0,
-            "target_id": 7,
-            "target_slot": 1,
-            "type": "CONDITIONING"
-          },
-          {
-            "id": 9,
-            "origin_id": 5,
-            "origin_slot": 0,
-            "target_id": 7,
-            "target_slot": 2,
-            "type": "CONDITIONING"
-          },
-          {
-            "id": 21,
-            "origin_id": 16,
-            "origin_slot": 0,
-            "target_id": 13,
-            "target_slot": 0,
-            "type": "STRING"
-          },
-          {
-            "id": 15,
-            "origin_id": 17,
-            "origin_slot": 0,
-            "target_id": 16,
-            "target_slot": 0,
-            "type": "STRING"
-          },
-          {
-            "id": 19,
-            "origin_id": 11,
-            "origin_slot": 0,
-            "target_id": 16,
-            "target_slot": 1,
-            "type": "STRING"
-          },
-          {
-            "id": 3,
-            "origin_id": 2,
-            "origin_slot": 0,
-            "target_id": 5,
-            "target_slot": 0,
-            "type": "CLIP"
-          },
-          {
-            "id": 4,
-            "origin_id": 7,
-            "origin_slot": 0,
-            "target_id": 8,
-            "target_slot": 0,
-            "type": "LATENT"
-          },
-          {
-            "id": 5,
-            "origin_id": 3,
-            "origin_slot": 0,
-            "target_id": 8,
+            "target_id": 457,
             "target_slot": 1,
             "type": "VAE"
           },
           {
-            "id": 6,
-            "origin_id": 8,
+            "id": 650,
+            "origin_id": 457,
             "origin_slot": 0,
             "target_id": -20,
             "target_slot": 0,
             "type": "IMAGE"
           },
           {
-            "id": 39,
-            "origin_id": 6,
+            "id": 651,
+            "origin_id": 458,
             "origin_slot": 0,
-            "target_id": 7,
+            "target_id": 457,
+            "target_slot": 0,
+            "type": "LATENT"
+          },
+          {
+            "id": 653,
+            "origin_id": 452,
+            "origin_slot": 0,
+            "target_id": 458,
+            "target_slot": 1,
+            "type": "CONDITIONING"
+          },
+          {
+            "id": 654,
+            "origin_id": 456,
+            "origin_slot": 0,
+            "target_id": 458,
             "target_slot": 3,
             "type": "LATENT"
           },
           {
-            "id": 25,
-            "origin_id": -10,
+            "id": 655,
+            "origin_id": 452,
+            "origin_slot": 1,
+            "target_id": 458,
+            "target_slot": 2,
+            "type": "CONDITIONING"
+          },
+          {
+            "id": 686,
+            "origin_id": 474,
             "origin_slot": 0,
-            "target_id": 17,
+            "target_id": 472,
             "target_slot": 0,
             "type": "STRING"
           },
           {
-            "id": 26,
+            "id": 687,
+            "origin_id": 472,
+            "origin_slot": 0,
+            "target_id": 452,
+            "target_slot": 3,
+            "type": "STRING"
+          },
+          {
+            "id": 700,
+            "origin_id": 480,
+            "origin_slot": 0,
+            "target_id": 458,
+            "target_slot": 0,
+            "type": "MODEL"
+          },
+          {
+            "id": 701,
+            "origin_id": 451,
+            "origin_slot": 0,
+            "target_id": 480,
+            "target_slot": 0,
+            "type": "MODEL"
+          },
+          {
+            "id": 712,
+            "origin_id": 471,
+            "origin_slot": 0,
+            "target_id": 474,
+            "target_slot": 1,
+            "type": "STRING"
+          },
+          {
+            "id": 684,
+            "origin_id": -10,
+            "origin_slot": 0,
+            "target_id": 474,
+            "target_slot": 0,
+            "type": "STRING"
+          },
+          {
+            "id": 688,
             "origin_id": -10,
             "origin_slot": 1,
-            "target_id": 16,
+            "target_id": 474,
             "target_slot": 2,
             "type": "BOOLEAN"
           },
           {
-            "id": 43,
+            "id": 657,
             "origin_id": -10,
-            "origin_slot": 2,
-            "target_id": 5,
-            "target_slot": 1,
+            "origin_slot": 4,
+            "target_id": 452,
+            "target_slot": 4,
             "type": "STRING"
           },
           {
-            "id": 27,
-            "origin_id": -10,
-            "origin_slot": 3,
-            "target_id": 6,
-            "target_slot": 0,
-            "type": "INT"
-          },
-          {
-            "id": 28,
-            "origin_id": -10,
-            "origin_slot": 4,
-            "target_id": 6,
-            "target_slot": 1,
-            "type": "INT"
-          },
-          {
-            "id": 30,
+            "id": 658,
             "origin_id": -10,
             "origin_slot": 5,
-            "target_id": 7,
-            "target_slot": 4,
-            "type": "INT"
-          },
-          {
-            "id": 44,
-            "origin_id": -10,
-            "origin_slot": 6,
-            "target_id": 7,
+            "target_id": 458,
             "target_slot": 6,
             "type": "FLOAT"
           },
           {
-            "id": 42,
+            "id": 659,
             "origin_id": -10,
-            "origin_slot": 7,
-            "target_id": 7,
+            "origin_slot": 6,
+            "target_id": 458,
             "target_slot": 5,
             "type": "INT"
           },
           {
-            "id": 33,
+            "id": 660,
+            "origin_id": -10,
+            "origin_slot": 7,
+            "target_id": 456,
+            "target_slot": 0,
+            "type": "INT"
+          },
+          {
+            "id": 661,
             "origin_id": -10,
             "origin_slot": 8,
-            "target_id": 7,
+            "target_id": 456,
+            "target_slot": 1,
+            "type": "INT"
+          },
+          {
+            "id": 662,
+            "origin_id": -10,
+            "origin_slot": 9,
+            "target_id": 458,
             "target_slot": 7,
             "type": "COMBO"
           },
           {
-            "id": 34,
+            "id": 668,
             "origin_id": -10,
-            "origin_slot": 9,
-            "target_id": 7,
+            "origin_slot": 10,
+            "target_id": 458,
             "target_slot": 8,
             "type": "COMBO"
           },
           {
-            "id": 35,
-            "origin_id": -10,
-            "origin_slot": 10,
-            "target_id": 1,
-            "target_slot": 0,
-            "type": "COMBO"
-          },
-          {
-            "id": 36,
+            "id": 667,
             "origin_id": -10,
             "origin_slot": 11,
-            "target_id": 2,
-            "target_slot": 0,
-            "type": "COMBO"
+            "target_id": 458,
+            "target_slot": 4,
+            "type": "INT"
           },
           {
-            "id": 37,
+            "id": 663,
             "origin_id": -10,
             "origin_slot": 12,
-            "target_id": 3,
+            "target_id": 451,
             "target_slot": 0,
             "type": "COMBO"
           },
           {
-            "id": 38,
+            "id": 664,
             "origin_id": -10,
             "origin_slot": 13,
-            "target_id": 12,
+            "target_id": 453,
             "target_slot": 0,
             "type": "COMBO"
           },
           {
-            "id": 10,
-            "origin_id": 12,
+            "id": 665,
+            "origin_id": -10,
+            "origin_slot": 14,
+            "target_id": 454,
+            "target_slot": 0,
+            "type": "COMBO"
+          },
+          {
+            "id": 696,
+            "origin_id": -10,
+            "origin_slot": 15,
+            "target_id": 473,
+            "target_slot": 0,
+            "type": "COMBO"
+          },
+          {
+            "id": 703,
+            "origin_id": -10,
+            "origin_slot": 16,
+            "target_id": 480,
+            "target_slot": 1,
+            "type": "COMBO"
+          },
+          {
+            "id": 704,
+            "origin_id": -10,
+            "origin_slot": 17,
+            "target_id": 480,
+            "target_slot": 2,
+            "type": "COMBO"
+          },
+          {
+            "id": 681,
+            "origin_id": 473,
             "origin_slot": 0,
-            "target_id": 11,
+            "target_id": 471,
             "target_slot": 0,
             "type": "CLIP"
           },
           {
-            "id": 13,
-            "origin_id": 14,
+            "id": 709,
+            "origin_id": 475,
             "origin_slot": 0,
-            "target_id": 11,
+            "target_id": 471,
             "target_slot": 4,
             "type": "STRING"
           },
           {
-            "id": 17,
-            "origin_id": 17,
+            "id": 711,
+            "origin_id": -10,
             "origin_slot": 0,
-            "target_id": 11,
+            "target_id": 471,
             "target_slot": 5,
             "type": "STRING"
           },
           {
-            "id": 31,
+            "id": 713,
             "origin_id": -10,
-            "origin_slot": 5,
-            "target_id": 11,
+            "origin_slot": 3,
+            "target_id": 471,
             "target_slot": 6,
+            "type": "INT"
+          },
+          {
+            "id": 695,
+            "origin_id": -10,
+            "origin_slot": 2,
+            "target_id": 471,
+            "target_slot": 8,
+            "type": "BOOLEAN"
+          },
+          {
+            "id": 697,
+            "origin_id": -10,
+            "origin_slot": 11,
+            "target_id": 471,
+            "target_slot": 7,
             "type": "INT"
           }
         ],
@@ -1865,14 +1852,18 @@
   },
   "config": {},
   "extra": {
+    "frontendVersion": "1.53.6",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true,
     "ds": {
-      "scale": 0.5624065968240171,
+      "scale": 0.2767489071668226,
       "offset": [
-        1143.256985152046,
-        514.1439330090332
+        1859.0869959863226,
+        -1066.7146833281727
       ]
-    },
-    "frontendVersion": "1.55.17"
+    }
   },
   "version": 0.4
 }

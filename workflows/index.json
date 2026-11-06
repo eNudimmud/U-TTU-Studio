@@ -27,7 +27,7 @@
     {
       "id": "cast-texte",
       "onglet": "cast",
-      "template": "image_flux3_klein_t2i",
+      "template": "image_qwen_image_2_1_t2i",
       "partner": false,
       "partnerNodes": [],
       "sentPartner": false,

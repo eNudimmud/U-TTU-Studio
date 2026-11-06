@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { pixelsVides } from "../src/lib/render/blank.ts";
+import { imageVide, pixelsVides } from "../src/lib/render/blank.ts";
 import { createRenderClient, RenderError } from "../src/lib/render/client.ts";
 import { failView } from "../src/lib/render/fail.ts";
 import { followTake } from "../src/lib/render/run.ts";
@@ -27,6 +27,20 @@ test("a dark scene with texture, or a black frame with one narrow beam, is a res
   const noise = () => (seed = (seed * 1103515245 + 12345) % 2147483648) % 28;
   assert.equal(pixelsVides(frame(() => [noise(), noise() + 4, noise(), 255])), false, "night forest");
   assert.equal(pixelsVides(frame(index => (index % 64 >= 31 && index % 64 <= 32 ? [230, 230, 200, 255] : [0, 0, 0, 255]))), false, "a beam in the centre");
+});
+
+test("CAST white frame with a noisy vertical stripe is rejected, distributed lineart is retained", () => {
+  assert.equal(pixelsVides(frame(index => index % 64 < 3 ? [index % 250, 30, 90, 255] : [255, 255, 255, 255])), true);
+  assert.equal(pixelsVides(frame(index => index % 11 === 0 ? [30, 30, 30, 255] : [255, 255, 255, 255])), false);
+  assert.equal(pixelsVides(frame(index => index % 64 > 20 && index % 64 < 44 ? [index % 170, 50, 90, 255] : [255, 255, 255, 255])), false);
+});
+
+test("empty or undecodable media fails closed", async t => {
+  assert.equal(await imageVide(new Blob([])), true);
+  const original = Object.getOwnPropertyDescriptor(globalThis, "createImageBitmap");
+  Object.defineProperty(globalThis, "createImageBitmap", { configurable: true, value: async () => { throw new Error("decode"); } });
+  t.after(() => { if (original) Object.defineProperty(globalThis, "createImageBitmap", original); else Reflect.deleteProperty(globalThis, "createImageBitmap"); });
+  assert.equal(await imageVide(new Blob(["not an image"], { type: "image/png" })), true);
 });
 
 test("the empty error keeps its own translated sentence and offers retry", () => {

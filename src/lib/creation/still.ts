@@ -6,6 +6,9 @@ import { imageOutput, jobStage, RenderError, type JobDetail, type OutputRef, typ
 import { DECOR_3D_TEMPLATE, decor3dGraph } from "../render/decor-3d.ts";
 import { instantxCadreGraph, INSTANTX_CADRE_TEMPLATE } from "../render/instantx-cadre.ts";
 import { KLEIN_BASE_CFG, KLEIN_REFS_MAX, kleinNodes, type KleinAspect } from "../render/klein-graph.ts";
+import { imageVide } from "../render/blank.ts";
+import { noeudSortie } from "../render/sortie.ts";
+import { QWEN_EDIT, QWEN_TEXT, qwenImageGraph } from "../render/qwen-image.ts";
 import type { ApiGraph } from "../render/take-graph.ts";
 import type { CreationQuote } from "./quotes.ts";
 import { CAST_PHOTO_QUOTE, CAST_SHEET_QUOTE, CAST_TEXT_QUOTE, DECOR_PHOTO_QUOTE, DECOR_TEXT_QUOTE } from "./quotes.ts";
@@ -50,6 +53,8 @@ export interface StillRunResult {
 }
 
 export interface StillRunOptions {
+  /** Browser decoder by default; injectable for offline tests. True rejects the output. */
+  invalidImage?: (image: Blob) => Promise<boolean>;
   sleep?: (ms: number) => Promise<void>;
   now?: () => number;
   pollMs?: number;
@@ -177,6 +182,9 @@ export function stillGraph(input: { kind: StillKind; prompt: string; images: rea
   const prompt = input.prompt.trim();
   if (!prompt) throw new Error("Le texte est vide.");
   const seed = seedOf(input.seed);
+  if (input.template === QWEN_EDIT || input.template === QWEN_TEXT) {
+    return qwenImageGraph({ prompt, images: input.images, seed, edit: input.template === QWEN_EDIT });
+  }
   const engine = stillEngine(input.template);
   if (input.kind === "cadre-decor") {
     needsPhoto("cadre-decor", input.images);
@@ -290,32 +298,12 @@ export function stillGraph(input: { kind: StillKind; prompt: string; images: rea
   };
 }
 
-function listedImages(outputs: JobDetail["outputs"]): OutputRef[] {
-  if (!outputs) return [];
-  const files: OutputRef[] = [];
-  for (const node of Object.values(outputs)) {
-    if (!node || typeof node !== "object") continue;
-    for (const list of Object.values(node as Record<string, unknown>)) {
-      if (!Array.isArray(list)) continue;
-      for (const item of list) {
-        if (!item || typeof item !== "object") continue;
-        const row = item as Record<string, unknown>;
-        if (typeof row.filename !== "string" || !row.filename) continue;
-        files.push({
-          filename: row.filename,
-          subfolder: typeof row.subfolder === "string" ? row.subfolder : "",
-          type: typeof row.type === "string" ? row.type : "output",
-        });
-      }
-    }
-  }
-  return files;
-}
-
-/** The stitched board when the job saved one, otherwise the first still. */
-export function stillOutput(outputs: JobDetail["outputs"]): OutputRef | null {
-  const files = listedImages(outputs);
-  return files.find(file => /uttu-planche/i.test(file.filename)) ?? imageOutput(outputs);
+/** Only the declared final save output. */
+export function stillOutput(outputs: JobDetail["outputs"], outputNode?: string): OutputRef | null {
+  // Old CAST receipts used one node named save. Never fall back to the first
+  // preview or a loaded reference when the final node is absent.
+  const ref = imageOutput(outputs, outputNode ?? "save");
+  return ref?.type === "output" ? ref : null;
 }
 
 /** Uploads, queues, waits, and reads the cost from two balances. */
@@ -331,6 +319,8 @@ export async function runStill(client: RenderClient, input: StillRunInput, optio
   }
   if (options.signal?.aborted) throw new RenderError("cancelled", "Rendu annulé avant l’envoi.");
   const graph = stillGraph({ kind: input.kind, prompt: input.prompt, images: names, seed: input.seed, template: input.template, cadreLayout: input.cadreLayout });
+  const outputNode = noeudSortie(graph, input.template);
+  if (!outputNode) throw new RenderError("invalid", "Le graphe ne désigne pas un fichier final unique.");
   const jobId = await client.submit(graph, input.clientId);
   const started = now();
   for (;;) {
@@ -347,9 +337,10 @@ export async function runStill(client: RenderClient, input: StillRunInput, optio
     await sleep(pollMs);
   }
   const detail = await client.job(jobId);
-  const ref = stillOutput(detail.outputs);
+  const ref = stillOutput(detail.outputs, outputNode);
   if (!ref) throw new RenderError("failed", "Le rendu est fini, mais aucune image n’est sortie.");
   const image = await client.file(ref);
+  if (await (options.invalidImage ?? imageVide)(image)) throw new RenderError("empty", "Le rendu est vide, illisible ou corrompu. Il n’a pas été ajouté au projet.");
   const balanceAfter = await client.balance().catch(() => null);
   const charged = balanceAfter !== null && balanceAfter !== input.balanceBefore ? balanceAfter : null;
   return {

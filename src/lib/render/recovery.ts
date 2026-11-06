@@ -4,6 +4,7 @@ import { RenderError, jobStage, type JobStage, type RenderClient } from './clien
 import type { InFlight } from './settings.ts';
 import { ACTIVE_FILE } from '../coffre/project.ts';
 import type { VaultStore } from '../coffre/store.ts';
+import { noeudSortie } from './sortie.ts';
 
 export const PENDING_RENDER_KEY = 'u-ttu-operation';
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
@@ -62,7 +63,8 @@ export function recoverableClient(client: RenderClient, storage: StorageLike, re
   return { ...client, async submit(graph, clientId) {
     if (readPending(storage)) throw new Error('Une opération attend déjà sa récupération. Aucun nouvel envoi.');
     // A storage error here must prevent the paid POST.
-    storage.setItem(PENDING_RENDER_KEY, JSON.stringify({ ...receipt, jobId: null }));
+    const boundReceipt = { ...receipt, outputNode: receipt.outputNode ?? noeudSortie(graph, receipt.template) };
+    storage.setItem(PENDING_RENDER_KEY, JSON.stringify({ ...boundReceipt, jobId: null }));
     let jobId: string;
     try {
       jobId = await client.submit(graph, clientId);
@@ -73,7 +75,7 @@ export function recoverableClient(client: RenderClient, storage: StorageLike, re
       if (error instanceof RenderError && ['auth', 'credits', 'subscription', 'invalid'].includes(error.code)) storage.removeItem(PENDING_RENDER_KEY);
       throw error;
     }
-    try { storage.setItem(PENDING_RENDER_KEY, JSON.stringify({ ...receipt, jobId })); }
+    try { storage.setItem(PENDING_RENDER_KEY, JSON.stringify({ ...boundReceipt, jobId })); }
     catch { throw new Error(`Le rendu ${jobId} a été envoyé, mais son reçu n’a pas pu être sauvegardé. Conserve cet identifiant et vérifie ton espace disque. Ne relance pas la génération.`); }
     return jobId;
   } };

@@ -54,10 +54,10 @@ describe("workflows exportés", () => {
     }
   });
 
-  it("uses FLUX 3 for images and LTX for the default take", () => {
+  it("uses Qwen for text CAST, retains the other image routes and LTX for the default take", () => {
     const first = (onglet: "cast" | "decor") => gestesOnglet(onglet).premiers.map(row => row.template);
     for (const template of [...first("cast"), ...first("decor")].filter(name => !name.startsWith("templates-1_click"))) {
-      assert.match(template, /flux3/, template);
+      assert.match(template, /flux3|^image_qwen_image_2_1_t2i$/, template);
     }
     assert.equal(REGISTRE.find(row => row.id === "prise-plan")?.template, "video_ltx2_5_i2v");
     assert.equal(REGISTRE.find(row => row.id === "prise-plan-h3")?.template, "video_minimax_h3_r2v");

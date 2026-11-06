@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { mayFocusPlanField } from '@/lib/agent/plan-focus';
 import { assetPath } from '@/lib/site';
 import { useI18n, useLocaleSwitch } from '@/components/i18n/provider';
 import { SEMANTIC_MODEL_ENABLED } from '@/lib/agent/semantic-flag';
@@ -132,7 +133,14 @@ export function AssistantPanel() {
   // le plan » in a reply) or a newly picked reference opens it, so nothing lands out of sight.
   const handToPlan = useCallback((text: string) => {
     setQuery(text.slice(0, 2000)); setModelConfirm(false); setMore(true);
-    requestAnimationFrame(() => requestAnimationFrame(() => { const node = kernelInput.current; if (!node) return; node.scrollIntoView({ block: 'center', behavior: 'smooth' }); node.focus({ preventScroll: true }); }));
+    // Two frames, so the plan field exists after « Plus d’options » opens. A field the visitor
+    // is already typing in keeps the caret: this callback must not swallow the next keys.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const node = kernelInput.current;
+      if (!mayFocusPlanField(document.activeElement, node)) return;
+      node!.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      node!.focus({ preventScroll: true });
+    }));
   }, [setMore]);
   // Mode Agent of the creation bar: the sentence lands in this field, ready to send; nothing runs by itself.
   // It is read once the project is loaded, so the load that clears the field never wipes it.
