@@ -5,6 +5,8 @@ import { emptyProduction, fileResult, keepTake, nextTakeNumber, readProduction, 
 import { animeImageGraph } from "../src/lib/sections/anime-graph.ts";
 import { graphVerdict } from "../src/lib/cinema/workflow-policy.ts";
 import { sectionVideoGraph } from "../src/lib/sections/video-graph.ts";
+import { keptClip, validateCut } from "../src/lib/sections/edit.ts";
+import { emptyEdit } from "../src/lib/montage/edit.ts";
 const asset = (id: string): ProductionAsset => ({ id, section:"anime", kind:"take", name:id, path:`Projets/test/Assets/${id}.png`, media:"image", prompt:"Portrait", at:"", refs:[], source:"comfy", credits:4, shotId:"shot-one", number:1 });
 test("invalid results never enter the project or its costs", async () => {
   const store=memoryVault();
@@ -49,4 +51,11 @@ test("animation is a five-second open-weight graph bound to the selected frame",
     assert.equal(graphVerdict(g,true).allowed,true);
     if(section==="anime") { assert.match(String(g["129:95"].inputs.unet_name),/AniSora/); assert.equal(g["129:131"].inputs.value,false); }
   }
+});
+test("export refuses discarded takes, wrong section and invalid trim",()=>{
+  const a={...asset("edit"),kept:true,seconds:5};const cut={...emptyEdit("cut","Film"),video:[keptClip(a)]};
+  validateCut(cut,[a],"anime");
+  assert.throws(()=>validateCut(cut,[{...a,kept:false}],"anime"),/plus gardée/);
+  assert.throws(()=>validateCut(cut,[a],"cinema"),/plus gardée/);
+  assert.throws(()=>validateCut({...cut,video:[{...cut.video[0],end:6}]},[a],"anime"),/dépasse/);
 });
