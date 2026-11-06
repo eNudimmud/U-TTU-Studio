@@ -1,0 +1,116 @@
+<div id="uttu-cinema-u1">
+  <style>
+    #uttu-cinema-u1 { --us-paper:light-dark(#f7f5ef,#181816); --us-panel:light-dark(#fffefa,#22221f); --us-ink:light-dark(#252720,#eeede5); --us-soft:light-dark(#686b61,#b2b4a7); --us-line:light-dark(#dddccf,#494a40); --us-gold:light-dark(#8a6c2c,#d8bb77); --us-wash:light-dark(#eeeadc,#343127); color:var(--us-ink); font:14px/1.5 system-ui,sans-serif; }
+    #uttu-cinema-u1 * { box-sizing:border-box; }
+    #uttu-cinema-u1 .us-review { padding:10px 110px 12px 2px; color:var(--us-soft); font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+    #uttu-cinema-u1 .us-shell { background:var(--us-paper); border:1px solid var(--us-line); border-radius:16px; overflow:hidden; }
+    #uttu-cinema-u1 .us-header { display:flex; gap:20px; flex-wrap:wrap; align-items:center; padding:20px 24px; border-bottom:1px solid var(--us-line); }
+    #uttu-cinema-u1 .us-brand { font:28px Georgia,serif; letter-spacing:-1px; }
+    #uttu-cinema-u1 .us-brand span { color:var(--us-gold); }
+    #uttu-cinema-u1 .us-project { color:var(--us-soft); font-size:12px; }
+    #uttu-cinema-u1 .us-project strong { display:block; color:var(--us-ink); font-size:14px; font-weight:500; }
+    #uttu-cinema-u1 .us-body { display:grid; grid-template-columns:minmax(0,1.8fr) minmax(260px,1fr); }
+    #uttu-cinema-u1 .us-canvas { min-width:0; padding:24px; }
+    #uttu-cinema-u1 .us-topline { display:flex; align-items:center; flex-wrap:wrap; justify-content:space-between; gap:10px; margin-bottom:14px; }
+    #uttu-cinema-u1 h2 { font:26px/1.2 Georgia,serif; margin:0; }
+    #uttu-cinema-u1 .us-meta { color:var(--us-soft); font-size:12px; }
+    #uttu-cinema-u1 .us-shots { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:18px; }
+    #uttu-cinema-u1 button { font:inherit; color:inherit; min-height:44px; border:1px solid var(--us-line); background:var(--us-panel); border-radius:8px; padding:10px 13px; }
+    #uttu-cinema-u1 .us-shot { text-align:left; padding:10px; min-width:0; }
+    #uttu-cinema-u1 .us-shot[aria-pressed="true"] { border-color:var(--us-gold); background:var(--us-wash); }
+    #uttu-cinema-u1 .us-shot span { display:block; }
+    #uttu-cinema-u1 .us-number { color:var(--us-gold); font-size:12px; margin-bottom:10px; }
+    #uttu-cinema-u1 .us-title { font-size:14px; overflow-wrap:anywhere; }
+    #uttu-cinema-u1 .us-duration { color:var(--us-soft); font-size:12px; margin-top:6px; }
+    #uttu-cinema-u1 .us-frame { aspect-ratio:16/9; display:grid; place-items:center; padding:24px; text-align:center; border:1px solid var(--us-line); background:var(--us-panel); border-radius:8px; }
+    #uttu-cinema-u1 .us-frame strong { display:block; font:28px Georgia,serif; margin:8px 0; }
+    #uttu-cinema-u1 .us-frame small { color:var(--us-soft); }
+    #uttu-cinema-u1 .us-caption { margin:12px 0 16px; color:var(--us-soft); font-size:13px; }
+    #uttu-cinema-u1 .us-actions { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    #uttu-cinema-u1 button:disabled { opacity:.55; }
+    #uttu-cinema-u1 .us-action { background:var(--us-ink); color:var(--us-paper); border-color:var(--us-ink); }
+    #uttu-cinema-u1 .us-context { margin-top:16px; padding:14px; background:var(--us-panel); border:1px solid var(--us-line); border-radius:8px; }
+    #uttu-cinema-u1 .us-context h3 { font-size:13px; font-weight:500; margin:0 0 10px; }
+    #uttu-cinema-u1 .us-context dl { margin:0; display:grid; grid-template-columns:95px minmax(0,1fr); gap:8px; font-size:12px; }
+    #uttu-cinema-u1 .us-context dt { color:var(--us-soft); }
+    #uttu-cinema-u1 .us-context dd { margin:0; overflow-wrap:anywhere; }
+    #uttu-cinema-u1 .us-agent { min-width:0; padding:24px; border-left:1px solid var(--us-line); background:var(--us-panel); display:flex; flex-direction:column; gap:18px; }
+    #uttu-cinema-u1 .us-agent h3 { margin:0; font:24px Georgia,serif; }
+    #uttu-cinema-u1 .us-user { background:var(--us-wash); padding:14px; border-radius:10px; margin:0; }
+    #uttu-cinema-u1 .us-reply { margin:0; }
+    #uttu-cinema-u1 .us-scope { border-top:1px solid var(--us-line); padding-top:16px; margin-top:auto; color:var(--us-gold); font-size:12px; }
+    #uttu-cinema-u1 label { font-size:12px; color:var(--us-soft); }
+    #uttu-cinema-u1 textarea { width:100%; min-height:100px; resize:none; font:16px/1.5 system-ui,sans-serif; color:var(--us-ink); padding:12px; margin-top:6px; background:var(--us-paper); border:1px solid var(--us-line); border-radius:8px; }
+    #uttu-cinema-u1 .us-footer { padding:12px 24px; border-top:1px solid var(--us-line); color:var(--us-soft); font-size:12px; display:flex; gap:16px; flex-wrap:wrap; }
+    #uttu-cinema-u1 [hidden] { display:none; }
+    @media(max-width:690px) { #uttu-cinema-u1 .us-body { grid-template-columns:minmax(0,1fr); } #uttu-cinema-u1 .us-agent { border-left:0; border-top:1px solid var(--us-line); } #uttu-cinema-u1 .us-header,#uttu-cinema-u1 .us-canvas,#uttu-cinema-u1 .us-agent { padding:18px; } #uttu-cinema-u1 .us-shots { gap:6px; } #uttu-cinema-u1 .us-shot { padding:8px; } #uttu-cinema-u1 .us-frame strong { font-size:23px; } }
+  </style>
+  <div class="us-review">U1 · Proposition de design · aucune génération</div>
+  <section class="us-shell" aria-label="Uttu Studio, proposed storyboard workspace">
+    <header class="us-header">
+      <div class="us-brand">U<span>*</span>TTU <span>Studio</span></div>
+      <div class="us-project">PROJECT<strong>Blanche Of Castille · Storyboard</strong></div>
+    </header>
+    <div class="us-body">
+      <main class="us-canvas">
+        <div class="us-topline"><h2>A scene, three shots.</h2><span class="us-meta">15 s · 16:9 · Draft</span></div>
+        <div class="us-shots" role="group" aria-label="Select a shot">
+          <button type="button" class="us-shot cursor-interaction" data-shot="0" aria-pressed="false"><span class="us-number">01</span><span class="us-title">Establishing</span><span class="us-duration">5 s · Draft</span></button>
+          <button type="button" class="us-shot cursor-interaction" data-shot="1" aria-pressed="true"><span class="us-number">02</span><span class="us-title">The encounter</span><span class="us-duration">5 s · Draft</span></button>
+          <button type="button" class="us-shot cursor-interaction" data-shot="2" aria-pressed="false"><span class="us-number">03</span><span class="us-title">Continuity</span><span class="us-duration">5 s · Draft</span></button>
+        </div>
+        <div class="us-frame" aria-live="polite"><div><small data-selected-label>SHOT 02</small><strong data-selected-title>The encounter</strong><small>Approved keyframe will appear here</small></div></div>
+        <p class="us-caption" data-description>Enki and Fizz · Medium shot · Composition to approve</p>
+        <div class="us-actions">
+          <button type="button" class="us-action" disabled>Prepare keyframe</button>
+          <button type="button" class="cursor-interaction" data-context-button aria-expanded="false" aria-controls="us-context-panel">Context</button>
+          <span class="us-meta">Estimate unavailable</span>
+        </div>
+        <section id="us-context-panel" class="us-context" hidden>
+          <h3>Planned references</h3>
+          <dl><dt>Characters</dt><dd data-cast>@Enki · @Fizz</dd><dt>Environment</dt><dd>@Blanche Of Castille</dd><dt>Style</dt><dd>Approved project references</dd><dt>Versions</dt><dd>Originals preserved</dd></dl>
+        </section>
+      </main>
+      <aside class="us-agent" aria-label="Uttu conversation proposal">
+        <div><h3>Uttu</h3><span class="us-meta">Your cinematic director</span></div>
+        <p class="us-user">Break this scene into three shots, using our characters and environment.</p>
+        <p class="us-reply">Three shots proposed. Select one to refine its camera or action.</p>
+        <div class="us-scope" data-scope>Working on Shot 02</div>
+        <label>Describe the change<textarea readonly aria-label="Example request, preview only" data-input>Keep both characters. Move the camera closer.</textarea></label>
+        <button type="button" disabled>Send · preview only</button>
+      </aside>
+    </div>
+    <footer class="us-footer"><span>Design preview · select a shot or open Context</span><span>No private references loaded</span></footer>
+  </section>
+  <script>
+    (() => {
+      const root = document.getElementById('uttu-cinema-u1');
+      const shots = [
+        { title:'Establishing', description:'Blanche Of Castille · Wide shot · Composition to approve', cast:'None', request:'Keep the environment. Refine the camera movement.' },
+        { title:'The encounter', description:'Enki and Fizz · Medium shot · Composition to approve', cast:'@Enki · @Fizz', request:'Keep both characters. Move the camera closer.' },
+        { title:'Continuity', description:'Enki and Fizz · Close-up · Action to approve', cast:'@Enki · @Fizz', request:'Keep the identities and style. Simplify the movement.' }
+      ];
+      const buttons = root.querySelectorAll('[data-shot]');
+      buttons.forEach(button => button.addEventListener('click', () => {
+        const index = Number(button.dataset.shot);
+        const shot = shots[index];
+        const number = String(index + 1).padStart(2, '0');
+        buttons.forEach(other => other.setAttribute('aria-pressed', String(other === button)));
+        root.querySelector('[data-selected-label]').textContent = 'SHOT ' + number;
+        root.querySelector('[data-selected-title]').textContent = shot.title;
+        root.querySelector('[data-description]').textContent = shot.description;
+        root.querySelector('[data-cast]').textContent = shot.cast;
+        root.querySelector('[data-scope]').textContent = 'Working on Shot ' + number;
+        root.querySelector('[data-input]').value = shot.request;
+      }));
+      const contextButton = root.querySelector('[data-context-button]');
+      const context = root.querySelector('#us-context-panel');
+      contextButton.addEventListener('click', () => {
+        const expanded = contextButton.getAttribute('aria-expanded') !== 'true';
+        contextButton.setAttribute('aria-expanded', String(expanded));
+        context.hidden = !expanded;
+        contextButton.textContent = expanded ? 'Close context' : 'Context';
+      });
+    })();
+  </script>
+</div>
