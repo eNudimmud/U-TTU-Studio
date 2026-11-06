@@ -244,9 +244,9 @@ export function createRenderClient(options: RenderClientOptions) {
     return headers;
   }
 
-  async function call(path: string, init: RequestInit = {}): Promise<Response> {
+  async function call(path: string, init: RequestInit = {}, fixedAuth?: Record<string, string>): Promise<Response> {
     const headers = new Headers(init.headers);
-    for (const [key, value] of Object.entries(await authHeaders())) headers.set(key, value);
+    for (const [key, value] of Object.entries(fixedAuth ?? await authHeaders())) headers.set(key, value);
     let response: Response;
     try {
       response = await doFetch(`${relay}${path}`, { ...init, headers, signal: init.signal ?? AbortSignal.timeout(path.startsWith("/api/view") ? 120_000 : 60_000), credentials: "same-origin", cache: "no-store" });
@@ -322,18 +322,24 @@ export function createRenderClient(options: RenderClientOptions) {
   async function submitNow(graph: ApiGraph, clientId: string): Promise<string> {
     // Partner/API nodes read credentials from extra_data, not only HTTP headers
     // (Comfy Cloud: api_key_comfy_org for a key, auth_token_comfy_org for a session).
+    // Resolve authentication once: HTTP headers and partner-node extra_data must
+    // represent the same Comfy identity, even if Firebase refreshes the token.
+    const requestAuth = await authHeaders();
     const extra_data: Record<string, string> = {};
     if (options.auth.kind === "key") {
       if (options.auth.key) extra_data.api_key_comfy_org = options.auth.key;
     } else {
-      const token = await options.auth.token();
-      if (token) extra_data.auth_token_comfy_org = token;
+      const bearer = requestAuth.authorization ?? requestAuth.Authorization;
+      if (!bearer?.startsWith("Bearer ") || bearer.length <= 7) {
+        throw new RenderError("auth", "Session Comfy invalide. Reconnecte-toi.");
+      }
+      extra_data.auth_token_comfy_org = bearer.slice(7);
     }
     const response = await call("/api/prompt", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ prompt: graph, client_id: clientId, extra_data }),
-    });
+    }, requestAuth);
     const body = await json<Record<string, unknown>>(response);
     const lines = errorLines(body);
     if (!response.ok || lines.length > 0 || typeof body.prompt_id !== "string") {
