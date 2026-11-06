@@ -570,11 +570,19 @@ export async function proxyComfy(request: Request, fetchImpl: typeof fetch = fet
   if (route.kind === "deny") return new Response("Partage Comfy refusé.", { status: 404, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
   if (!METHODS.has(request.method)) return new Response("Méthode refusée.", { status: 405, headers: { "allow": [...METHODS].join(", ") } });
 
+  // Diagnostics for the shared submission path. Never log payloads, prompts or credentials.
+  const promptSubmission = target.pathname === "/api/prompt" && request.method === "POST";
+  const submissionId = promptSubmission ? crypto.randomUUID() : null;
+  const tracePrompt = (stage: string, status: number, auth: string = "unknown") => {
+    if (submissionId) console.info("[comfy-prompt]", JSON.stringify({ id: submissionId, stage, status, auth }));
+  };
+
   // Never turn a cross-site browser POST into a trusted cloud-origin mutation.
   // API clients without browser Origin remain supported; upstream auth still applies.
   if (target.pathname.startsWith('/api/') && !['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
     const origin = request.headers.get('origin');
     if ((origin && origin !== target.origin) || request.headers.get('sec-fetch-site') === 'cross-site') {
+      tracePrompt('origin_gate', 403);
       return new Response('Origine refusée.', { status: 403, headers: { 'cache-control': 'no-store' } });
     }
   }
@@ -598,6 +606,7 @@ export async function proxyComfy(request: Request, fetchImpl: typeof fetch = fet
     if (rewritten) headers.set("referer", rewritten);
   }
 
+  const promptAuth = headers.has('x-api-key') ? 'key' : headers.has('authorization') ? 'bearer' : headers.has('cookie') ? 'cookie' : 'none';
   const hasBody = request.method !== "GET" && request.method !== "HEAD";
   let upstream: Response;
   try {
@@ -609,8 +618,10 @@ export async function proxyComfy(request: Request, fetchImpl: typeof fetch = fet
       ...(hasBody ? { duplex: "half" } : {}),
     } as RequestInit);
   } catch {
+    tracePrompt("upstream_network", 502, promptAuth);
     return new Response("Comfy est injoignable.", { status: 502, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
   }
+  tracePrompt('upstream_response', upstream.status, promptAuth);
   return await recoverViewMiss(request, upstream, route.upstream, headers, target.origin, fetchImpl)
     ?? await streamStorageRedirect(request, upstream, target.origin, fetchImpl)
     ?? toClientResponse(upstream, target.origin);
