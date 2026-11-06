@@ -56,7 +56,7 @@ export function failKind(error: unknown): FailKind {
 export function failView(error: unknown): FailView {
   const kind = failKind(error);
   if (kind === "auth") return { kind, message: AUTH_MSG, intact: false, reconnect: true, retry: false };
-  if (kind === "credits") return { kind, message: CREDITS_MSG, intact: false, reconnect: false, retry: false };
+  if (kind === "credits") return { kind, message: error instanceof RenderError && /HTTP 402|Comfy signale/.test(error.message) ? error.message : CREDITS_MSG, intact: false, reconnect: false, retry: false };
   if (kind === "subscription") return { kind, message: SUB_MSG, intact: false, reconnect: false, retry: true };
   if (kind === "network") return { kind, message: NETWORK_MSG, intact: false, reconnect: false, retry: true };
   if (kind === "pending") return { kind, message: PENDING_MSG, intact: false, reconnect: false, retry: true };
@@ -70,7 +70,8 @@ export function failView(error: unknown): FailView {
   if (kind === "cloud") {
     const raw = error instanceof RenderError && error.detail[0] ? sanitizeDetail(String(error.detail[0])) : "";
     const detail = raw ? ` ${raw}` : "";
-    return { kind, message: `${CLOUD_MSG}${detail}`, intact: true, reconnect: false, retry: true };
+    const provider402 = error instanceof RenderError && /^Comfy a refusé la requête \(HTTP 402/.test(error.message);
+    return { kind, message: provider402 ? error.message : `${CLOUD_MSG}${detail}`, intact: !provider402, reconnect: false, retry: !provider402 };
   }
   const raw = error instanceof Error && error.message ? error.message : "";
   const cleaned = sanitizeDetail(raw);
