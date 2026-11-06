@@ -121,6 +121,17 @@ describe('parcours de production : données et reprise', () => {
     assert.equal(await reconcilePendingReceipt(disk, liveClient), 'none');
   });
 
+  it('shows sanitized Comfy HTTP 402 cause instead of generic cloud or false credits', () => {
+    const classified = failView(new RenderError('failed', 'Comfy a refusé la requête (HTTP 402, type : billing_account_mismatch). Ce n\'est pas un solde insuffisant confirmé.'));
+    assert.equal(classified.kind, 'cloud');
+    assert.match(classified.message, /billing_account_mismatch/);
+    assert.doesNotMatch(classified.message, /Le rendu a échoué dans le cloud/);
+    assert.equal(classified.retry, false);
+    const unknown = failView(new RenderError('credits', 'Comfy a refusé la requête (HTTP 402). La cause exacte n\'a pas été transmise ; un manque de crédits n\'est pas confirmé.'));
+    assert.match(unknown.message, /cause exacte/);
+    assert.doesNotMatch(unknown.message, /Crédits insuffisants/);
+  });
+
   it('failView maps auth, cloud, pending and network to distinct visitor actions', () => {
     const auth = failView(new RenderError('auth', 'gone'));
     assert.equal(auth.kind, 'auth');
