@@ -24,11 +24,14 @@ async function mockChat(page: Page, replies: Reply[]) {
 }
 async function openPanel(page: Page) {
   await page.goto("/studio/legacy");
-  // Click the node once it is in the document. A hit-test click can miss it under the dev overlay,
-  // and an immediate evaluate click can run before hydration.
-  const button = page.locator("[data-top-uttu], [data-chain-uttu]").first();
-  await button.waitFor({ state: "attached" });
-  await button.evaluate((node: HTMLElement) => node.click());
+  // The button is painted before React listens. A click in that gap does nothing, so the
+  // panel stays out of the document. Wait for React, then click the node itself.
+  await page.waitForFunction(() => [...document.querySelectorAll("[data-top-uttu], [data-chain-uttu]")].some(node => Object.keys(node).some(key => key.startsWith("__reactProps"))));
+  await page.evaluate(() => {
+    const nodes = [...document.querySelectorAll<HTMLElement>("[data-top-uttu], [data-chain-uttu]")];
+    const visible = nodes.find(node => node.offsetParent !== null) ?? nodes[0];
+    visible?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+  });
   const panel = page.locator("[data-assistant-panel]");
   await expect(panel).toBeVisible();
   return panel;
