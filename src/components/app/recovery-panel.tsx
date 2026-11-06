@@ -45,9 +45,9 @@ export function RecoveryPanel() {
       <p id="recovery-identify-why" className="u-small">{t("recovery.invalid")}</p>
       <div className="u-field">
         <p><strong>Débloquer les outils sans identifiant</strong></p>
-        <p className="u-small">Après vérification de ton historique Comfy, tu peux archiver ce reçu incertain et reprendre les générations. Le reçu reste conservé sur cet appareil ; cette action n'annule aucun rendu ni aucune facturation Comfy.</p>
+        <p id="recovery-archive-why" className="u-small">Après vérification de ton historique Comfy, tu peux archiver ce reçu incertain et reprendre les générations. Le reçu reste conservé sur cet appareil ; cette action n'annule aucun rendu ni aucune facturation Comfy.</p>
         <label className="u-toggle"><input type="checkbox" checked={archiveConfirmed} onChange={event => setArchiveConfirmed(event.target.checked)} /><span>J'ai vérifié mon historique Comfy et j'accepte le risque d'une génération déjà facturée.</span></label>
-        <button type="button" className="u-secondary" disabled={creating || !archiveConfirmed} onClick={() => {
+        <button type="button" className="u-secondary" disabled={creating || !archiveConfirmed} aria-describedby="recovery-archive-why u-recovery-why" onClick={() => {
           setError("");
           void archiveUnresolvedPending(archiveConfirmed).then(problem => {
             if (problem) setError(problem);
