@@ -254,7 +254,31 @@ export function createRenderClient(options: RenderClientOptions) {
       throw new RenderError("network", "Le compte de rendu ne répond pas.");
     }
     if (response.status === 401 || response.status === 403) throw new RenderError("auth", "Le compte de rendu refuse la connexion. Reconnecte-toi.");
-    if (response.status === 402) throw new RenderError("credits", "Crédits insuffisants sur ton compte de rendu.");
+    if (response.status === 402) {
+      // A 402 from the relay is not proof that the user's visible balance is empty.
+      // Preserve only a short provider error classification; never echo arbitrary
+      // response text (it may contain credentials, prompts or upstream internals).
+      let providerType = response.headers.get("x-comfy-error-type") ?? "";
+      if (!providerType) {
+        try {
+          const payload: unknown = await response.clone().json();
+          if (payload && typeof payload === "object") {
+            const row = payload as Record<string, unknown>;
+            const nested = row.error && typeof row.error === "object" ? row.error as Record<string, unknown> : null;
+            const candidate = row.error_type ?? row.code ?? nested?.type ?? nested?.code;
+            if (typeof candidate === "string") providerType = candidate;
+          }
+        } catch { /* An unreadable error body must not hide the HTTP status. */ }
+      }
+      const safeType = /^[a-z][a-z0-9_-]{0,63}$/i.test(providerType) ? providerType.toLowerCase() : "";
+      const insufficient = safeType === "insufficient_credits" || safeType === "insufficient_balance";
+      if (safeType && !insufficient) {
+        throw new RenderError("failed", `Comfy a refusé la requête (HTTP 402, type : ${safeType}). Ce n'est pas un solde insuffisant confirmé.`);
+      }
+      throw new RenderError("credits", safeType
+        ? "Comfy signale un solde insuffisant pour cette requête. Vérifie que le compte de rendu connecté est celui qui affiche tes crédits."
+        : "Comfy a refusé la requête (HTTP 402). La cause exacte n'a pas été transmise ; un manque de crédits n'est pas confirmé.");
+    }
     if (response.status === 429) throw new RenderError("subscription", "Ton abonnement de rendu est inactif, ou la file est pleine.");
     return response;
   }
