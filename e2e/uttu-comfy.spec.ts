@@ -24,11 +24,11 @@ async function mockChat(page: Page, replies: Reply[]) {
 }
 async function openPanel(page: Page) {
   await page.goto("/studio/legacy");
-  // The control can sit under the dev overlay on a narrow window. Click the node itself.
-  await page.evaluate(() => {
-    const button = document.querySelector<HTMLElement>("[data-top-uttu], [data-chain-uttu]");
-    button?.click();
-  });
+  // Click the node once it is in the document. A hit-test click can miss it under the dev overlay,
+  // and an immediate evaluate click can run before hydration.
+  const button = page.locator("[data-top-uttu], [data-chain-uttu]").first();
+  await button.waitFor({ state: "attached" });
+  await button.evaluate((node: HTMLElement) => node.click());
   const panel = page.locator("[data-assistant-panel]");
   await expect(panel).toBeVisible();
   return panel;

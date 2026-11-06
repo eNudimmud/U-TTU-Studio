@@ -17,6 +17,19 @@ function withBase(basePath: string, pathAndQuery: string): string {
   return basePath ? `${basePath}${pathAndQuery}` : pathAndQuery;
 }
 
+/**
+ * A page load, as opposed to a fetch, an image or a frame. Browsers say so with Sec-Fetch-Dest.
+ * Without it (curl, link checkers, crawlers, older browsers), only a request that clearly wants
+ * something other than a page passes: Accept `*\/*` or no Accept is a page too.
+ */
+export function isDocumentRequest(headers: Headers): boolean {
+  const dest = headers.get("sec-fetch-dest");
+  if (dest) return dest === "document";
+  if (headers.has("x-requested-with")) return false;
+  const accept = (headers.get("accept") ?? "").trim().toLowerCase();
+  return accept === "" || accept.includes("text/html") || accept.includes("*/*");
+}
+
 /** Null when the request is not concerned. Never a redirect to the same host, never a loop. */
 export function studioOriginGate(request: Request, options: { basePath?: string; config?: StudioOriginConfig } = {}): Response | null {
   const basePath = options.basePath ?? process.env.NEXT_PUBLIC_BASE_PATH ?? "";
@@ -27,8 +40,7 @@ export function studioOriginGate(request: Request, options: { basePath?: string;
   const headers = request.headers;
   const cookies = headers.get("cookie");
   const explicit = cookieValue(cookies, LOCALE_COOKIE);
-  const dest = headers.get("sec-fetch-dest");
-  const isDocument = dest ? dest === "document" : (headers.get("accept") ?? "").includes("text/html");
+  const isDocument = isDocumentRequest(headers);
   const decision = gateDecision({
     url,
     host: headers.get("x-forwarded-host") ?? headers.get("host") ?? raw.host,

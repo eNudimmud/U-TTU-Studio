@@ -32,7 +32,7 @@ test('agent: project → CAST → DÉCOR → plans → PRISE in the film → reo
  // The take is shot in the film's plans, with its own quote and confirmation (film2-* specs).
  await prepare(page,'local:take');
  await expect(page).toHaveURL(/#prise/);await expect(page.locator('[data-film-plans]')).toBeVisible();
- await page.reload();panel=await assistant(page);await expect(panel.locator('[data-agent-step][data-state=done]')).toHaveCount(3);
+ await expect(async()=>{ await page.reload({ waitUntil: 'domcontentloaded' }); }).toPass({ timeout: 30000 });panel=await assistant(page);await expect(panel.locator('[data-agent-step][data-state=done]')).toHaveCount(3);
  await expect(panel.locator('[data-assistant-input]')).toBeVisible();
  expect(cloud.prompts).toHaveLength(0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
