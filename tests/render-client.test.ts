@@ -96,6 +96,21 @@ describe("client du compte de rendu", () => {
     assert.equal(prompt?.headers.get("authorization"), "Bearer firebase-id-token");
   });
 
+  it("uses exactly one refreshed session token for both HTTP and partner-node payload", async () => {
+    let reads = 0;
+    const { calls, fetchImpl } = fakeCloud(call =>
+      call.url === "/api/prompt" ? json({ prompt_id: "job-consistent", number: 1, node_errors: {} }) : undefined);
+    const client = createRenderClient({
+      auth: { kind: "session", token: async () => `firebase-token-${++reads}` },
+      fetch: fetchImpl,
+    });
+    assert.equal(await client.submit({ save: { class_type: "SaveImage", inputs: {} } }, "client-consistent"), "job-consistent");
+    assert.equal(reads, 1, "do not refresh between extra_data and Authorization");
+    const call = calls.find(item => item.url === "/api/prompt");
+    assert.equal(call?.headers.get("authorization"), "Bearer firebase-token-1");
+    assert.equal(JSON.parse(String(call?.body)).extra_data.auth_token_comfy_org, "firebase-token-1");
+  });
+
   it("turns refusals into plain reasons, node by node", async () => {
     const statuses: Record<string, Response> = {};
     const { fetchImpl } = fakeCloud(call => statuses[call.url]);
