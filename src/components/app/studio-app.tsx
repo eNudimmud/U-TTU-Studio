@@ -28,13 +28,13 @@ function stageOf(tab: Tab): Stage {
   return tab === "scene" || tab === "prise" || tab === "montage" || tab === "finaliser" || tab === "outils" ? tab : "lora";
 }
 
-export function StudioApp({ initialTab = null }: { initialTab?: Tab | null }) {
-  return <StudioProvider><AppFrame initialTab={initialTab ?? null} /></StudioProvider>;
+export function StudioApp({ initialTab = null, workspaceEntry = false }: { initialTab?: Tab | null; workspaceEntry?: boolean }) {
+  return <StudioProvider><AppFrame initialTab={initialTab ?? null} workspaceEntry={workspaceEntry} /></StudioProvider>;
 }
 
 const TYPING = "textarea, select, input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=button]):not([type=submit]):not([type=reset]):not([type=color]):not([type=hidden])";
 
-function AppFrame({ initialTab }: { initialTab: Tab | null }) {
+function AppFrame({ initialTab, workspaceEntry }: { initialTab: Tab | null; workspaceEntry: boolean }) {
   const studio = useStudio();
   const { say } = useI18n();
   const { ready, sheet, notice, setNotice } = studio;
@@ -166,7 +166,7 @@ function AppFrame({ initialTab }: { initialTab: Tab | null }) {
       {/* F14 · The home (title, bar, the film door with the LCP picture) is in the server HTML and does
           not wait for the local studio. A stage or a tool still opens behind the splash. Same slot before
           and after ready, so the home is never mounted twice. */}
-      {section === "outils" && (ready || !outil) ? <OutilsHub tool={outil} early={!ready} />
+      {section === "outils" && (ready || !outil) ? <>{workspaceEntry && !outil && <nav aria-label="Espaces du studio" style={{display:"flex", flexWrap:"wrap", gap:12, padding:"16px 20px"}}><a className="u-secondary" href={assetPath("/studio#outils/tous")}>Tous les outils</a><button type="button" className="u-secondary" onClick={() => toggleAssistant(true)}>Uttu Agent</button><a className="u-secondary" href={assetPath("/mon-studio")}>Mes créations</a><a className="u-secondary" href={assetPath("/studio/cinema/cast")}>CINEMA</a><a className="u-secondary" href={assetPath("/studio/anime/cast")}>ANIME</a></nav>}<OutilsHub tool={outil} early={!ready} /></>
         : !ready ? <StudioSplash />
         : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
         : section === "prise" ? <FilmPlans goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
