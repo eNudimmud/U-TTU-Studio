@@ -621,6 +621,22 @@ export async function proxyComfy(request: Request, fetchImpl: typeof fetch = fet
     tracePrompt("upstream_network", 502, promptAuth);
     return new Response("Comfy est injoignable.", { status: 502, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
   }
+  if (promptSubmission && upstream.status === 402) {
+    // Read a clone: the original response still reaches the browser unchanged.
+    // Log only an allowlisted provider error code; never raw messages, payloads or credentials.
+    let reason = "unclassified";
+    try {
+      const body: unknown = await upstream.clone().json();
+      if (body && typeof body === "object" && !Array.isArray(body)) {
+        const row = body as Record<string, unknown>;
+        const nested = row.error && typeof row.error === "object" && !Array.isArray(row.error)
+          ? row.error as Record<string, unknown> : null;
+        const candidate = row.error_type ?? row.code ?? nested?.type ?? nested?.code;
+        if (typeof candidate === "string" && /^[a-z][a-z0-9_-]{0,63}$/i.test(candidate)) reason = candidate.toLowerCase();
+      }
+    } catch { /* Keep an unclassified reason when the provider sends no JSON. */ }
+    console.info("[comfy-prompt-402]", JSON.stringify({ id: submissionId, reason }));
+  }
   tracePrompt('upstream_response', upstream.status, promptAuth);
   return await recoverViewMiss(request, upstream, route.upstream, headers, target.origin, fetchImpl)
     ?? await streamStorageRedirect(request, upstream, target.origin, fetchImpl)
