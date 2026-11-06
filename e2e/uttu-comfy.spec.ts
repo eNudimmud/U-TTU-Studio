@@ -24,10 +24,13 @@ async function mockChat(page: Page, replies: Reply[]) {
 }
 async function openPanel(page: Page) {
   await page.goto("/studio");
-  // The control can sit under the dev overlay on a narrow window. Click the node itself.
+  // The button is painted before React listens. A click in that gap does nothing, so the
+  // panel stays out of the document. Wait for React, then click the node itself.
+  await page.waitForFunction(() => [...document.querySelectorAll("[data-top-uttu], [data-chain-uttu]")].some(node => Object.keys(node).some(key => key.startsWith("__reactProps"))));
   await page.evaluate(() => {
-    const button = document.querySelector<HTMLElement>("[data-top-uttu], [data-chain-uttu]");
-    button?.click();
+    const nodes = [...document.querySelectorAll<HTMLElement>("[data-top-uttu], [data-chain-uttu]")];
+    const visible = nodes.find(node => node.offsetParent !== null) ?? nodes[0];
+    visible?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
   });
   const panel = page.locator("[data-assistant-panel]");
   await expect(panel).toBeVisible();
