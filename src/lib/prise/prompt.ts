@@ -4,6 +4,7 @@
 import { ACTION_EXAMPLES, ACTION_STILL, type Cadrage, type CameraMove } from "./copy.ts";
 import { GRAPH, type Decision, type PlanInput } from "./decision.ts";
 import { cameraChoice } from "./camera-words.ts";
+import { cameraTravel } from "./camera-travel.ts";
 
 const CADRAGE_EN: Record<Cadrage, string> = {
   large: "wide shot, full figure",
@@ -94,13 +95,14 @@ export function buildPrompt(plan: PlanInput, decision: Pick<Decision, "graph" | 
   // The user's camera words win; "static, locked-off" is never added on their behalf.
   const chosen = cameraChoice(plan.action, plan.camera);
   const camera = extra?.camera === undefined ? plan.manualCamera ? { ...chosen, move: plan.camera } : chosen : { ...chosen, move: extra.camera };
+  const metres = camera.move ? cameraTravel(plan.action).meters : null;
   const lines = [
     `[références]  ${refs.join(", ") || "aucune"}`,
     `[cadrage]     ${CADRAGE_EN[plan.cadrage]}, ${plan.format}.`,
     plan.angle ? `[angle]       ${{ niveau: "eye level", plongee: "high angle", "contre-plongee": "low angle" }[plan.angle]}.` : "",
     plan.cameraPosition?.trim() ? `[position]    ${plan.cameraPosition.trim()}.` : "",
     placeLine ? `[lieu]        ${placeLine}` : "",
-    camera.move ? `[caméra]      ${CAMERA_EN[camera.move]}.` : "",
+    camera.move ? `[caméra]      ${CAMERA_EN[camera.move]}${metres !== null ? `, about ${metres} m` : ""}.` : "",
     `[timeline]    [0s-${setupLabel}s] ${who} stands still and breathes.`,
     `              [${setupLabel}s-${plan.duree}s] ${who} ${actionEn(plan.action)}.`,
   ];
