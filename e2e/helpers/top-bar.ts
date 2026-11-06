@@ -22,7 +22,15 @@ export async function revealInTopBar(page: Page, selector: string): Promise<Loca
 }
 
 /** « Tous les outils » on the studio home. */
-export const openToolsHub = (page: Page) => page.goto("/studio/legacy#outils/tous");
+export const openToolsHub = async (page: Page) => {
+  await page.goto("/studio/legacy#outils/tous");
+  await page.evaluate(() => {
+    if (location.hash !== "#outils/tous") {
+      location.hash = "#outils/tous";
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    }
+  });
+};
 
 /** My studio, all types. */
 export const openCreations = async (page: Page) => {

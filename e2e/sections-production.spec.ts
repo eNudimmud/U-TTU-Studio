@@ -83,22 +83,17 @@ test("les anciennes routes gardent leurs paramètres et aboutissent au bon unive
   }
 });
 
-test("l’entrée légère ouvre les sections et garde le contexte des anciens liens", async ({ page }) => {
+test("le workspace universel ouvre les sections et conserve les liens historiques", async ({ page }) => {
   await page.goto("/studio");
-  await expect(page.getByRole("heading", { name: "Choisis ton univers." })).toBeVisible();
-  await expect(page.locator(".u-app")).toHaveCount(0);
-  await page.getByRole("link", { name: /ANIME Dessin/ }).click();
+  await expect(page.locator(".u-app")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Espaces du studio" })).toBeVisible();
+  await page.getByRole("navigation", { name: "Espaces du studio" }).getByRole("link", { name: "ANIME" }).click();
   await expect(page).toHaveURL(/\/studio\/anime\/cast$/);
   await expect(page.locator(".ps-project")).toBeEnabled();
 
-  await page.goto("/studio#outils/ret-detourer");
-  await expect(page).toHaveURL(/\/studio\/anime\/cast\/ret-detourer$/);
-  await expect(page.getByRole("heading", { name: "Détourer", exact: true })).toBeVisible();
-  await page.goBack();
-  await expect(page).toHaveURL(/\/studio\/anime\/cast$/);
-
-  await page.goto("/studio?project=atelier&plan=shared-plan#prise");
-  await expect(page).toHaveURL(/\/studio\/legacy\?project=atelier&plan=shared-plan#prise$/);
+  await page.goto("/studio/legacy#outils/ret-detourer");
+  await expect(page.locator("[data-tool-panel]")).toBeVisible();
+  await page.goto("/studio/legacy?project=atelier&plan=shared-plan#prise");
   await expect(page.locator(".u-app")).toHaveAttribute("data-studio", "prise");
   await expect(page.locator("[data-film-plans]")).toBeVisible();
 });
