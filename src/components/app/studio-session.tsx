@@ -191,6 +191,7 @@ export interface StudioSession {
   /** A render sent earlier (this tab or a closed one) that the studio follows by itself until its file is saved. */
   pendingWatch: PendingWatch | null;
   identifyPendingJob(jobId: string, confirmed: boolean): Promise<string | null>;
+  archiveUnresolvedPending(confirmed: boolean): Promise<string | null>;
   refreshBalance(): Promise<Balance | null>;
   connectKey(raw: string): Promise<string | null>;
   sessionLinked(): Promise<boolean>;
@@ -1884,6 +1885,37 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     } finally { paidBusy.current = false; setCreating(false); }
   }, [client, completePending, fingerprint, t]);
 
+  const archiveUnresolvedPending = useCallback(async (confirmed: boolean): Promise<string | null> => {
+    if (!confirmed) return "Confirme d'abord que tu as vérifié l'historique Comfy.";
+    if (paidBusy.current || following.current || !navigator.locks) return "Une opération est déjà en cours.";
+    paidBusy.current = true;
+    setCreating(true);
+    try {
+      await navigator.locks.request("uttu-paid-render", { ifAvailable: true }, async lock => {
+        if (!lock) throw new Error("Un rendu est déjà suivi dans un autre onglet.");
+        const receipt = readPending(localStorage);
+        if (!receipt || receipt.jobId) throw new Error("Seuls les envois sans identifiant peuvent être archivés ici.");
+        // Preserve the complete receipt, including its account fingerprint, for later investigation.
+        const key = "u-ttu-unresolved-receipts";
+        const raw = localStorage.getItem(key);
+        const old: unknown = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(old)) throw new Error("L'archive locale est illisible.");
+        localStorage.setItem(key, JSON.stringify([...old, { ...receipt, archivedAt: new Date().toISOString() }]));
+        localStorage.removeItem("u-ttu-operation");
+        // Legacy in-flight receipt can independently block new sends.
+        if (readInFlight(localStorage)) saveInFlight(localStorage, null);
+        setPendingWatch(null);
+      });
+      setNotice("Reçu incertain archivé sur cet appareil. Le rendu n'a pas été annulé chez Comfy ; un nouvel envoi pourra être facturé.");
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : "Archivage impossible.";
+    } finally {
+      paidBusy.current = false;
+      setCreating(false);
+    }
+  }, []);
+
   const resumeRun = useCallback(() => {
     if (!client || paidBusy.current || following.current) return;
     paidBusy.current = true;
@@ -2615,7 +2647,7 @@ export function StudioProvider({ children, demo = false }: { children: ReactNode
     animeLook, confirmLook,
     ready, demo: demoOn, studio: current, media, cast, decor, references, saveReference, deleteReference, markCreation, storeCreationInput, pickedCast, pickedDecor, line, setLine, notice, setNotice, sheet, setSheet,
     connected, balance, balanceNote, takeQuote, gate, settings, run, creating, folderMode, folderName,
-    pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, pendingWatch, identifyPendingJob, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
+    pendingTake, runOrigin, requestRun, confirmRun: () => paid(confirmRun, undefined), cancelRun, resetRun, resumeRun, pendingWatch, identifyPendingJob, archiveUnresolvedPending, refreshBalance, connectKey, sessionLinked, disconnect, agentAuth, linkMode: link.mode,
     loose, createCast: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.cast" }, () => paid(() => createCast(input), false), ok => ({ ok })), createDecor: input => tracked({ project: current.project ?? undefined, tool: null, label: "taches.decor" }, () => paid(() => createDecor(input), false), ok => ({ ok })), createStem: input => paid(() => createStem(input), null), finaliseMontage: input => paid(() => finaliseMontage(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runVideoGeste: input => paid(() => runVideoGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runMeshGeste: input => paid(() => runMeshGeste(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), runSuite: input => tracked({ project: current.project ?? undefined, tool: outilParGeste(input.geste)?.id ?? null, label: outilParGeste(input.geste) ? `outils.t.${outilParGeste(input.geste)!.id}.title` : "taches.tool" }, () => paid(() => runSuite(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), runOutil: input => tracked({ project: current.project ?? undefined, tool: input.outil, label: `outils.t.${input.outil}.title` }, () => paid(() => runOutil(input), { ok: false, message: t("recovery.blocked"), kind: "pending" as const, intact: false, reconnect: false, retry: true } as FinaliseOutcome), judgeOutcome), renameCast, renameDecor, duplicateCast, duplicateDecor, deleteCast, deleteDecor, deleteAsset, copyCastTo,
     pickCast, pickDecor, poseTake, loadMontages, saveMontage, exportCoffre, importCoffre, importFiles, importAssets, refreshStudio,
     pendingRef, holdRef: setPendingRef, pendingClip, holdClip: setPendingClip, copyDecorTo,
