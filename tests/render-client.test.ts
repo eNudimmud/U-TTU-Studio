@@ -104,6 +104,18 @@ describe("client du compte de rendu", () => {
     await assert.rejects(() => client.submit({}, "c"), (error: unknown) => error instanceof RenderError && error.code === "invalid" && error.detail.includes("MiniMaxH3ReferenceToVideo : Required input is missing"));
     statuses["/api/prompt"] = new Response("{}", { status: 402 });
     await assert.rejects(() => client.submit({}, "c"), (error: unknown) => error instanceof RenderError && error.code === "credits");
+    statuses["/api/prompt"] = json({ error_type: "billing_account_mismatch" }, 402);
+    await assert.rejects(() => client.submit({}, "c"), (error: unknown) =>
+      error instanceof RenderError && error.code === "failed" && error.message.includes("billing_account_mismatch") && !error.message.includes("Crédits insuffisants"));
+    statuses["/api/prompt"] = json({ error_type: "insufficient_credits" }, 402);
+    await assert.rejects(() => client.submit({}, "c"), (error: unknown) =>
+      error instanceof RenderError && error.code === "credits" && error.message.includes("Comfy signale"));
+    statuses["/api/prompt"] = new Response("{}", { status: 402, headers: { "x-comfy-error-type": "payment_required" } });
+    await assert.rejects(() => client.submit({}, "c"), (error: unknown) =>
+      error instanceof RenderError && error.code === "failed" && error.message.includes("payment_required"));
+    statuses["/api/prompt"] = json({ error_type: "secret=token-sensitive" }, 402);
+    await assert.rejects(() => client.submit({}, "c"), (error: unknown) =>
+      error instanceof RenderError && !error.message.includes("token-sensitive"));
     statuses["/api/prompt"] = new Response("{}", { status: 429 });
     await assert.rejects(() => client.submit({}, "c"), (error: unknown) => error instanceof RenderError && error.code === "subscription");
     statuses["/api/user"] = new Response("{}", { status: 401 });
