@@ -28,7 +28,7 @@ describe("accueil", () => {
     // The step links live in the copy since the 3 Nov pass, home.tsx only renders them.
     assert.match(readFileSync("src/lib/landing/page-copy.ts", "utf8"), /#personnage[\s\S]*#scene[\s\S]*#prise[\s\S]*#montage[\s\S]*#finaliser/);
     assert.match(home, /vid-h3-refs|vid-multi|vid-fasth3|vid-animer/);
-    assert.match(home, /OPEN_WEIGHTS_MODE \? copy\.partnerHidden : copy\.partnerOn/);
+    assert.doesNotMatch(home, /<section id="models">|<section id="costs">|copy\.licenceNote|copy\.partnerList|copy\.costs\.map/);
     assert.match(home, /<PoweredBy className="hv-badge" \/>/);
     assert.match(home, /LanguageSwitcher/);
     assert.doesNotMatch(`${page}\n${home}`, JARGON);
