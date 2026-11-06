@@ -16,7 +16,7 @@ test("Genjutsu natif : références, devis, confirmation, vidéo et Mes créatio
   await page.route(/\/api\/prompt$/,route=>{graphs.push(route.request().postDataJSON().prompt);return route.fallback();});
   await page.route(/\/api\/upload\/image$/,route=>{uploads++;return route.fallback();});
   await page.route(/\/api\/(queue|interrupt)$/,route=>{cancels++;return route.fulfill({json:{}});});
-  await page.goto("/studio#outils/tous");
+  await page.goto("/studio/legacy#outils/tous");
   await page.locator("[data-outils-search]").fill("genjutsu");
   const card=page.locator('[data-outils-section="video"] [data-outil="vid-genjutsu"]');
   await expect(card).toHaveCount(1);
@@ -87,7 +87,7 @@ test("Genjutsu natif : références, devis, confirmation, vidéo et Mes créatio
 test("Genjutsu : une source sous 4 s ne peut déclencher aucun envoi", async ({ page }) => {
   await simulateComfy(page);let posts=0;
   page.on("request",r=>{if(r.method()==="POST"&&/\/api\/(upload|prompt)/.test(r.url()))posts++;});
-  await page.goto("/studio#outils/vid-genjutsu");
+  await page.goto("/studio/legacy#outils/vid-genjutsu");
   const panel=page.locator('[data-tool-panel="vid-genjutsu"]');
   await panel.locator('[data-outil-input="video"] input[type=file]').setInputFiles("e2e/fixtures/genjutsu-3s.mp4");
   await panel.locator('[data-outil-sample="image"]').tap();
@@ -102,9 +102,9 @@ test("Genjutsu : le filtre des modèles s'applique aussi à l'accès direct", as
   await simulateComfy(page);let posts=0;
   await page.addInitScript(()=>localStorage.setItem("u-ttu-moteurs",JSON.stringify({openWeightsOnly:true,nanoBanana:false,engine:"ltx",engineManual:false})));
   page.on("request",r=>{if(r.method()==="POST"&&/\/api\/(upload|prompt)/.test(r.url()))posts++;});
-  await page.goto("/studio#outils/tous");
+  await page.goto("/studio/legacy#outils/tous");
   await expect(page.locator('[data-outil="vid-genjutsu"]')).toHaveCount(0);
-  await page.goto("/studio#outils/vid-genjutsu");
+  await page.goto("/studio/legacy#outils/vid-genjutsu");
   const panel=page.locator('[data-tool-panel="vid-genjutsu"]');
   await panel.locator("[data-tool-go]").tap();
   await expect(panel.locator("[data-tool-why]")).toBeVisible();

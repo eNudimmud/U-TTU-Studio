@@ -6,7 +6,7 @@ import { NOMBRE_OUTILS, OUTILS_HORS_CATALOGUE } from "../src/lib/outils/nombre";
 // recent tasks, the docked assistant, and the tool switch card. All local, nothing is sent.
 
 test("barre du haut : Créer → outil, recherche Ctrl+K, assistant qui suit la navigation", async ({ page }) => {
-  await page.goto("/studio#personnage");
+  await page.goto("/studio/legacy#personnage");
   await expect(page.locator("[data-topbar]")).toBeVisible();
   await openToolsHub(page);
   await expect(page).toHaveURL(/#outils\/tous$/);
@@ -35,9 +35,9 @@ test("barre du haut : Créer → outil, recherche Ctrl+K, assistant qui suit la 
 });
 
 test("carte d'outil : récents et « Voir tous les outils » sans quitter le panneau", async ({ page }) => {
-  await page.goto("/studio#outils/img-qwen");
+  await page.goto("/studio/legacy#outils/img-qwen");
   await expect(page.locator("[data-tool-panel=img-qwen]")).toBeVisible();
-  await page.goto("/studio#outils/ret-modifier");
+  await page.goto("/studio/legacy#outils/ret-modifier");
   const panel = page.locator("[data-tool-panel=ret-modifier]");
   await expect(panel).toBeVisible();
   await panel.locator("[data-tool-switch] > button").click();
@@ -50,7 +50,7 @@ test("carte d'outil : récents et « Voir tous les outils » sans quitter le pan
 });
 
 test("sélecteur de projet : créer un projet en un geste, il devient le projet en cours", async ({ page }) => {
-  await page.goto("/studio#personnage");
+  await page.goto("/studio/legacy#personnage");
   let switcher = page.locator("[data-project-switcher]").filter({ visible: true }).first();
   await expect(async () => {
     switcher = await revealInTopBar(page, "[data-project-switcher]");

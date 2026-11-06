@@ -56,15 +56,15 @@ export function outilFromHash(hash: string): string | null {
 }
 
 function openTool(id: string | null) {
-  if (window.location.pathname.endsWith("/studio")) openStudioTool(id);
-  else window.location.href = assetPath(`/studio${id ? `#outils/${id}` : "#outils"}`);
+  if (window.location.pathname.endsWith("/studio/legacy")) openStudioTool(id);
+  else window.location.href = assetPath(`/studio/legacy${id ? `#outils/${id}` : "#outils"}`);
 }
 
 /** « ← Tous les outils » replaces the tool in the history instead of stacking the list on top of it:
  * otherwise the phone's Back button reopened the tool the visitor had just left (a loop). */
 function backToTools(id: string | null) {
-  if (window.location.pathname.endsWith("/studio")) openStudioTool(id, { replace: true });
-  else window.location.replace(assetPath(`/studio${id ? `#outils/${id}` : "#outils"}`));
+  if (window.location.pathname.endsWith("/studio/legacy")) openStudioTool(id, { replace: true });
+  else window.location.replace(assetPath(`/studio/legacy${id ? `#outils/${id}` : "#outils"}`));
 }
 
 function titreCarte(t: (key: string) => string, id: string) {

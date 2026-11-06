@@ -47,7 +47,7 @@ export function ProjectChain({
   const section: StudioSectionId = anime ? "anime" : "cinema";
   const go = (id: (typeof CHAIN)[number]["id"]) => {
     if (onStep) { onStep(id); return; }
-    window.location.assign(assetPath(`/studio#${TAB_HASH[id]}`));
+    window.location.assign(assetPath(`/studio/legacy#${TAB_HASH[id]}`));
   };
   return <nav className="u-chain u-steps" aria-label={t("nav.chain")} data-film-nav="">
     <a className="u-step-mini" href={assetPath("/")} aria-label={t("landing.home")}><BrandMark desktop={56} /></a>

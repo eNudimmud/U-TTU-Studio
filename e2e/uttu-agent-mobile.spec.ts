@@ -17,7 +17,7 @@ test("Agent Uttu sur Android : réponse locale, plan, frappe conservée, aucun a
     return route.fulfill({ json: { reply: "Uttu est prêt et le quai aussi : passons à la PRISE.", action: { kind: "plan", tool: null, request: "Tourner Uttu sur le quai" }, credits: 0.04, measured: true } });
   });
 
-  await page.goto("/studio");
+  await page.goto("/studio/legacy");
   await page.evaluate(() => document.querySelector<HTMLElement>("[data-top-uttu]")?.click());
   const panel = page.locator("[data-assistant-panel]");
   await expect(panel).toBeVisible();

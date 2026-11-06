@@ -10,7 +10,7 @@ test('agent: project → CAST → DÉCOR → plans → PRISE in the film → reo
  test.setTimeout(240000);
  const cloud=await simulateComfy(page);
  await page.route(/typesafe\.ai|\/studio-agent\/interpret/,r=>r.abort());
- await page.goto('/studio#personnage');
+ await page.goto('/studio/legacy#personnage');
  let panel=await assistant(page);
  const projectName=panel.getByLabel('Nom du projet',{exact:true});
  if(await projectName.isVisible()){await projectName.fill('Agent QA');await panel.getByRole('button',{name:'Créer le projet',exact:true}).click();}

@@ -34,7 +34,7 @@ async function cloud(context: BrowserContext) {
 }
 
 async function sendCast(page: Page, name: string) {
-  await page.goto('/studio#personnage');
+  await page.goto('/studio/legacy#personnage');
   await expect(page.getByRole('heading', { name: 'CAST' })).toBeVisible();
   await page.getByRole('textbox', { name: 'Nom' }).fill(name);
   await page.getByRole('textbox', { name: 'Texte', exact: true }).fill('Une femme de trente ans, manteau rouge, cheveux courts.');

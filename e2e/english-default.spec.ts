@@ -43,7 +43,7 @@ test.describe("English by default", () => {
   test("the studio opens in English for a fresh visitor, examples included", async ({ browser }, info) => {
     const context = await browser.newContext({ locale: "fr-FR", storageState: FRESH, viewport: info.project.use.viewport ?? undefined });
     const page = await context.newPage();
-    await page.goto("/studio");
+    await page.goto("/studio/legacy");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page.locator("h1#u-title")).toHaveText("What are we shooting?");
     await expect(page.locator("[data-entry-film]")).toContainText("Make a film");
@@ -58,7 +58,7 @@ test.describe("English by default", () => {
     const context = await browser.newContext({ locale: "en-US", storageState: FRESH, viewport: info.project.use.viewport ?? undefined });
     await context.addCookies([{ name: "u-ttu-locale", value: "fr", url: baseURL! }]);
     const page = await context.newPage();
-    await page.goto("/studio");
+    await page.goto("/studio/legacy");
     await expect(page.locator("html")).toHaveAttribute("lang", "fr-CH");
     await expect(page.locator("h1#u-title")).toHaveText("Qu’est-ce qu’on tourne ?");
     await context.close();

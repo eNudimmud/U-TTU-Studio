@@ -1,18 +1,18 @@
 import { test, expect } from '@playwright/test';
 import { STORYBOARD_CLOSED } from '../src/app/storyboard/closed';
 
-// F4 · The /studio entry picture is its LCP: preloaded with the HTML at high priority, loaded eagerly,
+// F4 · The /studio/legacy entry picture is its LCP: preloaded with the HTML at high priority, loaded eagerly,
 // and fetched in the width the screen needs (no 1600 px file on a phone, no @2x thumbnails at 1–2×).
-test('/studio preloads its entry picture and serves sized images', async ({ page, request }, info) => {
-  const html = await (await request.get('/studio')).text();
+test('/studio/legacy preloads its entry picture and serves sized images', async ({ page, request }, info) => {
+  const html = await (await request.get('/studio/legacy')).text();
   const link = (html.match(/<link[^>]*decor-quai-nuit[^>]*>/) ?? [''])[0];
   expect(link, 'preload link in the server HTML').toContain('rel="preload"');
   expect(link).toMatch(/fetchPriority="high"|fetchpriority="high"/i);
   expect(link).toMatch(/imageSrcSet="[^"]*640w[^"]*960w/i);
   // A ?step for another stage does not preload it.
-  expect(await (await request.get('/studio?step=prise')).text()).not.toMatch(/<link[^>]*decor-quai-nuit/);
+  expect(await (await request.get('/studio/legacy?step=prise')).text()).not.toMatch(/<link[^>]*decor-quai-nuit/);
 
-  await page.goto('/studio');
+  await page.goto('/studio/legacy');
   const hero = page.locator('[data-entry-hero]');
   await expect(hero).toBeVisible({ timeout: 20_000 });
   await expect(hero).toHaveAttribute('loading', 'eager');
@@ -55,8 +55,8 @@ test("perf/lcp: the storyboard paints from the server HTML, and the studio's car
     expect(board).toMatch(/class="u11-lede"/);
   }
   expect(board).toMatch(/name="theme-color" content="#0f0f11"/);
-  const studio = await (await request.get("/studio")).text();
+  const studio = await (await request.get("/studio/legacy")).text();
   expect(studio).not.toMatch(/<img[^>]*src="[^"]*\/exemples\/vignettes\//);
-  await page.goto("/studio");
+  await page.goto("/studio/legacy");
   await expect(page.locator(".u-outil-thumb img").first()).toHaveAttribute("src", /\/exemples\/vignettes\/[a-z0-9-]+\.webp$/, { timeout: 20_000 });
 });

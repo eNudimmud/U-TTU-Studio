@@ -4,7 +4,7 @@ import { simulateComfy } from "./helpers/simulate-comfy";
 const quai = readFileSync("public/exemples/decor-quai-nuit.webp");
 
 test("bulle : Image par défaut, menu Photos Audio Référence et réglages dans la même saisie", async ({ page }) => {
-  await page.goto("/studio");
+  await page.goto("/studio/legacy");
   const bar=page.locator("[data-barre]");
   await expect(bar).toHaveAttribute("data-mode","image");
   await expect(bar.locator("textarea")).toHaveCount(1);
@@ -25,7 +25,7 @@ test("bulle : Image par défaut, menu Photos Audio Référence et réglages dans
 test("outil Animer : le résultat vidéo part au montage depuis la page outil", async ({ page }) => {
   test.setTimeout(120_000);
   const comfy = await simulateComfy(page);
-  await page.goto("/studio#outils/vid-wan");
+  await page.goto("/studio/legacy#outils/vid-wan");
   const panel = page.locator("[data-tool-panel=vid-wan]");
   await panel.locator("[data-outil-input=image] input[type=file]").setInputFiles({ name: "quai.webp", mimeType: "image/webp", buffer: quai });
   await panel.locator("[data-tool-step=consigne] textarea").fill("La pluie tombe sur le quai");
@@ -39,7 +39,7 @@ test("outil Animer : le résultat vidéo part au montage depuis la page outil", 
   await add.click();
   await expect(result.locator("[data-montage-done]")).toHaveText("Ajouté au montage", { timeout: 20_000 });
   await expect(page).toHaveURL(/#outils\/vid-wan$/);
-  await page.goto("/studio#montage");
+  await page.goto("/studio/legacy#montage");
   const clip = page.locator('[data-fm-track="plans"] [data-fm-clip]');
   await expect(clip).toHaveCount(1, { timeout: 30_000 });
   const seconds = Number(await clip.getAttribute("data-end")) - Number(await clip.getAttribute("data-start"));
@@ -48,7 +48,7 @@ test("outil Animer : le résultat vidéo part au montage depuis la page outil", 
 });
 
 test("bulle : accès direct à l’agent Uttu unique", async ({ page }) => {
-  await page.goto("/studio");
+  await page.goto("/studio/legacy");
   await page.locator("[data-barre-mode=agent]").click();
   await expect(page.locator("[data-assistant-panel]")).toBeVisible();
   await expect(page.locator("[data-fil-agent]")).toHaveCount(0);
@@ -56,10 +56,10 @@ test("bulle : accès direct à l’agent Uttu unique", async ({ page }) => {
 
 test("barre : « Tous les outils » descend aux outils de la même page, la barre reste", async ({ page }) => {
   // The « Pars d’un exemple » gallery (and its link) left the home on 29.10: the tools sit right under the bar.
-  await page.goto("/studio");
+  await page.goto("/studio/legacy");
   await expect(page.locator("[data-ex-galerie], [data-ex-strip], [data-barre-all-link]")).toHaveCount(0);
   await expect(page.locator("[data-barre-home] [data-outil]").first()).toBeVisible();
-  await page.goto("/studio#outils/tous");
+  await page.goto("/studio/legacy#outils/tous");
   await expect(page).toHaveURL(/#outils\/tous$/);
   await expect(page.locator("[data-tous] [data-outil]").first()).toBeVisible();
   await expect(page.locator("[data-tous] [data-barre]")).toHaveCount(1);

@@ -38,7 +38,7 @@ async function lastMainVisible(page: Page) {
 for (const viewport of [{ width: 390, height: 844 }, { width: 844, height: 390 }] as const) {
   test(`chrome mobile ${viewport.width}×${viewport.height} : menu + et bas de page hors header/tabs`, async ({ page }) => {
     await page.setViewportSize(viewport);
-    await page.goto("/studio");
+    await page.goto("/studio/legacy");
     await expect(page.locator("[data-barre]")).toBeVisible();
     await page.locator("[data-barre-plus]").click();
     const menu = page.locator("[data-barre-menu]");

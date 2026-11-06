@@ -1,11 +1,6 @@
-import type { Metadata } from "next";
-import { CgiStudio } from "@/components/cgi/cgi-studio";
+import { permanentRedirect } from "next/navigation";
+import { withSearchParams, type LegacySearch } from "@/lib/sections/redirect";
 
-export const metadata: Metadata = {
-  title: "Cinema · U*TTU Studio",
-  description: "The photoreal pipeline only: Cast, Set, Shoot, Edit, Finish. One open-weight model per step, picked for faithful characters and places.",
-};
-
-export default function Page() {
-  return <CgiStudio />;
+export default async function Page({ searchParams }: { searchParams: Promise<LegacySearch> }) {
+  permanentRedirect(withSearchParams("/studio/cinema/cast", await searchParams));
 }

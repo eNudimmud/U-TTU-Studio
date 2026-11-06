@@ -9,7 +9,7 @@ for (const [width, height] of SIZES) {
   test(`navigation ${width}×${height} : cibles 44 px, pas de défilement de côté`, async ({ page }) => {
     await page.setViewportSize({ width, height });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/studio");
+    await page.goto("/studio/legacy");
     await expect(page.locator("[data-film-nav-to]")).toHaveCount(5);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);

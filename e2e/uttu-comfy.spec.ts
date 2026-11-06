@@ -23,7 +23,7 @@ async function mockChat(page: Page, replies: Reply[]) {
   return calls;
 }
 async function openPanel(page: Page) {
-  await page.goto("/studio");
+  await page.goto("/studio/legacy");
   // The button is painted before React listens. A click in that gap does nothing, so the
   // panel stays out of the document. Wait for React, then click the node itself.
   await page.waitForFunction(() => [...document.querySelectorAll("[data-top-uttu], [data-chain-uttu]")].some(node => Object.keys(node).some(key => key.startsWith("__reactProps"))));

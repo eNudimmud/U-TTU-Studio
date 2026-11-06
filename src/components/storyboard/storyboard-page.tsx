@@ -365,7 +365,7 @@ function BoardFooter({ sb, onChange }: { sb: Storyboard; onChange(next: Storyboa
         {menu && <span className="sb-menu sb-ws-menu is-up" role="group" aria-label={t("storyboard.board.export")}>
           <span className="sb-small sb-muted" style={{ padding: "8px 12px" }}>{t("storyboard.board.exportMd")}</span>
           {/* CE5: the video export is the real montage export (540p · 12 fps preview, originals kept), not a note. */}
-          <a className="sb-ghost" style={{ whiteSpace: "normal", textAlign: "left" }} href={assetPath("/studio#montage")} data-sb-export-video="">{t("storyboard.ws.exportPreview")}</a>
+          <a className="sb-ghost" style={{ whiteSpace: "normal", textAlign: "left" }} href={assetPath("/studio/legacy#montage")} data-sb-export-video="">{t("storyboard.ws.exportPreview")}</a>
           <a className="sb-ghost" href={adresse(sb.id, true)} data-sb-print="">{t("storyboard.board.print")}</a>
         </span>}
       </span>

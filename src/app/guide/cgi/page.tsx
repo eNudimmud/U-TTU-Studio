@@ -1,11 +1,6 @@
-import type { Metadata } from "next";
-import { GuideCgi } from "@/components/guide/guide-cgi";
+import { permanentRedirect } from "next/navigation";
+import { withSearchParams, type LegacySearch } from "@/lib/sections/redirect";
 
-export const metadata: Metadata = {
-  title: "Cinema prompting · Guide · U*TTU Studio",
-  description: "The cinematography glossary and six tools' prompting notes, with a good and a bad example for each.",
-};
-
-export default function Page() {
-  return <GuideCgi />;
+export default async function Page({ searchParams }: { searchParams: Promise<LegacySearch> }) {
+  permanentRedirect(withSearchParams("/guide/cinema", await searchParams));
 }

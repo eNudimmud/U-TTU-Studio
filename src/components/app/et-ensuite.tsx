@@ -111,7 +111,7 @@ export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false
           const page = SUITE_PAGE[id];
           const outil = outilParId(page);
           const quote = outil ? outilQuote(outil, { seconds: seconds ?? undefined }) : null;
-          return <a key={id} className="u-suite-item" data-suite-item={id} href={assetPath(`/studio#outils/${page}`)} aria-current={initial === id ? "true" : undefined} onClick={() => rememberSource(source)}>
+          return <a key={id} className="u-suite-item" data-suite-item={id} href={assetPath(`/studio/legacy#outils/${page}`)} aria-current={initial === id ? "true" : undefined} onClick={() => rememberSource(source)}>
             <span className="u-suite-name">{t(`outils.t.${page}.title`)}</span>
             {quote && <span className="u-suite-cost">{t("outils.cost", { credits: formatCredits(quote.credits) })}</span>}
           </a>;

@@ -4,6 +4,7 @@
 // Without a linked account it only invites to link; cost questions are priced here, by the
 // studio, never by the model. The model never launches anything: it proposes, the visitor clicks.
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { legacyStudioHref } from "@/lib/legacy-studio";
 import { assetPath } from "@/lib/site";
 import { OPEN_WEIGHTS_MODE } from "@/lib/open-weights";
 import { routerChatAllowed } from "@/lib/agent/conversation-route";
@@ -145,8 +146,8 @@ export function UttuFree({ locale, isAction, onPlan, refs = [], project, more, m
         <strong>{turn.role === "user" ? t("uttu.you") : t("uttu.me")}</strong>
         <p>{turn.text}</p>
         {turn.sim && <SimView sim={turn.sim} locale={locale} />}
-        {turn.hits && turn.hits.length > 1 && <p className="u-small">{t("uttu.seeAlso")} {turn.hits.slice(1).map((hit, n) => <span key={hit.id}>{n > 0 && " · "}{hit.href ? <a href={assetPath(hit.href)}>{hit.title}</a> : <button type="button" className="u-link" onClick={() => send(hit.title)}>{hit.title}</button>}</span>)}</p>}
-        {turn.hits?.[0]?.href && turn.role === "assistant" && <a className="u-uttu-go" href={assetPath(turn.hits[0].href)}>{t("uttu.open")} · {turn.hits[0].title}</a>}
+        {turn.hits && turn.hits.length > 1 && <p className="u-small">{t("uttu.seeAlso")} {turn.hits.slice(1).map((hit, n) => <span key={hit.id}>{n > 0 && " · "}{hit.href ? <a href={assetPath(legacyStudioHref(hit.href))}>{hit.title}</a> : <button type="button" className="u-link" onClick={() => send(hit.title)}>{hit.title}</button>}</span>)}</p>}
+        {turn.hits?.[0]?.href && turn.role === "assistant" && <a className="u-uttu-go" href={assetPath(legacyStudioHref(turn.hits[0].href))}>{t("uttu.open")} · {turn.hits[0].title}</a>}
         {turn.tool && knowledge && <ToolLink id={turn.tool} knowledge={knowledge} locale={locale} />}
         {turn.comfy && <p className="u-small u-uttu-spent" data-uttu-spent="">{t(turn.comfy.measured ? "uttu.comfy.spent" : "uttu.comfy.spentMax", { cost: new Intl.NumberFormat(locale === "en" ? "en-GB" : locale, { maximumFractionDigits: 2 }).format(Math.max(0.01, turn.comfy.credits)) })}</p>}
         {turn.local && <p className="u-small">{t("uttu.comfy.local")}</p>}
@@ -216,7 +217,7 @@ function ToolLink({ id, knowledge, locale }: { id: string; knowledge: Knowledge;
   // A knowledge file built without open-weights mode can still name a partner tool: no link to a hidden page.
   if (!tool || (OPEN_WEIGHTS_MODE && tool.partenaire)) return null;
   return <p className="u-uttu-tool">
-    <a className="u-uttu-go" data-uttu-tool={id} href={assetPath(toolHref(id))}>{t("uttu.comfy.openTool", { name })}</a>
+    <a className="u-uttu-go" data-uttu-tool={id} href={assetPath(legacyStudioHref(toolHref(id)))}>{t("uttu.comfy.openTool", { name })}</a>
     {tool.cost && <span className="u-small" data-uttu-tool-cost=""> · {t("uttu.comfy.toolCost", { low: formatCr(locale, tool.cost[0]), high: formatCr(locale, tool.cost[1]) })}</span>}
   </p>;
 }
