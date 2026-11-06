@@ -141,7 +141,7 @@ function MainNav({ place, filmHref, onPick }: { place: Place; filmHref: string; 
   const { t } = useI18n();
   const film = FILM_PLACE.includes(place);
   return <ul className="u-top-links" role="list">
-    <li><a href={assetPath("/studio/legacy")} onClick={onPick} data-top-studio="" aria-current={place === "creer" ? "page" : undefined}>{t("chrome.studio")}</a></li>
+    <li><a href={assetPath("/studio")} onClick={onPick} data-top-studio="" aria-current={place === "creer" ? "page" : undefined}>{t("chrome.studio")}</a></li>
     <li><a href={assetPath(filmHref)} onClick={onPick} data-top-film="" aria-current={film ? "page" : undefined}>{t("top.film")}</a></li>
     <li><a href={assetPath("/mon-studio")} onClick={onPick} data-top-creations="" aria-current={place === "creations" ? "page" : undefined}>{t("chrome.mine")}</a></li>
   </ul>;
