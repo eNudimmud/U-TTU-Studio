@@ -27,7 +27,8 @@ import { attributionLine, type SourceId } from "@/lib/repere3d/sources";
 import { DEFAULT_SETTINGS, FRAMINGS, loadRadius, pixelRatioCap, type Framing } from "@/lib/repere3d/styles";
 import { sunPreset } from "@/lib/repere3d/sun";
 import { chargerZone } from "@/lib/repere/direct";
-import { MAPILLARY_ATTRIBUTION } from "@/lib/repere/mapillary";
+import { coverageCredits } from "@/lib/repere/couverture";
+import { MAPILLARY_ATTRIBUTION, mapillaryToken } from "@/lib/repere/mapillary";
 import { parseFichier } from "@/lib/repere/fichier";
 import { creditRue, distanceMeters, photoLicenseUrl, photoSourceUrl, reusablePhoto, type PhotoRue } from "@/lib/repere/panoramax";
 import type { CaptureResult, LoadState, Reperage3D as Engine, RoofState, ViewInfo } from "./engine";
@@ -706,6 +707,7 @@ export function Reperage3DSheet({ onClose, onCapture, onCaptured, onStreetPhoto,
 
     {modal === "credits" && card("u-rv-cr", t("rep3d.cr.title"), <ul className="u-rv-cr">
       <li data-rep3d-credit="">{t("rep3d.cr.map")} {attributionLine(sources)}</li>
+      <li data-rep3d-coverage="">{coverageCredits(mapillaryToken())}</li>
       {rueCredits.length > 0 && <li data-rep3d-rue-credit="">{t("rep3d.cr.photos")} {rueCredits.join(" · ")}</li>}
       {picked.some(item => item.photo?.source === "mapillary") && <li data-rep3d-mly-credit="">{MAPILLARY_ATTRIBUTION}</li>}
       <li>{t("rep3d.cr.noGoogle")}</li>
