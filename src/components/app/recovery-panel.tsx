@@ -7,11 +7,12 @@ import { useStudio } from "./studio-session";
 
 export function RecoveryPanel() {
   const { t, say } = useI18n();
-  const { connected, creating, resumeRun, identifyPendingJob } = useStudio();
+  const { connected, creating, resumeRun, identifyPendingJob, archiveUnresolvedPending } = useStudio();
   const [receipt, setReceipt] = useState<PendingRender | null>(null);
   const [error, setError] = useState("");
   const [job, setJob] = useState("");
   const [confirmed, setConfirmed] = useState(false);
+  const [archiveConfirmed, setArchiveConfirmed] = useState(false);
   useEffect(() => {
     const read = () => {
       try { setReceipt(readPending(localStorage)); }
@@ -42,6 +43,18 @@ export function RecoveryPanel() {
       <label className="u-field"><span>{t("recovery.id")}</span><input value={job} autoComplete="off" spellCheck={false} onChange={event => { setJob(event.target.value); setConfirmed(false); }} /></label>
       <label className="u-toggle"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} /><span>{t("recovery.confirm")}</span></label>
       <p id="recovery-identify-why" className="u-small">{t("recovery.invalid")}</p>
+      <div className="u-field">
+        <p><strong>Débloquer les outils sans identifiant</strong></p>
+        <p className="u-small">Après vérification de ton historique Comfy, tu peux archiver ce reçu incertain et reprendre les générations. Le reçu reste conservé sur cet appareil ; cette action n'annule aucun rendu ni aucune facturation Comfy.</p>
+        <label className="u-toggle"><input type="checkbox" checked={archiveConfirmed} onChange={event => setArchiveConfirmed(event.target.checked)} /><span>J'ai vérifié mon historique Comfy et j'accepte le risque d'une génération déjà facturée.</span></label>
+        <button type="button" className="u-secondary" disabled={creating || !archiveConfirmed} onClick={() => {
+          setError("");
+          void archiveUnresolvedPending(archiveConfirmed).then(problem => {
+            if (problem) setError(problem);
+            else { setReceipt(readPending(localStorage)); setArchiveConfirmed(false); }
+          });
+        }}>Archiver ce reçu et débloquer les outils</button>
+      </div>
       <button type="button" className="u-secondary" disabled={!connected || creating || !confirmed || !/^[a-zA-Z0-9-]{8,64}$/.test(job.trim())} aria-describedby="recovery-identify-why u-recovery-why" onClick={() => {
         setError("");
         void identifyPendingJob(job, confirmed).then(problem => {
