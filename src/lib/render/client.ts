@@ -244,9 +244,9 @@ export function createRenderClient(options: RenderClientOptions) {
     return headers;
   }
 
-  async function call(path: string, init: RequestInit = {}): Promise<Response> {
+  async function call(path: string, init: RequestInit = {}, fixedAuth?: Record<string, string>): Promise<Response> {
     const headers = new Headers(init.headers);
-    for (const [key, value] of Object.entries(await authHeaders())) headers.set(key, value);
+    for (const [key, value] of Object.entries(fixedAuth ?? await authHeaders())) headers.set(key, value);
     let response: Response;
     try {
       response = await doFetch(`${relay}${path}`, { ...init, headers, signal: init.signal ?? AbortSignal.timeout(path.startsWith("/api/view") ? 120_000 : 60_000), credentials: "same-origin", cache: "no-store" });
@@ -254,7 +254,31 @@ export function createRenderClient(options: RenderClientOptions) {
       throw new RenderError("network", "Le compte de rendu ne répond pas.");
     }
     if (response.status === 401 || response.status === 403) throw new RenderError("auth", "Le compte de rendu refuse la connexion. Reconnecte-toi.");
-    if (response.status === 402) throw new RenderError("credits", "Crédits insuffisants sur ton compte de rendu.");
+    if (response.status === 402) {
+      // A 402 from the relay is not proof that the user's visible balance is empty.
+      // Preserve only a short provider error classification; never echo arbitrary
+      // response text (it may contain credentials, prompts or upstream internals).
+      let providerType = response.headers.get("x-comfy-error-type") ?? "";
+      if (!providerType) {
+        try {
+          const payload: unknown = await response.clone().json();
+          if (payload && typeof payload === "object") {
+            const row = payload as Record<string, unknown>;
+            const nested = row.error && typeof row.error === "object" ? row.error as Record<string, unknown> : null;
+            const candidate = row.error_type ?? row.code ?? nested?.type ?? nested?.code;
+            if (typeof candidate === "string") providerType = candidate;
+          }
+        } catch { /* An unreadable error body must not hide the HTTP status. */ }
+      }
+      const safeType = /^[a-z][a-z0-9_-]{0,63}$/i.test(providerType) ? providerType.toLowerCase() : "";
+      const insufficient = safeType === "insufficient_credits" || safeType === "insufficient_balance";
+      if (safeType && !insufficient) {
+        throw new RenderError("failed", `Comfy a refusé la requête (HTTP 402, type : ${safeType}). Ce n'est pas un solde insuffisant confirmé.`);
+      }
+      throw new RenderError("credits", safeType
+        ? "Comfy signale un solde insuffisant pour cette requête. Vérifie que le compte de rendu connecté est celui qui affiche tes crédits."
+        : "Comfy a refusé la requête (HTTP 402). La cause exacte n'a pas été transmise ; un manque de crédits n'est pas confirmé.");
+    }
     if (response.status === 429) throw new RenderError("subscription", "Ton abonnement de rendu est inactif, ou la file est pleine.");
     return response;
   }
@@ -298,18 +322,24 @@ export function createRenderClient(options: RenderClientOptions) {
   async function submitNow(graph: ApiGraph, clientId: string): Promise<string> {
     // Partner/API nodes read credentials from extra_data, not only HTTP headers
     // (Comfy Cloud: api_key_comfy_org for a key, auth_token_comfy_org for a session).
+    // Resolve authentication once: HTTP headers and partner-node extra_data must
+    // represent the same Comfy identity, even if Firebase refreshes the token.
+    const requestAuth = await authHeaders();
     const extra_data: Record<string, string> = {};
     if (options.auth.kind === "key") {
       if (options.auth.key) extra_data.api_key_comfy_org = options.auth.key;
     } else {
-      const token = await options.auth.token();
-      if (token) extra_data.auth_token_comfy_org = token;
+      const bearer = requestAuth.authorization ?? requestAuth.Authorization;
+      if (!bearer?.startsWith("Bearer ") || bearer.length <= 7) {
+        throw new RenderError("auth", "Session Comfy invalide. Reconnecte-toi.");
+      }
+      extra_data.auth_token_comfy_org = bearer.slice(7);
     }
     const response = await call("/api/prompt", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ prompt: graph, client_id: clientId, extra_data }),
-    });
+    }, requestAuth);
     const body = await json<Record<string, unknown>>(response);
     const lines = errorLines(body);
     if (!response.ok || lines.length > 0 || typeof body.prompt_id !== "string") {
