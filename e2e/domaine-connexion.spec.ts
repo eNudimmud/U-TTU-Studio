@@ -52,6 +52,18 @@ test("public domain: login pages redirect even without browser headers (curl, li
   expect(landing.status()).toBe(200);
 });
 
+test("coming back to the public studio with the hop cookie opens it again", async ({ request }) => {
+  const headers = { ...alias, cookie: "u-ttu-hop=%2Fstudio", "sec-fetch-site": "cross-site", "sec-fetch-user": "?1", "sec-fetch-dest": "document" };
+  const back = await request.get("/studio", { headers, maxRedirects: 0 });
+  expect(back.status()).toBe(307);
+  const location = new URL(back.headers().location);
+  expect(location.origin).toBe(AUTHORIZED);
+  expect(location.pathname).toBe("/studio");
+  expect(location.searchParams.get("uttu_hop")).toBe("1");
+  const bounce = await request.get("/studio?uttu_hop=1", { headers: { ...alias, cookie: "u-ttu-hop=%2Fstudio", "sec-fetch-site": "cross-site", "sec-fetch-dest": "document" }, maxRedirects: 0 });
+  expect(bounce.status()).toBe(508);
+});
+
 test("a hop that comes straight back shows an explicit error, never a redirect loop", async ({ request, page, baseURL }) => {
   const back = await request.get("/studio?uttu_hop=1", { headers: alias, maxRedirects: 0 });
   expect(back.status()).toBe(508);

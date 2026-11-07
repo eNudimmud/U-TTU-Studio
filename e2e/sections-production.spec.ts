@@ -75,6 +75,25 @@ for (const section of ["cinema", "anime"] as const) {
   });
 }
 
+test("à 390 px les cinq étapes restent entières dans la chaîne", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const section of ["cinema", "anime"]) {
+    await page.goto(`/studio/${section}/cast`);
+    const chain = page.locator(".ps-chain");
+    for (const name of ["Cast", "Set", "Shoot", "Edit", "Finish"]) {
+      const step = chain.getByRole("link", { name: new RegExp(name, "i") });
+      await expect(step).toBeVisible();
+      const box = await step.boundingBox();
+      expect(box, name).toBeTruthy();
+      expect(box!.width).toBeGreaterThanOrEqual(44);
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(391);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+  }
+});
+
 test("les anciennes routes gardent leurs paramètres et aboutissent au bon univers", async ({ page }) => {
   for (const [from, to] of [["/studio/cgi", "/studio/cinema/cast"], ["/anime", "/studio/anime/cast"], ["/look", "/studio/anime/cast"], ["/anime/bible", "/studio/anime/bible"], ["/look/bible", "/studio/anime/bible"]]) {
     await page.goto(`${from}?source=shared`);

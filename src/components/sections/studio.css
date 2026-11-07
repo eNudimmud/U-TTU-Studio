@@ -774,25 +774,30 @@
   }
   .ps-chain {
     padding: 12px 10px;
-    gap: 2px;
+    gap: 6px;
+    flex-wrap: wrap;
   }
   .ps-chain a {
+    flex: 1 1 calc(33.33% - 6px);
     flex-direction: column;
-    gap: 5px;
-    padding: 8px 3px;
+    gap: 4px;
+    padding: 8px 6px;
     text-align: center;
-    min-width: 0;
+    min-width: 72px;
+    min-height: 44px;
   }
   .ps-step-number {
     height: 24px;
     width: 24px;
-    font-size: 9px;
+    font-size: 11px;
   }
   .ps-chain b {
-    font-size: 12px;
+    font-size: 13px;
+    line-height: 1.2;
   }
   .ps-chain small {
-    font-size: 8px;
+    font-size: 10px;
+    line-height: 1.2;
   }
   .ps-step-arrow {
     display: none;

@@ -48,7 +48,9 @@ test("CINEMA et ANIME gardent la même bulle et un lien Outils distinct de la pr
     await expect(page.getByRole("link", { name: /Promptothèque/ })).toHaveAttribute("href", `/studio/${section}/prompts`);
     await dock.locator("[data-barre-input]").fill(`Phrase ${section}`);
     await dock.locator("[data-barre-send]").click();
-    await expect(dock.locator("[data-fil-user]")).toContainText(`Phrase ${section}`);
-    await expect(dock.locator("[data-fil-job]")).toBeVisible();
+    await expect(dock.locator("[data-fil-user]").last()).toContainText(`Phrase ${section}`);
+    // Le fil est partagé : l’envoi précédent reste visible (souvent annulé au rechargement).
+    // La carte attendue est celle qui vient d’être posée, encore en confirmation.
+    await expect(dock.locator("[data-fil-job=confirm]").last()).toBeVisible();
   }
 });

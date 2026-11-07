@@ -48,6 +48,7 @@ export function studioOriginGate(request: Request, options: { basePath?: string;
     isDocument,
     hopCookie: cookieValue(cookies, HOP_COOKIE),
     fetchSite: headers.get("sec-fetch-site"),
+    fetchUser: headers.get("sec-fetch-user"),
     locale: isLocale(explicit) ? explicit : null,
   }, config);
   if (decision.kind === "pass") return null;
