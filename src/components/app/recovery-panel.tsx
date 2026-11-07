@@ -7,11 +7,12 @@ import { useStudio } from "./studio-session";
 
 export function RecoveryPanel() {
   const { t, say } = useI18n();
-  const { connected, creating, resumeRun, identifyPendingJob } = useStudio();
+  const { connected, creating, resumeRun, identifyPendingJob, archiveUnresolvedPending } = useStudio();
   const [receipt, setReceipt] = useState<PendingRender | null>(null);
   const [error, setError] = useState("");
   const [job, setJob] = useState("");
   const [confirmed, setConfirmed] = useState(false);
+  const [archiveConfirmed, setArchiveConfirmed] = useState(false);
   useEffect(() => {
     const read = () => {
       try { setReceipt(readPending(localStorage)); }
@@ -29,7 +30,8 @@ export function RecoveryPanel() {
     link.href = url; link.download = `uttu-recu-${receipt.id}.json`; link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-  return <section aria-labelledby="recovery-title" data-recovery={receipt ? receipt.jobId ? "known" : "ambiguous" : "empty"}>
+  return <>
+  <section aria-labelledby="recovery-title" data-recovery={receipt ? receipt.jobId ? "known" : "ambiguous" : "empty"}>
     <h3 id="recovery-title">{t("recovery.title")}</h3>
     {receipt && <>
       <p>{receipt.name} · {receipt.project}</p>
@@ -52,5 +54,17 @@ export function RecoveryPanel() {
     </> : <button type="button" className="u-secondary" disabled={!connected || creating} aria-describedby="u-recovery-why" onClick={resumeRun}>{t("recovery.resume")}</button>}
     <p className="u-small" id="u-recovery-why">{t(!connected ? "recovery.connect" : creating ? "recovery.busy" : "recovery.noSpend")}</p>
     {error && <p role="alert">{say(error)}</p>}
-  </section>;
+  </section>
+  {receipt && !receipt.jobId && <section aria-labelledby="recovery-archive-title" data-recovery-archive="">
+    <h3 id="recovery-archive-title">Débloquer les outils sans identifiant</h3>
+    <p id="recovery-archive-why" className="u-small">Après vérification de ton historique Comfy, tu peux archiver ce reçu incertain et reprendre les générations. Le reçu reste conservé sur cet appareil ; cette action n'annule aucun rendu ni aucune facturation Comfy.</p>
+    <label className="u-toggle"><input type="checkbox" checked={archiveConfirmed} onChange={event => setArchiveConfirmed(event.target.checked)} /><span>J'ai vérifié mon historique Comfy et j'accepte le risque d'une génération déjà facturée.</span></label>
+    <button type="button" className="u-secondary" disabled={creating || !archiveConfirmed} aria-describedby="recovery-archive-why" onClick={() => {
+      setError("");
+      void archiveUnresolvedPending(archiveConfirmed).then(problem => {
+        if (problem) setError(problem);
+        else { setReceipt(readPending(localStorage)); setArchiveConfirmed(false); }
+      });
+    }}>Archiver ce reçu et débloquer les outils</button>
+  </section>}</>;
 }

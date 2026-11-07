@@ -88,6 +88,9 @@ test("l’accueil du studio garde Outils et la conversation, et ouvre CINEMA/ANI
   await expect(page).toHaveURL(/\/studio$/);
   await expect(page.locator("[data-barre]")).toBeVisible();
   await expect(page.locator("[data-outils-search]")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Espaces du studio" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Uttu Agent", exact: true })).toHaveCount(0);
+  await expect(page.locator("[data-top-uttu]")).toBeVisible();
   await expect(page.locator("[data-section=cinema]")).toHaveAttribute("href", "/studio/cinema/cast");
   await expect(page.locator("[data-section=anime]")).toHaveAttribute("href", "/studio/anime/cast");
   await page.locator("[data-section=anime]").click();

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { liftDelta, openBand } from "@/lib/mobile-band";
-import { assetPath } from "@/lib/site";
 import { isFamille } from "@/lib/outils/catalogue";
 import { TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import { useI18n } from "@/components/i18n/provider";

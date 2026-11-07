@@ -96,6 +96,21 @@ describe("client du compte de rendu", () => {
     assert.equal(prompt?.headers.get("authorization"), "Bearer firebase-id-token");
   });
 
+  it("uses exactly one refreshed session token for both HTTP and partner-node payload", async () => {
+    let reads = 0;
+    const { calls, fetchImpl } = fakeCloud(call =>
+      call.url === "/api/prompt" ? json({ prompt_id: "job-consistent", number: 1, node_errors: {} }) : undefined);
+    const client = createRenderClient({
+      auth: { kind: "session", token: async () => `firebase-token-${++reads}` },
+      fetch: fetchImpl,
+    });
+    assert.equal(await client.submit({ save: { class_type: "SaveImage", inputs: {} } }, "client-consistent"), "job-consistent");
+    assert.equal(reads, 1, "do not refresh between extra_data and Authorization");
+    const call = calls.find(item => item.url === "/api/prompt");
+    assert.equal(call?.headers.get("authorization"), "Bearer firebase-token-1");
+    assert.equal(JSON.parse(String(call?.body)).extra_data.auth_token_comfy_org, "firebase-token-1");
+  });
+
   it("turns refusals into plain reasons, node by node", async () => {
     const statuses: Record<string, Response> = {};
     const { fetchImpl } = fakeCloud(call => statuses[call.url]);
@@ -104,6 +119,18 @@ describe("client du compte de rendu", () => {
     await assert.rejects(() => client.submit({}, "c"), (error: unknown) => error instanceof RenderError && error.code === "invalid" && error.detail.includes("MiniMaxH3ReferenceToVideo : Required input is missing"));
     statuses["/api/prompt"] = new Response("{}", { status: 402 });
     await assert.rejects(() => client.submit({}, "c"), (error: unknown) => error instanceof RenderError && error.code === "credits");
+    statuses["/api/prompt"] = json({ error_type: "billing_account_mismatch" }, 402);
+    await assert.rejects(() => client.submit({}, "c"), (error: unknown) =>
+      error instanceof RenderError && error.code === "failed" && error.message.includes("billing_account_mismatch") && !error.message.includes("Crédits insuffisants"));
+    statuses["/api/prompt"] = json({ error_type: "insufficient_credits" }, 402);
+    await assert.rejects(() => client.submit({}, "c"), (error: unknown) =>
+      error instanceof RenderError && error.code === "credits" && error.message.includes("Comfy signale"));
+    statuses["/api/prompt"] = new Response("{}", { status: 402, headers: { "x-comfy-error-type": "payment_required" } });
+    await assert.rejects(() => client.submit({}, "c"), (error: unknown) =>
+      error instanceof RenderError && error.code === "failed" && error.message.includes("payment_required"));
+    statuses["/api/prompt"] = json({ error_type: "secret=token-sensitive" }, 402);
+    await assert.rejects(() => client.submit({}, "c"), (error: unknown) =>
+      error instanceof RenderError && !error.message.includes("token-sensitive"));
     statuses["/api/prompt"] = new Response("{}", { status: 429 });
     await assert.rejects(() => client.submit({}, "c"), (error: unknown) => error instanceof RenderError && error.code === "subscription");
     statuses["/api/user"] = new Response("{}", { status: 401 });

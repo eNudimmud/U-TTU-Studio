@@ -43,8 +43,8 @@ test("CINEMA et ANIME gardent la même bulle et un lien Outils distinct de la pr
     await expect(page.locator(".ps-chain")).toBeVisible();
     const dock = page.locator("[data-conversation-dock]");
     await expect(dock.locator("[data-barre]")).toBeVisible();
-    await expect(dock.locator("[data-dock-outils]")).toHaveAttribute("href", "/studio");
     await expect(page.locator("[data-nav-outils]")).toHaveAttribute("href", "/studio");
+    await expect(dock.locator("[data-dock-outils]")).toHaveCount(0);
     await expect(page.getByRole("link", { name: /Promptothèque/ })).toHaveAttribute("href", `/studio/${section}/prompts`);
     await dock.locator("[data-barre-input]").fill(`Phrase ${section}`);
     await dock.locator("[data-barre-send]").click();

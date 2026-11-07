@@ -157,33 +157,6 @@ export function HomeLanding() {
           <a className="ln-go" href={assetPath("/storyboard")}>{copy.swLink}</a>
         </section>
 
-        <section id="models">
-          <h2>{copy.modelsTitle}</h2>
-          <p className="ln-lead">{copy.modelsLead}</p>
-          <div className="ln-models">
-            <div>
-              <h3>{copy.openTitle} <span className="ln-lic">{copy.openOn}</span></h3>
-              <p className="ln-fine">{copy.openWhy}</p>
-              <dl>{copy.openList.map(row => <div key={row.k}><dt>{row.k}</dt><dd>{row.v}</dd></div>)}</dl>
-            </div>
-            <div>
-              <h3>{copy.partnerTitle} <span className="ln-lic ln-lic-p">{t("accueil.partnerBadge")}</span></h3>
-              <p className="ln-fine">{copy.partnerWhy}</p>
-              <p data-partner-mode={OPEN_WEIGHTS_MODE ? "hidden" : "on"}>{OPEN_WEIGHTS_MODE ? copy.partnerHidden : copy.partnerOn}</p>
-              <dl>{copy.partnerList.map(row => <div key={row.k}><dt>{row.k}</dt><dd>{row.v}</dd></div>)}</dl>
-              <p className="ln-fine">{copy.partnerMore}</p>
-            </div>
-          </div>
-          <p className="ln-licence" data-licence-note="">{copy.licenceNote}</p>
-        </section>
-
-        <section id="costs">
-          <h2>{copy.costsTitle}</h2>
-          <p className="ln-lead">{copy.costsLead}</p>
-          {copy.costs.map(row => <div className="ln-price" key={row.label}><span>{row.label}</span><span>{row.price}</span></div>)}
-          <a className="ln-go" href={assetPath("/guide#costs")}>{copy.costsLink}</a>
-        </section>
-
         <section className="ln-end">
           <h2>{copy.endTitle}</h2>
           <div className="ln-ctas">

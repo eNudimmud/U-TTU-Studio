@@ -55,6 +55,12 @@ export function failKind(error: unknown): FailKind {
 /** Build the UI view for a caught render error. Includes cloud detail when present. */
 export function failView(error: unknown): FailView {
   const kind = failKind(error);
+  // A provider HTTP 402 is a submission refusal, not a completed cloud render.
+  // Keep its precise classification visible instead of replacing it with the generic
+  // cloud-failed / credits-low copy. No raw response body or credential is exposed.
+  if (error instanceof RenderError && /Comfy (a refusé la requête|signale un solde insuffisant).*HTTP 402|Comfy a refusé la requête \(HTTP 402\)|Comfy signale un solde insuffisant/i.test(error.message)) {
+    return { kind: error.code === "credits" ? "credits" : "cloud", message: error.message, intact: true, reconnect: false, retry: false };
+  }
   if (kind === "auth") return { kind, message: AUTH_MSG, intact: false, reconnect: true, retry: false };
   if (kind === "credits") return { kind, message: CREDITS_MSG, intact: false, reconnect: false, retry: false };
   if (kind === "subscription") return { kind, message: SUB_MSG, intact: false, reconnect: false, retry: true };
