@@ -18,6 +18,9 @@ test("Agent Uttu sur Android : réponse locale, plan, frappe conservée, aucun a
   });
 
   await page.goto("/studio/legacy");
+  // The button is painted before React listens. A click in that gap does nothing, and the
+  // panel stays out of the document. Same wait as e2e/uttu-comfy.spec.ts.
+  await page.waitForFunction(() => [...document.querySelectorAll("[data-top-uttu], [data-chain-uttu]")].some(node => Object.keys(node).some(key => key.startsWith("__reactProps"))));
   await page.evaluate(() => document.querySelector<HTMLElement>("[data-top-uttu]")?.click());
   const panel = page.locator("[data-assistant-panel]");
   await expect(panel).toBeVisible();
