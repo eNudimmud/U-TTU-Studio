@@ -12,6 +12,7 @@ import { outilQuote } from "@/lib/outils/graphs";
 import { assetPath } from "@/lib/site";
 import { videoSeconds } from "@/lib/suite/media";
 import { useStudio } from "./studio-session";
+import { useStudioHome } from "./studio-home-context";
 import { toggleAssistant } from "./assistant-panel";
 import { safeHandoffUrl } from "@/lib/agent/source";
 
@@ -85,6 +86,7 @@ export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false
   grouped?: boolean;
 }) {
   const { t } = useI18n();
+  const home = useStudioHome();
   const { outilsFiltre } = useStudio();
   const [open, setOpen] = useState(initial !== null || defaultOpen);
   const [seconds, setSeconds] = useState<number | null>(null);
@@ -111,7 +113,7 @@ export function EtEnsuite({ source, onPrise, initial = null, defaultOpen = false
           const page = SUITE_PAGE[id];
           const outil = outilParId(page);
           const quote = outil ? outilQuote(outil, { seconds: seconds ?? undefined }) : null;
-          return <a key={id} className="u-suite-item" data-suite-item={id} href={assetPath(`/studio/legacy#outils/${page}`)} aria-current={initial === id ? "true" : undefined} onClick={() => rememberSource(source)}>
+          return <a key={id} className="u-suite-item" data-suite-item={id} href={assetPath(`${home}#outils/${page}`)} aria-current={initial === id ? "true" : undefined} onClick={() => rememberSource(source)}>
             <span className="u-suite-name">{t(`outils.t.${page}.title`)}</span>
             {quote && <span className="u-suite-cost">{t("outils.cost", { credits: formatCredits(quote.credits) })}</span>}
           </a>;

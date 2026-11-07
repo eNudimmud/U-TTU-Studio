@@ -9,6 +9,7 @@ import { assetPath } from "@/lib/site";
 import { TAB_HASH, type Tab } from "@/lib/studio-route";
 import { BrandMark } from "@/components/brand";
 import { SectionPill, type StudioSectionId } from "./section-pill";
+import { useStudioHome } from "./studio-home-context";
 import type { ReactNode } from "react";
 
 export const CHAIN: { id: "lora" | "scene" | "prise" | "montage" | "finaliser"; key: "nav.character" | "nav.scene" | "nav.take" | "nav.edit" | "nav.finish" }[] = [
@@ -42,12 +43,13 @@ export function ProjectChain({
   ready?: Partial<Record<ChainId, boolean>>;
 }) {
   const { t } = useI18n();
+  const home = useStudioHome();
   const { doc } = useProjectLook();
   const anime = doc.look?.kind === "anime25d";
   const section: StudioSectionId = anime ? "anime" : "cinema";
   const go = (id: (typeof CHAIN)[number]["id"]) => {
     if (onStep) { onStep(id); return; }
-    window.location.assign(assetPath(`/studio/legacy#${TAB_HASH[id]}`));
+    window.location.assign(assetPath(`${home}#${TAB_HASH[id]}`));
   };
   return <nav className="u-chain u-steps" aria-label={t("nav.chain")} data-film-nav="">
     <a className="u-step-mini" href={assetPath("/")} aria-label={t("landing.home")}><BrandMark desktop={56} /></a>

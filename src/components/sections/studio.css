@@ -1068,8 +1068,23 @@
 
 .ps-view-nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   padding-top: 10px;
+}
+.u-conversation-dock {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 28px;
+  max-width: 760px;
+}
+.u-conversation-links {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+}
+.u-conversation-links a {
+  min-height: 44px;
 }
 .ps-view-nav a {
   font-size: 11px;

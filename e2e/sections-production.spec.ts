@@ -18,7 +18,7 @@ for (const section of ["cinema", "anime"] as const) {
     page.on("pageerror", e => errors.push(e.message));
     await page.goto(`/studio/${section}/shoot`);
     await expect(page.getByRole("button", { name: /Importer une prise/ })).toBeEnabled();
-    await page.locator('input[type="file"][multiple]').setInputFiles(path.resolve("public/exemples/decor-quai-nuit-640.webp"));
+    await page.locator('.production-studio input[type="file"][multiple]:not([data-barre-photo])').setInputFiles(path.resolve("public/exemples/decor-quai-nuit-640.webp"));
     const take = page.locator(".ps-asset").filter({ has: page.getByRole("heading", { name: "decor-quai-nuit-640", exact: true }) });
     await expect(take).toContainText("PRISE 01 · ESSAI");
     await take.getByRole("button", { name: /Ouvrir/ }).click();
@@ -59,7 +59,7 @@ for (const section of ["cinema", "anime"] as const) {
         await expect(page.locator("h1")).toBeVisible();
         if (step === "prompts") await expect(page.getByRole("searchbox")).toBeVisible();
         const dimensions = await page.evaluate(() => {
-          const controls = [...document.querySelectorAll<HTMLElement>(".production-studio a, .production-studio button, .production-studio select, .production-studio input:not([type=checkbox]), .production-studio summary")];
+          const controls = [...document.querySelectorAll<HTMLElement>(".production-studio a, .production-studio button, .production-studio select, .production-studio input:not([type=checkbox]), .production-studio summary")].filter(el => !el.closest("[data-conversation-dock]"));
           return {
             overflow: document.documentElement.scrollWidth > innerWidth + 1,
             small: controls.filter(el => {
@@ -83,22 +83,25 @@ test("les anciennes routes gardent leurs paramètres et aboutissent au bon unive
   }
 });
 
-test("l’entrée légère ouvre les sections et garde le contexte des anciens liens", async ({ page }) => {
+test("l’accueil du studio garde Outils et la conversation, et ouvre CINEMA/ANIME à côté", async ({ page }) => {
   await page.goto("/studio");
-  await expect(page.getByRole("heading", { name: "Choisis ton univers." })).toBeVisible();
-  await expect(page.locator(".u-app")).toHaveCount(0);
-  await page.getByRole("link", { name: /ANIME Dessin/ }).click();
+  await expect(page).toHaveURL(/\/studio$/);
+  await expect(page.locator("[data-barre]")).toBeVisible();
+  await expect(page.locator("[data-outils-search]")).toBeVisible();
+  await expect(page.locator("[data-section=cinema]")).toHaveAttribute("href", "/studio/cinema/cast");
+  await expect(page.locator("[data-section=anime]")).toHaveAttribute("href", "/studio/anime/cast");
+  await page.locator("[data-section=anime]").click();
   await expect(page).toHaveURL(/\/studio\/anime\/cast$/);
   await expect(page.locator(".ps-project")).toBeEnabled();
+  await expect(page.locator("[data-conversation-dock] [data-barre]")).toBeVisible();
+  await expect(page.locator("[data-nav-outils]")).toHaveAttribute("href", "/studio");
 
   await page.goto("/studio#outils/ret-detourer");
-  await expect(page).toHaveURL(/\/studio\/anime\/cast\/ret-detourer$/);
-  await expect(page.getByRole("heading", { name: "Détourer", exact: true })).toBeVisible();
-  await page.goBack();
-  await expect(page).toHaveURL(/\/studio\/anime\/cast$/);
+  await expect(page).toHaveURL(/\/studio#outils\/ret-detourer$/);
+  await expect(page.locator("[data-tool-panel=ret-detourer]")).toBeVisible();
 
   await page.goto("/studio?project=atelier&plan=shared-plan#prise");
-  await expect(page).toHaveURL(/\/studio\/legacy\?project=atelier&plan=shared-plan#prise$/);
+  await expect(page).toHaveURL(/\/studio\?project=atelier&plan=shared-plan#prise$/);
   await expect(page.locator(".u-app")).toHaveAttribute("data-studio", "prise");
   await expect(page.locator("[data-film-plans]")).toBeVisible();
 });

@@ -18,6 +18,7 @@ import { RenduSuivi } from "./rendu-suivi";
 import "./app.css";
 import { StudioSplash } from "./splash";
 import { BOOT_MARKS } from "@/lib/studio-boot";
+import { StudioHomeProvider } from "./studio-home-context";
 import { TopBar } from "./top-bar";
 import { AssistantPanel, toggleAssistant } from "./assistant-panel";
 import { FilmPlans } from "./film/film-plans";
@@ -28,8 +29,8 @@ function stageOf(tab: Tab): Stage {
   return tab === "scene" || tab === "prise" || tab === "montage" || tab === "finaliser" || tab === "outils" ? tab : "lora";
 }
 
-export function StudioApp({ initialTab = null }: { initialTab?: Tab | null }) {
-  return <StudioProvider><AppFrame initialTab={initialTab ?? null} /></StudioProvider>;
+export function StudioApp({ initialTab = null, home = "/studio" }: { initialTab?: Tab | null; home?: string }) {
+  return <StudioHomeProvider home={home}><StudioProvider><AppFrame initialTab={initialTab ?? null} /></StudioProvider></StudioHomeProvider>;
 }
 
 const TYPING = "textarea, select, input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=button]):not([type=submit]):not([type=reset]):not([type=color]):not([type=hidden])";
