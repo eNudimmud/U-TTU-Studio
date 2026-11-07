@@ -68,6 +68,33 @@ test("gate: a hop that comes straight back is an explicit error, never a second 
   assert.equal(gateDecision({ url: new URL("https://uttu-studio.app/studio"), host: "uttu-studio.app", method: "GET", isDocument: true, hopCookie: "/studio", locale: null }, config).kind, "loop");
 });
 
+test("proxy: a clicked return with the hop cookie redirects once, a silent bounce stays 508", () => {
+  const headers = new Headers();
+  headers.set("host", "www.uttu-studio.app");
+  headers.set("accept", "text/html");
+  headers.set("sec-fetch-dest", "document");
+  headers.set("sec-fetch-site", "cross-site");
+  headers.set("sec-fetch-user", "?1");
+  headers.set("cookie", "u-ttu-hop=%2Fstudio; u-ttu-locale=fr");
+  const back = studioOriginGate(new Request("https://www.uttu-studio.app/studio", { headers }), { basePath: "", config });
+  assert.equal(back?.status, 307);
+  assert.match(back?.headers.get("location") ?? "", /^https:\/\/u-ttu-studio\.vercel\.app\/studio\?uttu_hop=1&uttu_lang=fr$/);
+  headers.delete("sec-fetch-user");
+  const bounce = studioOriginGate(new Request("https://www.uttu-studio.app/studio?uttu_hop=1", { headers }), { basePath: "", config });
+  assert.equal(bounce?.status, 508);
+});
+
+test("gate: a visitor who comes back to www with the hop cookie is sent again, not stopped", () => {
+  const back = gateDecision({ url: new URL("https://www.uttu-studio.app/studio"), host: "www.uttu-studio.app", method: "GET", isDocument: true, hopCookie: "/studio", fetchSite: "cross-site", fetchUser: "?1", locale: "fr" }, config);
+  assert.equal(back.kind, "hop");
+  if (back.kind === "hop") assert.equal(back.location, "https://u-ttu-studio.vercel.app/studio?uttu_hop=1&uttu_lang=fr");
+  // A clicked address that still carries the marker is the visitor, not the redirect chain.
+  const marked = gateDecision({ url: new URL("https://www.uttu-studio.app/studio?uttu_hop=1"), host: "www.uttu-studio.app", method: "GET", isDocument: true, hopCookie: "/studio", fetchSite: "cross-site", fetchUser: "?1", locale: null }, config);
+  assert.equal(marked.kind, "hop");
+  // The automatic bounce, with no user gesture, stays a 508.
+  assert.equal(gateDecision({ url: new URL("https://www.uttu-studio.app/studio?uttu_hop=1"), host: "www.uttu-studio.app", method: "GET", isDocument: true, hopCookie: "/studio", fetchSite: "cross-site", locale: null }, config).kind, "loop");
+});
+
 test("gate S15: within 20 s, another page, Back then re-click, or a typed address is a fresh hop", () => {
   const at = (path: string, hopCookie: string | null, fetchSite: string | null) => gateDecision({ url: new URL(`https://uttu-studio.app${path}`), host: "uttu-studio.app", method: "GET", isDocument: true, hopCookie, fetchSite, locale: null }, config).kind;
   assert.equal(at("/storyboard", "/studio", "cross-site"), "hop");

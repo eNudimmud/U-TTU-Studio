@@ -30,7 +30,8 @@ export function RecoveryPanel() {
     link.href = url; link.download = `uttu-recu-${receipt.id}.json`; link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-  return <section aria-labelledby="recovery-title" data-recovery={receipt ? receipt.jobId ? "known" : "ambiguous" : "empty"}>
+  return <>
+  <section aria-labelledby="recovery-title" data-recovery={receipt ? receipt.jobId ? "known" : "ambiguous" : "empty"}>
     <h3 id="recovery-title">{t("recovery.title")}</h3>
     {receipt && <>
       <p>{receipt.name} · {receipt.project}</p>
@@ -43,18 +44,6 @@ export function RecoveryPanel() {
       <label className="u-field"><span>{t("recovery.id")}</span><input value={job} autoComplete="off" spellCheck={false} onChange={event => { setJob(event.target.value); setConfirmed(false); }} /></label>
       <label className="u-toggle"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} /><span>{t("recovery.confirm")}</span></label>
       <p id="recovery-identify-why" className="u-small">{t("recovery.invalid")}</p>
-      <div className="u-field">
-        <p><strong>Débloquer les outils sans identifiant</strong></p>
-        <p id="recovery-archive-why" className="u-small">Après vérification de ton historique Comfy, tu peux archiver ce reçu incertain et reprendre les générations. Le reçu reste conservé sur cet appareil ; cette action n'annule aucun rendu ni aucune facturation Comfy.</p>
-        <label className="u-toggle"><input type="checkbox" checked={archiveConfirmed} onChange={event => setArchiveConfirmed(event.target.checked)} /><span>J'ai vérifié mon historique Comfy et j'accepte le risque d'une génération déjà facturée.</span></label>
-        <button type="button" className="u-secondary" disabled={creating || !archiveConfirmed} aria-describedby="recovery-archive-why u-recovery-why" onClick={() => {
-          setError("");
-          void archiveUnresolvedPending(archiveConfirmed).then(problem => {
-            if (problem) setError(problem);
-            else { setReceipt(readPending(localStorage)); setArchiveConfirmed(false); }
-          });
-        }}>Archiver ce reçu et débloquer les outils</button>
-      </div>
       <button type="button" className="u-secondary" disabled={!connected || creating || !confirmed || !/^[a-zA-Z0-9-]{8,64}$/.test(job.trim())} aria-describedby="recovery-identify-why u-recovery-why" onClick={() => {
         setError("");
         void identifyPendingJob(job, confirmed).then(problem => {
@@ -65,5 +54,17 @@ export function RecoveryPanel() {
     </> : <button type="button" className="u-secondary" disabled={!connected || creating} aria-describedby="u-recovery-why" onClick={resumeRun}>{t("recovery.resume")}</button>}
     <p className="u-small" id="u-recovery-why">{t(!connected ? "recovery.connect" : creating ? "recovery.busy" : "recovery.noSpend")}</p>
     {error && <p role="alert">{say(error)}</p>}
-  </section>;
+  </section>
+  {receipt && !receipt.jobId && <section aria-labelledby="recovery-archive-title" data-recovery-archive="">
+    <h3 id="recovery-archive-title">Débloquer les outils sans identifiant</h3>
+    <p id="recovery-archive-why" className="u-small">Après vérification de ton historique Comfy, tu peux archiver ce reçu incertain et reprendre les générations. Le reçu reste conservé sur cet appareil ; cette action n'annule aucun rendu ni aucune facturation Comfy.</p>
+    <label className="u-toggle"><input type="checkbox" checked={archiveConfirmed} onChange={event => setArchiveConfirmed(event.target.checked)} /><span>J'ai vérifié mon historique Comfy et j'accepte le risque d'une génération déjà facturée.</span></label>
+    <button type="button" className="u-secondary" disabled={creating || !archiveConfirmed} aria-describedby="recovery-archive-why" onClick={() => {
+      setError("");
+      void archiveUnresolvedPending(archiveConfirmed).then(problem => {
+        if (problem) setError(problem);
+        else { setReceipt(readPending(localStorage)); setArchiveConfirmed(false); }
+      });
+    }}>Archiver ce reçu et débloquer les outils</button>
+  </section>}</>;
 }

@@ -44,9 +44,10 @@ describe("le studio, une app", () => {
     assert.equal(tabFromLocation("#monter", ""), "montage");
     assert.equal(tabFromLocation("#edit", ""), "montage");
     assert.equal(tabFromLocation("#inconnu", "?step=prise"), "prise");
-    assert.match(read("src/app/studio/legacy/page.tsx"), /<StudioApp initialTab=\{initialTab\} \/>/);
-    assert.match(read("src/app/studio/page.tsx"), /StudioApp initialTab/);
-    assert.match(read("src/components/app/studio-app.tsx"), /workspaceEntry/);
+    assert.match(read("src/app/studio/page.tsx"), /<StudioApp initialTab=\{initialTab\} \/>/);
+    assert.match(read("src/app/studio/legacy/page.tsx"), /home="\/studio\/legacy"/);
+    assert.doesNotMatch(read("src/app/studio/page.tsx"), /LegacyStudioRedirect/);
+    assert.doesNotMatch(read("src/components/app/studio-app.tsx"), /Tous les outils|Uttu Agent|Mes créations/);
     const rail = read("src/components/app/studio-nav.tsx");
     assert.doesNotMatch(rail, /data-rail-fam=\{fam\}[^>]*#outils\/tous|#outils\/tous[^>]*data-rail-fam/);
     for (const fam of FAMILLES) {

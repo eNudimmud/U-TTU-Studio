@@ -18,7 +18,7 @@ for (const section of ["cinema", "anime"] as const) {
     page.on("pageerror", e => errors.push(e.message));
     await page.goto(`/studio/${section}/shoot`);
     await expect(page.getByRole("button", { name: /Importer une prise/ })).toBeEnabled();
-    await page.locator('input[type="file"][multiple]').setInputFiles(path.resolve("public/exemples/decor-quai-nuit-640.webp"));
+    await page.locator('.production-studio input[type="file"][multiple]:not([data-barre-photo])').setInputFiles(path.resolve("public/exemples/decor-quai-nuit-640.webp"));
     const take = page.locator(".ps-asset").filter({ has: page.getByRole("heading", { name: "decor-quai-nuit-640", exact: true }) });
     await expect(take).toContainText("PRISE 01 · ESSAI");
     await take.getByRole("button", { name: /Ouvrir/ }).click();
@@ -59,7 +59,7 @@ for (const section of ["cinema", "anime"] as const) {
         await expect(page.locator("h1")).toBeVisible();
         if (step === "prompts") await expect(page.getByRole("searchbox")).toBeVisible();
         const dimensions = await page.evaluate(() => {
-          const controls = [...document.querySelectorAll<HTMLElement>(".production-studio a, .production-studio button, .production-studio select, .production-studio input:not([type=checkbox]), .production-studio summary")];
+          const controls = [...document.querySelectorAll<HTMLElement>(".production-studio a, .production-studio button, .production-studio select, .production-studio input:not([type=checkbox]), .production-studio summary")].filter(el => !el.closest("[data-conversation-dock]"));
           return {
             overflow: document.documentElement.scrollWidth > innerWidth + 1,
             small: controls.filter(el => {
@@ -75,6 +75,25 @@ for (const section of ["cinema", "anime"] as const) {
   });
 }
 
+test("à 390 px les cinq étapes restent entières dans la chaîne", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const section of ["cinema", "anime"]) {
+    await page.goto(`/studio/${section}/cast`);
+    const chain = page.locator(".ps-chain");
+    for (const name of ["Cast", "Set", "Shoot", "Edit", "Finish"]) {
+      const step = chain.getByRole("link", { name: new RegExp(name, "i") });
+      await expect(step).toBeVisible();
+      const box = await step.boundingBox();
+      expect(box, name).toBeTruthy();
+      expect(box!.width).toBeGreaterThanOrEqual(44);
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(391);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+  }
+});
+
 test("les anciennes routes gardent leurs paramètres et aboutissent au bon univers", async ({ page }) => {
   for (const [from, to] of [["/studio/cgi", "/studio/cinema/cast"], ["/anime", "/studio/anime/cast"], ["/look", "/studio/anime/cast"], ["/anime/bible", "/studio/anime/bible"], ["/look/bible", "/studio/anime/bible"]]) {
     await page.goto(`${from}?source=shared`);
@@ -83,17 +102,28 @@ test("les anciennes routes gardent leurs paramètres et aboutissent au bon unive
   }
 });
 
-test("le workspace universel ouvre les sections et conserve les liens historiques", async ({ page }) => {
+test("l’accueil du studio garde Outils et la conversation, et ouvre CINEMA/ANIME à côté", async ({ page }) => {
   await page.goto("/studio");
-  await expect(page.locator(".u-app")).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Espaces du studio" })).toBeVisible();
-  await page.getByRole("navigation", { name: "Espaces du studio" }).getByRole("link", { name: "ANIME" }).click();
+  await expect(page).toHaveURL(/\/studio$/);
+  await expect(page.locator("[data-barre]")).toBeVisible();
+  await expect(page.locator("[data-outils-search]")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Espaces du studio" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Uttu Agent", exact: true })).toHaveCount(0);
+  await expect(page.locator("[data-top-uttu]")).toBeVisible();
+  await expect(page.locator("[data-section=cinema]")).toHaveAttribute("href", "/studio/cinema/cast");
+  await expect(page.locator("[data-section=anime]")).toHaveAttribute("href", "/studio/anime/cast");
+  await page.locator("[data-section=anime]").click();
   await expect(page).toHaveURL(/\/studio\/anime\/cast$/);
   await expect(page.locator(".ps-project")).toBeEnabled();
+  await expect(page.locator("[data-conversation-dock] [data-barre]")).toBeVisible();
+  await expect(page.locator("[data-nav-outils]")).toHaveAttribute("href", "/studio");
 
-  await page.goto("/studio/legacy#outils/ret-detourer");
-  await expect(page.locator("[data-tool-panel]")).toBeVisible();
-  await page.goto("/studio/legacy?project=atelier&plan=shared-plan#prise");
+  await page.goto("/studio#outils/ret-detourer");
+  await expect(page).toHaveURL(/\/studio#outils\/ret-detourer$/);
+  await expect(page.locator("[data-tool-panel=ret-detourer]")).toBeVisible();
+
+  await page.goto("/studio?project=atelier&plan=shared-plan#prise");
+  await expect(page).toHaveURL(/\/studio\?project=atelier&plan=shared-plan#prise$/);
   await expect(page.locator(".u-app")).toHaveAttribute("data-studio", "prise");
   await expect(page.locator("[data-film-plans]")).toBeVisible();
 });

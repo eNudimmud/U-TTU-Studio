@@ -135,9 +135,9 @@ export function BarreHome({ tous = false, family = null, early = false }: { tous
       <button type="button" className="u-secondary" onClick={() => setSheet("connect")}>{t("entry.link")}</button>
     </p>}
     <h1 id="u-title" className="u-display u-barre-title" tabIndex={-1}><KeyTitle text={t("barre.title")} word={t("barre.titleKey")} /></h1>
-    <SectionSwitch />
     <BarreFil runner={runner} />
     <CreationBar onSend={input => runner.send(input)} preview={runner.preview} />
+    <SectionSwitch />
     <CreationTools />
   </section>;
 }

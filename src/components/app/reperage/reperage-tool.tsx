@@ -11,6 +11,7 @@ import { formatCredits } from "@/lib/credits";
 import { cadreQuote } from "@/lib/creation/decor-cadre";
 import { lieuNote } from "@/lib/repere/lieu";
 import { assetPath } from "@/lib/site";
+import { isStudioAppPath, STUDIO_PUBLIC } from "@/lib/studio-home";
 import { REPERAGE_ID } from "@/lib/outils/vignettes";
 import { useStudio } from "../studio-session";
 import { ExempleSaintFrancois } from "./exemple-sf";
@@ -19,9 +20,8 @@ const Sheet = dynamic(() => import("./reperage-3d").then(module => module.Repera
 
 /** Same page when the studio is open (the hash switches the tab), otherwise the studio page. */
 function goStudio(hash: "prise" | "scene") {
-  const target = assetPath(`/studio/legacy#${hash}`);
-  if (window.location.pathname === assetPath("/studio/legacy") || window.location.pathname === assetPath("/studio/legacy/")) window.location.hash = hash;
-  else window.location.assign(target);
+  if (isStudioAppPath(window.location.pathname)) window.location.hash = hash;
+  else window.location.assign(assetPath(`${STUDIO_PUBLIC}#${hash}`));
 }
 
 export function ReperageTool({ onBack }: { onBack(): void }) {

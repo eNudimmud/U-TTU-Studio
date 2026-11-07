@@ -63,6 +63,10 @@ const PromptLibrary = dynamic(() => import("./prompt-library"), {
   ssr: false,
   loading: () => <p>Ouverture de la promptothèque…</p>,
 });
+const ConversationDock = dynamic(() => import("./conversation-dock"), {
+  ssr: false,
+  loading: () => <section data-conversation-dock="" aria-busy="true"><p>Ouverture de la conversation…</p></section>,
+});
 
 type DialogName =
   | "connect"
@@ -496,6 +500,9 @@ export function ProductionStudio({
           >
             Produire
           </Link>
+          <Link href="/studio" data-nav-outils="">
+            Outils <span>→</span>
+          </Link>
           <Link
             href={sectionPath(section, "prompts")}
             aria-current={library ? "page" : undefined}
@@ -503,6 +510,7 @@ export function ProductionStudio({
             Promptothèque <span>→</span>
           </Link>
         </nav>
+        <ConversationDock />
         <section className="ps-intro">
           <div>
             <p className="ps-eyebrow">

@@ -23,6 +23,7 @@ import { VEED_CIBLES, VEED_CREDITS_PER_SECOND, VEED_DEFAULT, VEED_MAX_SECONDS, V
 import { loadDraft, saveDraft } from "@/lib/outils/brouillon";
 import { OUTIL_CAMERAS, OUTIL_PISTES, type OutilCamera, type OutilPiste } from "@/lib/outils/generique";
 import { assetPath } from "@/lib/site";
+import { isStudioAppPath, STUDIO_PUBLIC } from "@/lib/studio-home";
 import { audioSeconds, lastFrame, mediaSize, sourceFile, typeFromName, videoSeconds } from "@/lib/suite/media";
 import { CADRES, CADRES_VIDEO, VIDEO_CADRE_TAILLE, cadreDefaut, isCadre, videoCadre, type Cadre } from "@/lib/outils/cadre";
 import { ELARGIR_BANDES, type Elargir } from "@/lib/suite/graphs";
@@ -56,15 +57,15 @@ export function outilFromHash(hash: string): string | null {
 }
 
 function openTool(id: string | null) {
-  if (window.location.pathname.endsWith("/studio/legacy")) openStudioTool(id);
-  else window.location.href = assetPath(`/studio/legacy${id ? `#outils/${id}` : "#outils"}`);
+  if (isStudioAppPath(window.location.pathname)) openStudioTool(id);
+  else window.location.href = assetPath(`${STUDIO_PUBLIC}${id ? `#outils/${id}` : "#outils"}`);
 }
 
 /** « ← Tous les outils » replaces the tool in the history instead of stacking the list on top of it:
  * otherwise the phone's Back button reopened the tool the visitor had just left (a loop). */
 function backToTools(id: string | null) {
-  if (window.location.pathname.endsWith("/studio/legacy")) openStudioTool(id, { replace: true });
-  else window.location.replace(assetPath(`/studio/legacy${id ? `#outils/${id}` : "#outils"}`));
+  if (isStudioAppPath(window.location.pathname)) openStudioTool(id, { replace: true });
+  else window.location.replace(assetPath(`${STUDIO_PUBLIC}${id ? `#outils/${id}` : "#outils"}`));
 }
 
 function titreCarte(t: (key: string) => string, id: string) {

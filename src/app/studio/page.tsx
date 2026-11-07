@@ -19,6 +19,6 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
   // F14 · Before the home paints: a stage address or a saved link (see studio-boot.ts).
   return <>
     <script dangerouslySetInnerHTML={{ __html: STUDIO_BOOT }} />
-    <StudioApp initialTab={initialTab} workspaceEntry />
+    <StudioApp initialTab={initialTab} />
   </>;
 }

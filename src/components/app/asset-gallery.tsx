@@ -5,6 +5,7 @@ import { useI18n } from "@/components/i18n/provider";
 import { filterAssets, previewAssets, type AssetFilter, type AssetKind, type AssetRecord } from "@/lib/creation/assets";
 import { gesteParId } from "@/lib/workflows/registre";
 import { assetPath } from "@/lib/site";
+import { useStudioHome } from "./studio-home-context";
 import { EtEnsuite } from "./et-ensuite";
 import { Check, KindMark, Refresh, Search, Share, type MarkKind } from "./glyphs";
 
@@ -50,6 +51,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
   title?: string;
 }) {
   const { t } = useI18n();
+  const home = useStudioHome();
   const [filter, setFilter] = useState<AssetFilter>(defaultFilter);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState<string | null>(null);
@@ -185,7 +187,7 @@ export function AssetGallery({ assets, media, defaultFilter = "tout", onRefresh,
     </article>}
     {rows.length === 0 ? <div className="u-empty" data-assets-empty="" data-creations-empty="">
       <p>{type ? t("creations.empty") : t("assets.empty")}</p>
-      {type && <a className="u-primary" href={assetPath("/studio/legacy")}>{t("creations.emptyCta")}</a>}
+      {type && <a className="u-primary" href={assetPath(home)}>{t("creations.emptyCta")}</a>}
     </div> : <div className="u-gallery u-asset-grid" data-density={dense ? "dense" : undefined}>
       {rows.map(card => {
         const src = srcOf(card);

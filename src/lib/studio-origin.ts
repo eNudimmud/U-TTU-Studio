@@ -90,7 +90,7 @@ export type GateDecision =
  * One request, one decision. `url` is the request URL without basePath; `host` is the Host header.
  * Never returns a hop to the same host (a misconfigured origin cannot loop either).
  */
-export function gateDecision(input: { url: URL; host: string | null; method: string; isDocument: boolean; hopCookie: string | null; fetchSite?: string | null; locale: Locale | null }, config: StudioOriginConfig = STUDIO_ORIGIN_CONFIG): GateDecision {
+export function gateDecision(input: { url: URL; host: string | null; method: string; isDocument: boolean; hopCookie: string | null; fetchSite?: string | null; fetchUser?: string | null; locale: Locale | null }, config: StudioOriginConfig = STUDIO_ORIGIN_CONFIG): GateDecision {
   const { url, host, method } = input;
   if (method !== "GET" && method !== "HEAD") return { kind: "pass" };
   const marked = url.searchParams.has(HOP_PARAM);
@@ -108,8 +108,17 @@ export function gateDecision(input: { url: URL; host: string | null; method: str
   rest.searchParams.delete(LANG_PARAM);
   const target = authorizedUrl(`${rest.pathname}${rest.search}`, input.locale, config);
   if (hostnameOf(new URL(target).host) === hostnameOf(host)) return { kind: "pass" };
-  if (marked || bouncedBack(input.hopCookie, hopKey(rest), input.fetchSite ?? null)) return { kind: "loop", retry: target };
+  // A redirect bounce has no Sec-Fetch-User. A click, a tap or a typed address does (`?1`,
+  // or Sec-Fetch-Site none/same-origin). Coming back to www within 20 s must open the studio
+  // again. Only an automatic return, with the marker or the hop cookie, stays a 508.
+  if (!visitorActivated(input.fetchUser, input.fetchSite) && (marked || bouncedBack(input.hopCookie, hopKey(rest), input.fetchSite ?? null))) return { kind: "loop", retry: target };
   return { kind: "hop", location: target, page: hopKey(rest) };
+}
+
+/** True when this navigation was started by the visitor, not by following a redirect. */
+export function visitorActivated(fetchUser: string | null | undefined, fetchSite: string | null | undefined): boolean {
+  if (fetchUser === "?1") return true;
+  return fetchSite === "none" || fetchSite === "same-origin";
 }
 
 /** The page a hop is for, markers removed: what the fallback cookie remembers. */

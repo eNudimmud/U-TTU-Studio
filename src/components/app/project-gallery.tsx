@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { assetFromCast, assetFromDecor, type AssetRecord } from "@/lib/creation/assets";
 import { assetPath } from "@/lib/site";
+import { isStudioAppPath } from "@/lib/studio-home";
 import { studioTarget } from "@/lib/coffre/target";
 import { cleanCardName } from "@/lib/creation/gallery";
 import { useI18n } from "@/components/i18n/provider";
@@ -118,7 +119,7 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, 
       onImport={files => void importAssets(files, defaultFilter === "personnage" || defaultFilter === "decor" ? defaultFilter : undefined)}
       onUseRef={holdAsRef}
       onPrise={asset => {
-        if (!window.location.pathname.endsWith('/studio/legacy')) {
+        if (!isStudioAppPath(window.location.pathname)) {
           window.location.href = assetPath(studioTarget(asset.kind === 'decor' ? 'lieu' : asset.kind === 'personnage' ? 'personnage' : 'prise', asset.id, studio.project));
           return;
         }
@@ -127,7 +128,7 @@ export function ProjectGallery({ onUseRef, defaultFilter = "tout", type, dense, 
         window.location.hash = "prise";
       }}
       onMontage={asset => {
-        if (!window.location.pathname.endsWith('/studio/legacy')) {
+        if (!isStudioAppPath(window.location.pathname)) {
           window.location.href = assetPath(studioTarget('asset', asset.id, studio.project));
           return;
         }

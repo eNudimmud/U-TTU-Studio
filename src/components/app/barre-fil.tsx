@@ -19,6 +19,7 @@ import { resolveTakeQuote } from "@/lib/render/billed-quote";
 import { quotesToRecords } from "@/lib/render/measured-quote";
 import { takeProfile } from "@/lib/render/take-graph";
 import { assetPath } from "@/lib/site";
+import { isStudioAppPath, STUDIO_PUBLIC } from "@/lib/studio-home";
 import { sourceFile, lastFrame } from "@/lib/suite/media";
 import { AGENT_HANDOFF_EVENT, AGENT_HANDOFF_KEY, PRISE_HANDOFF_KEY, REFS_HANDOFF_KEY, priseHandoff, writeHandoff, type BarreMode, type BarreSettings } from "@/lib/barre/model";
 import {
@@ -38,6 +39,10 @@ import { readPending } from '@/lib/render/recovery';
 const AGENT_KEY = "u-ttu-barre-fil-agent";
 
 function go(hash: string) {
+  if (!isStudioAppPath(window.location.pathname)) {
+    window.location.assign(assetPath(`${STUDIO_PUBLIC}${hash}`));
+    return;
+  }
   if (window.location.hash !== hash) window.history.pushState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
   window.dispatchEvent(new HashChangeEvent("hashchange"));
 }
@@ -332,6 +337,8 @@ export function BarreFil({ runner }: { runner: FilRunner }) {
   useEffect(() => {
     if (!count) return;
     const last = list.current?.lastElementChild as HTMLElement | null;
+    // On CINEMA/ANIME the same thread sits in the page flow. Scrolling it would hide the five steps.
+    if (last?.closest("[data-conversation-dock]")) return;
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     last?.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
   }, [beat, count]);

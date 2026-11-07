@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { liftDelta, openBand } from "@/lib/mobile-band";
-import { assetPath } from "@/lib/site";
 import { isFamille } from "@/lib/outils/catalogue";
 import { TAB_HASH, tabFromLocation, type Tab } from "@/lib/studio-route";
 import { useI18n } from "@/components/i18n/provider";
@@ -18,6 +17,7 @@ import { RenduSuivi } from "./rendu-suivi";
 import "./app.css";
 import { StudioSplash } from "./splash";
 import { BOOT_MARKS } from "@/lib/studio-boot";
+import { StudioHomeProvider } from "./studio-home-context";
 import { TopBar } from "./top-bar";
 import { AssistantPanel, toggleAssistant } from "./assistant-panel";
 import { FilmPlans } from "./film/film-plans";
@@ -28,13 +28,13 @@ function stageOf(tab: Tab): Stage {
   return tab === "scene" || tab === "prise" || tab === "montage" || tab === "finaliser" || tab === "outils" ? tab : "lora";
 }
 
-export function StudioApp({ initialTab = null, workspaceEntry = false }: { initialTab?: Tab | null; workspaceEntry?: boolean }) {
-  return <StudioProvider><AppFrame initialTab={initialTab ?? null} workspaceEntry={workspaceEntry} /></StudioProvider>;
+export function StudioApp({ initialTab = null, home = "/studio" }: { initialTab?: Tab | null; home?: string }) {
+  return <StudioHomeProvider home={home}><StudioProvider><AppFrame initialTab={initialTab ?? null} /></StudioProvider></StudioHomeProvider>;
 }
 
 const TYPING = "textarea, select, input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=button]):not([type=submit]):not([type=reset]):not([type=color]):not([type=hidden])";
 
-function AppFrame({ initialTab, workspaceEntry }: { initialTab: Tab | null; workspaceEntry: boolean }) {
+function AppFrame({ initialTab }: { initialTab: Tab | null }) {
   const studio = useStudio();
   const { say } = useI18n();
   const { ready, sheet, notice, setNotice } = studio;
@@ -166,7 +166,7 @@ function AppFrame({ initialTab, workspaceEntry }: { initialTab: Tab | null; work
       {/* F14 · The home (title, bar, the film door with the LCP picture) is in the server HTML and does
           not wait for the local studio. A stage or a tool still opens behind the splash. Same slot before
           and after ready, so the home is never mounted twice. */}
-      {section === "outils" && (ready || !outil) ? <>{workspaceEntry && !outil && <nav aria-label="Espaces du studio" style={{display:"flex", flexWrap:"wrap", gap:12, padding:"16px 20px"}}><a className="u-secondary" href={assetPath("/studio#outils/tous")}>Tous les outils</a><button type="button" className="u-secondary" onClick={() => toggleAssistant(true)}>Uttu Agent</button><a className="u-secondary" href={assetPath("/mon-studio")}>Mes créations</a><a className="u-secondary" href={assetPath("/studio/cinema/cast")}>CINEMA</a><a className="u-secondary" href={assetPath("/studio/anime/cast")}>ANIME</a></nav>}<OutilsHub tool={outil} early={!ready} /></>
+      {section === "outils" && (ready || !outil) ? <OutilsHub tool={outil} early={!ready} />
         : !ready ? <StudioSplash />
         : section === "scene" ? <DecorStage onPrise={() => go("prise")} />
         : section === "prise" ? <FilmPlans goCast={() => go("lora")} goDecor={() => go("scene")} onMontage={() => go("montage")} />
